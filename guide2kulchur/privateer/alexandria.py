@@ -1,31 +1,38 @@
-import requests
-from bs4 import BeautifulSoup
 from datetime import datetime
 import json
 import re
-import aiohttp
 import asyncio
+import time
+import warnings
+from typing import Optional, Dict, List, Union, Any
+from types import SimpleNamespace
 
-from recruits import AGENTS, TIMEOUT, rand_headers, _check_soup, _get_similar_books, _query_books, _query_books_async, _parse_id
+import requests
+from bs4 import BeautifulSoup, Tag
+import aiohttp
+
+from recruits import (_AGENTS, _TIMEOUT, _rand_headers, _check_soup, _get_similar_books, 
+                      _query_books, _query_books_async, _parse_id, _get_similar_books_async, _get_script_el)
 
 '''
-Alexandria, the class for collecting GoodReads book data.
+Alexandria: collect publicly available Goodreads book data; async capabilities included :)
 '''
 
 class Alexandria:
-    '''Alexandria: the reclaimed source of all knowledge.'''
+    '''Alexandria: collect publicly available Goodreads book data'''
     def __init__(self):
-        '''GoodReads single book data scraper. Sequential and asynchronous capabilities available.'''
-        self.soup = None
-        self.info_main = None
-        self.info_main_metadat = None
-        self.details = None
-        self.b_url = None
-    
+        '''GoodReads BOOK data scraper. Sequential and asynchronous capabilities available.'''
+        self.soup: Optional[BeautifulSoup] = None
+        self.info_main: Optional[Tag] = None
+        self.info_main_metadat: Optional[Tag] = None
+        self.details: Optional[Tag] = None
+        self.book_url:  Optional[str] = None
+        
+
     async def load_book_async(self,
-                              session=aiohttp.ClientSession,
-                              book_identifier=None,
-                              query_str=None):
+                              session: aiohttp.ClientSession,
+                              book_identifier: Optional[str] = None,
+                              query_str: Optional[str] = None) -> Optional['Alexandria']:
         '''
         load GoodReads book data asynchronously.
 
@@ -56,13 +63,14 @@ class Alexandria:
                 book_identifier = await _query_books_async(session,query_str)
             else:
                 raise ValueError('Give me a query string or an identifier damnit!')
-            self.b_url = book_identifier
-
-            async with session.get(url=self.b_url,
-                                   headers=rand_headers(AGENTS)) as resp:
+            self.book_url = book_identifier
+            b_id = _parse_id(self.book_url)
+            print(f'ATTEMPT {b_id} @ {time.ctime()}')
+            async with session.get(url=self.book_url,
+                                   headers=_rand_headers(_AGENTS)) as resp:
                 
                 if resp.status != 200:
-                    print(f'{resp.status} for {self.b_url}')
+                    print(f'{resp.status} for {self.book_url}')
                     return None
                 
                 text = await resp.text()
@@ -74,21 +82,24 @@ class Alexandria:
                 self.info_main = info_main
                 self.info_main_metadat = info_main_metadat
                 self.details = details
-                print(f'{self.b_url} pulled.')
+                
+                print(f'PULLED {b_id} @ {time.ctime()}')
                 return self
             
         except asyncio.TimeoutError:
-            print(f"Timeout loading {self.b_url}")
+            print(f'TIMEOUT ERROR for {b_id}')
             return None
         except aiohttp.ClientError as er:
-            print(f"Client error loading {self.b_url}: {er}")
+            print(f'CLIENT ERROR for {b_id}: {er}')
             return None
         except Exception as er:
-            print(f"Error loading book {book_identifier}: {er}")
+            print(f'OTHER ERROR for {b_id}: {er}')
+            return None
     
+
     def load_book(self,
-                  book_identifier=None,
-                  query_str=None):
+                  book_identifier: Optional[str] = None,
+                  query_str: Optional[str] = None) -> Optional['Alexandria']:
         '''
         load GoodReads book data
 
@@ -118,9 +129,9 @@ class Alexandria:
                 book_identifier = _query_books(query_str)
             else:
                 raise ValueError('Give me a query string or an identifier damnit!')
-            self.b_url = book_identifier
+            self.book_url = book_identifier
 
-            resp = requests.get(book_identifier,headers=rand_headers(AGENTS))
+            resp = requests.get(book_identifier,headers=_rand_headers(_AGENTS))
             text = resp.text
             soup = BeautifulSoup(text,'lxml')
             info_main = soup.find('div', class_='BookPage__mainContent')
@@ -135,25 +146,29 @@ class Alexandria:
         except requests.HTTPError as er:
             print(er)
     
-    def get_title(self):
+
+    def get_title(self) -> Optional[str]:
         '''returns title (str) of book.'''
         if not self.info_main:
             return None
         t1 = self.info_main.find('div', class_='BookPageTitleSection__title').find('h1')
         return _check_soup(t1)
     
-    def get_id(self):
+
+    def get_id(self) -> Optional[str]:
         '''returns book ID.'''
-        return _parse_id(self.b_url)
+        return _parse_id(self.book_url)
     
-    def get_author_name(self):
+
+    def get_author_name(self) -> Optional[str]:
         '''returns author name (str) of book'''
         if not self.info_main_metadat:
             return None
         a_n = self.info_main_metadat.find('span', class_='ContributorLink__name')
         return _check_soup(a_n)
     
-    def get_author_id(self):
+
+    def get_author_id(self) -> Optional[str]:
         '''returns author id (str) of book'''
         if not self.info_main_metadat:
             return None
@@ -164,7 +179,35 @@ class Alexandria:
         else:
             return None
     
-    def get_description(self):
+
+    def get_isbn(self) -> Optional[str]:
+        '''returns isbn (str) of book'''
+        headscript = self.soup.find('head').find('script',{'type': 'application/ld+json'})
+        if headscript:
+            return _get_script_el(headscript.text,'isbn')
+        else:
+            return None
+    
+
+    def get_language(self) -> Optional[str]:
+        '''returns language (str) of book'''
+        headscript = self.soup.find('head').find('script',{'type': 'application/ld+json'})
+        if headscript:
+            return _get_script_el(headscript.text,'language')
+        else:
+            return None
+    
+
+    def get_image_path(self) -> Optional[str]:
+        '''returns image path (str) of book'''
+        headscript = self.soup.find('head').find('script',{'type': 'application/ld+json'})
+        if headscript:
+            return _get_script_el(headscript.text,'pic_path')
+        else:
+            return None
+
+
+    def get_description(self) -> Optional[str]:
         '''returns description (str) of book'''
         if not self.info_main_metadat:
             return None
@@ -179,14 +222,16 @@ class Alexandria:
             description = None
         return description
     
-    def get_rating(self):
+
+    def get_rating(self) -> Optional[float]:
         '''returns rating (float) of book'''
         if not self.info_main_metadat:
             return None
         b_r = self.info_main_metadat.find('div', class_='RatingStatistics__rating')
         return _check_soup(b_r,'convert to num')
 
-    def get_rating_count(self):
+
+    def get_rating_count(self) -> Optional[int]:
         '''returns ratings count (int) of book'''
         if not self.info_main_metadat:
             return None
@@ -199,7 +244,8 @@ class Alexandria:
         rate_count = re.sub(r'\,|\sratings|\srating','',rate_count)
         return int(rate_count) if len(rate_count) > 0 else rate_count
     
-    def get_ratings_dist(self):
+
+    def get_ratings_dist(self) -> Optional[Dict[str,float]]:
         '''returns discrete ratings distribution (dict) of book'''
         review_stats = self.soup.find('div',class_='RatingsHistogram RatingsHistogram__interactive')
         if not review_stats:
@@ -221,7 +267,8 @@ class Alexandria:
                 rate_dist[stars] = round(ct / tot_count,2)
         return rate_dist
 
-    def get_review_count(self):
+
+    def get_review_count(self) -> Optional[int]:
         '''returns review count (int) of book'''
         if not self.info_main_metadat:
             return None
@@ -234,7 +281,8 @@ class Alexandria:
         rev_count = re.sub(r'\,|\sreviews|\sreview','',rev_count)
         return int(rev_count) if len(rev_count) > 0 else rev_count
 
-    def get_top_genres(self):
+
+    def get_top_genres(self) -> Optional[List[str]]:
         '''returns top genres (list) of book'''
         if not self.info_main_metadat:
             return None
@@ -249,7 +297,8 @@ class Alexandria:
             top_genres = None
         return top_genres
     
-    def get_currently_reading(self):
+
+    def get_currently_reading(self) -> Optional[int]:
         '''returns number of users (int) currently reading book'''
         if not self.info_main_metadat:
             return None
@@ -262,7 +311,8 @@ class Alexandria:
         cur_read = re.sub(r'people.*$|person.*$','',cur_read)
         return int(cur_read) if len(cur_read) > 0 else cur_read
 
-    def get_want_to_read(self):
+
+    def get_want_to_read(self) -> Optional[int]:
         '''returns number of users (int) who want to read the book'''
         if not self.info_main_metadat:
             return None
@@ -275,22 +325,23 @@ class Alexandria:
         want_read = re.sub(r'people.*$|person.*$','',want_read)
         return int(want_read) if len(want_read) > 0 else want_read
 
-    def get_page_legth(self):
+
+    def get_page_legth(self) -> Optional[int]:
         '''returns page length (int) of book'''
         if not self.details:
             return None
         p_l = self.details.find('p', {'data-testid': 'pagesFormat'})
         if p_l:
             page_length = p_l.text.strip()
-            if 'audio cd' in p_l:
-                page_length = '0'
+            if not re.search(r'\d',page_length):
+                return None   
         else:
-            page_length = None
-            return page_length
+            return None
         page_length = re.sub(r'pages.*$','',page_length)
         return int(page_length) if len(page_length) > 0 else page_length
     
-    def get_first_published(self):
+
+    def get_first_published(self) -> Optional[str]:
         '''returns date (str, form 'DD/MM/YYYY') of when book is first published'''
         if not self.details:
             return None
@@ -304,7 +355,8 @@ class Alexandria:
             return first_pub
         return first_pub
     
-    def get_similar_books(self):
+
+    def get_similar_books(self) -> Optional[List[Dict[str,str]]]:
         '''returns list of similar books, with name/author/url dicts'''
         bklst = self.soup.find('div', class_='BookDiscussions__list')
         if bklst:
@@ -315,7 +367,22 @@ class Alexandria:
             similar_books = []
         return similar_books
     
-    def get_all_data(self)->dict:
+
+    async def get_similar_books_async(self,session) -> Optional[List[Dict[str,str]]]:
+        '''returns list of similar books asynchronously, with name/author/url dicts'''
+        bklst = self.soup.find('div', class_='BookDiscussions__list')
+        if bklst:
+            quote_url = bklst.find_all('a',class_='DiscussionCard')[0]['href']
+            similar_url = re.sub(r'work/quotes',r'book/similar',quote_url) # the serial id changes from main page to similar page
+            similar_books = await _get_similar_books_async(session,similar_url)
+        else:
+            similar_books = None
+        return similar_books
+    
+
+    def get_all_data(self,
+                     exclude_attrs: Optional[List[str]] = None,
+                     to_dict: bool = False) -> Union[Dict[str,Any],SimpleNamespace]:
         '''returns dict of all scraped data.
         
         returns the following attributes:
@@ -343,89 +410,203 @@ class Alexandria:
                      'url': 'https://www.goodreads.com/book/show/26255.The_Enneads', 
                      'author': 'Plotinus'}]
         '''
-        bk_dict = {
-            'url': self.b_url,
-            'id': self.get_id(),
-            'title': self.get_title(),
-            'author': self.get_author_name(),
-            'author_id': self.get_author_id(),
-            'description': self.get_description(),
-            'rating': self.get_rating(),
-            'rating_distribution': self.get_ratings_dist(),
-            'rating_count': self.get_rating_count(),
-            'review_count': self.get_review_count(),
-            'top_genres': self.get_top_genres(),
-            'currently_reading': self.get_currently_reading(),
-            'want_to_read': self.get_want_to_read(),
-            'page_length': self.get_page_legth(),
-            'first_published': self.get_first_published(),
-            'similar_books': self.get_similar_books()
+        attr_fn_map = {
+            'url': lambda: self.book_url,
+            'id': self.get_id,
+            'title': self.get_title,
+            'author': self.get_author_name,
+            'author_id': self.get_author_id,
+            'isbn': self.get_isbn,
+            'language': self.get_language,
+            'image_url': self.get_image_path,
+            'description': self.get_description,
+            'rating': self.get_rating,
+            'rating_distribution': self.get_ratings_dist,
+            'rating_count': self.get_rating_count,
+            'review_count': self.get_review_count,
+            'top_genres': self.get_top_genres,
+            'currently_reading': self.get_currently_reading,
+            'want_to_read': self.get_want_to_read,
+            'page_length': self.get_page_legth,
+            'first_published': self.get_first_published,
+            'similar_books': self.get_similar_books
         }
-        return bk_dict
+        exclude_set = set(exclude_attrs) if exclude_attrs else set([])
+        bk_dict = {}
+        for attr,fn in attr_fn_map.items():
+            if exclude_attrs:
+                if attr not in exclude_set:
+                    bk_dict[attr] = fn()
+            else:
+                bk_dict[attr] = fn()
+        if len(bk_dict) == 0:
+            warnings.warn('Warning: returning empty object; param exclude_attrs should not include all attrs') 
+            return bk_dict if to_dict else SimpleNamespace()
+        return bk_dict if to_dict else SimpleNamespace(**bk_dict)
     
-    @staticmethod
-    async def multiload_books(books = [], 
-                              max_concurrent = 3,
-                              write_json=True,
-                              json_path='')->list:
-        '''loads multiple GoodReads books, returns list of books
+
+    async def get_all_data_async(self,
+                                 session: Union[aiohttp.ClientSession,asyncio.Semaphore],
+                                 exclude_attrs: Optional[List[str]] = None,
+                                 to_dict: bool = False) -> Union[Dict[str,Any],SimpleNamespace]:
+        '''returns dict of all scraped data asynchronously
         
-        :param books: list of book url/identifier strings
-        :param max_concurrent: maximum concurrent requests
-        :param write_json: if True, write books to json
-        :param json_path: if write_json, then specifies file path
+        returns the following attributes:
+        - url: book URL
+        - id: book ID
+        - title: book title
+        - author: author of book
+        - author_url: URL to author's page
+        - description: book description
+        - rating: book rating (1-5)
+        - rating_distribution: distribution of ratings in a dict; 
+            - e.g., {'1': 0.02, '2': 0.06, '3': 0.24, '4': 0.42, '5': 0.25}
+        - rating_count: number of user ratings given
+        - review_count: number of user reviews given
+        - top_genres: list of top genres
+            - e.g., ['Fiction', 'Historical Fiction', 'Alternate History']
+        - currently_reading: number of users currently reading the book
+        - want_to_read: number of users wanting to read the book
+        - page_length: page length of book
+        - first_published: initial book publication date
+        - similar_books: list of similar books, with each element being a dict of form {BOOK,URL,AUTHOR}
+            - e.g., [{'book': 'The Decline of the West, Vol 2: Perspectives of World History', 
+                     'url': 'https://www.goodreads.com/book/show/1659471.The_Decline_of_the_West_Vol_2', 
+                     'author': 'Oswald Spengler'},
+                     {'book': 'The Enneads', 
+                     'url': 'https://www.goodreads.com/book/show/26255.The_Enneads', 
+                     'author': 'Plotinus'}]
         '''
-        semaphore = asyncio.Semaphore(max_concurrent)
-        async def load1(session, bk1):
-            '''loads 1 book'''
-            async with semaphore:
-                try:
-                    book = Alexandria()
-                    res = await book.load_book_async(session=session,
-                                                        book_identifier=bk1)
-                    if res:
-                        bkdat = res.get_all_data()
-                        return bkdat
-                    else:
-                        print(f'Failed to load {bk1}')
-                        return None
-                    
-                except asyncio.TimeoutError:
-                    print(f'Timeout for {bk1}')
-                except Exception as er:
-                    print(f'Error for {bk1}: {er}')
+        exclude_set = set(exclude_attrs) if exclude_attrs else set([])
+        if 'similar_books' not in exclude_set:
+            similar_books = await self.get_similar_books_async(session)
+        else:
+            similar_books = None
+        
+        attr_fn_map = {
+            'url': lambda: self.book_url,
+            'id': self.get_id,
+            'title': self.get_title,
+            'author': self.get_author_name,
+            'author_id': self.get_author_id,
+            'isbn': self.get_isbn,
+            'language': self.get_language,
+            'image_url': self.get_image_path,
+            'description': self.get_description,
+            'rating': self.get_rating,
+            'rating_distribution': self.get_ratings_dist,
+            'rating_count': self.get_rating_count,
+            'review_count': self.get_review_count,
+            'top_genres': self.get_top_genres,
+            'currently_reading': self.get_currently_reading,
+            'want_to_read': self.get_want_to_read,
+            'page_length': self.get_page_legth,
+            'first_published': self.get_first_published,
+            'similar_books': lambda: similar_books if similar_books else None
+        }
+        
+        bk_dict = {}
+        for attr,fn in attr_fn_map.items():
+            if exclude_attrs:
+                if attr not in exclude_set:
+                    bk_dict[attr] = fn()
+            else:
+                bk_dict[attr] = fn()
+        if len(bk_dict) == 0:
+            warnings.warn('Warning: returning empty object; param exclude_attrs should not include all attrs') 
+            return bk_dict if to_dict else SimpleNamespace()
+        return bk_dict if to_dict else SimpleNamespace(**bk_dict)
+        
+
+async def multiload_books(books: List[str], 
+                          max_concurrent: int = 3,
+                          dict_format: bool = False,
+                          exclude_attrs: Optional[List[str]] = None,
+                          return_data: bool = True,
+                          write_json: bool = True,
+                          json_path: Optional[str] = 'books.json') -> Union[None,Dict[str,Any],SimpleNamespace]:
+    '''loads multiple GoodReads books, returns list of books
+    
+    :param books: list of book url/identifier strings
+    :param max_concurrent: maximum concurrent requests
+    :param write_json: if True, write books to json
+    :param json_path: if write_json, then specifies file path
+    '''
+
+    semaphore = asyncio.Semaphore(max_concurrent)
+
+    async def load1(session, bk1):
+        '''loads 1 book'''
+        async with semaphore:
+            try:
+                book = Alexandria()
+                res = await book.load_book_async(session=session,
+                                                    book_identifier=bk1)
+                if res:
+                    bkdat = await res.get_all_data_async(session=session,
+                                                            exclude_attrs=exclude_attrs,
+                                                            to_dict=dict_format)
+                    return bkdat
+                else:
+                    print(f'Failed to load {bk1}')
                     return None
                 
-                finally:
-                    await asyncio.sleep(0.2)
+            except asyncio.TimeoutError:
+                print(f'Timeout for {bk1}')
+            except Exception as er:
+                print(f'Error for {bk1}: {er}')
+                return None
+            
+            finally:
+                await asyncio.sleep(0.2)
 
-        connector = aiohttp.TCPConnector(
-                                limit=100,
-                                limit_per_host=20,
-                                ttl_dns_cache=300,
-                                use_dns_cache=True
-                                )
+    connector = aiohttp.TCPConnector(
+                            limit=100,
+                            limit_per_host=20,
+                            ttl_dns_cache=300,
+                            use_dns_cache=True
+                            )
+    
+    async with aiohttp.ClientSession(timeout=_TIMEOUT,
+                                        connector=connector,
+                                        headers=_rand_headers(_AGENTS)) as session:
+        tasks = [load1(session,bk) for bk in books]
+        bks_res = await asyncio.gather(*tasks,return_exceptions=True)    
+    
+        successes = [res for res in bks_res if res is not None and not isinstance(res,Exception)]
+        fails = len(bks_res) - len(successes)
+    
+    bks_dct = {
+        'num_success': len(successes),
+        'num_fail': fails,
+        'results': [i.__dict__ if not dict_format else i for i in successes] 
+    }
+
+    if write_json:
+        with open(json_path,'w',encoding='utf-8') as jpath:
+            json.dump(bks_dct,jpath,indent=4,ensure_ascii=False)
+
+    return successes if return_data else None
+
+
+if __name__=='__main__':    
+    async def main():
+        with open('test.json','r') as bks:
+            d = json.load(bks)
+        d = d['results']
+        sim_books = [bk['similar_books'] for bk in d]
+        bk_ids = []
+        for i in sim_books:
+            for j in i:
+                bk_ids.append(j['id'])
         
-        async with aiohttp.ClientSession(timeout=TIMEOUT,
-                                         connector=connector,
-                                         headers=rand_headers(AGENTS)) as session:
-            tasks = [load1(session,bk) for bk in books]
-            bks_res = await asyncio.gather(*tasks,return_exceptions=True)    
-        
-            successes = [res for res in bks_res if res is not None and not isinstance(res,Exception)]
-            fails = len(bks_res) - len(successes)
+        urls = [f'https://www.goodreads.com/book/show/{id_}' for id_ in bk_ids[:100]]
+        t1 = time.time()        
+        results = await multiload_books(books=urls,json_path='test2.json',max_concurrent=5)
 
-        bks_dct = {
-            'num_success': len(successes),
-            'num_fail': fails,
-            'results': successes
-        }
+        t2 = time.time()
+        print(f'Time Elapsed for {len(urls)} requests: {(t2-t1)/60} minutes')
+    
+    asyncio.run(main())
 
-        if write_json:
-            with open(json_path,'w',encoding='utf-8') as jpath:
-                json.dump(bks_dct,jpath,indent=4,ensure_ascii=False)
-
-        return successes
-
-
-
+    
