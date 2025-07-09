@@ -10,7 +10,7 @@ import aiohttp
 import requests
 from bs4 import BeautifulSoup
 
-from recruits import (_AGENTS, _TIMEOUT, _rand_headers,_get_user_stat,_parse_id)
+from guide2kulchur.privateer.recruits import (_AGENTS, _TIMEOUT, _rand_headers,_get_user_stat,_parse_id)
 
 '''
 FalseDmitry: the class for collecting GoodReads user data.
@@ -46,7 +46,7 @@ class FalseDmitry:
             self.user_url = user_identifier
             
             u_id = _parse_id(self.user_url)
-            print(f'ATTEMPT {u_id} @ {time.ctime()}')
+            print(f'{u_id} ATTEMPT @ {time.ctime()}')
 
             async with session.get(url=self.user_url,
                                    headers=_rand_headers(_AGENTS)) as resp:
@@ -69,7 +69,7 @@ class FalseDmitry:
                 self._info_left = info_left
                 self._info_right = info_right
                 
-                print(f'PULLED {u_id} @ {time.ctime()}')
+                print(f'{u_id} PULLED @ {time.ctime()}')
                 return self
     
         except asyncio.TimeoutError:
@@ -231,7 +231,10 @@ class FalseDmitry:
                     friend_title = friend_box_title.text
                     if re.search(r'Friends',friend_title):
                         friend_count = re.sub(r'^.*Friends\s|\(|\)|\,','',friend_title)
-                        return int(friend_count)
+                        try:
+                            return int(friend_count)
+                        except Exception:
+                            return None
         return None
 
 
@@ -261,7 +264,7 @@ class FalseDmitry:
                             
                             usr_num_bks = re.findall(r'\d*\sbooks|\d*\sbook',usr_info.text.strip())[0]
                             usr_num_bks = re.sub(r'\sbooks|\sbook','',usr_num_bks)
-                            usr_num_bks = int(usr_num_bks)
+                            usr_num_bks = int(usr_num_bks) if len(usr_num_bks) else None # ERROR
 
                             usr_num_frnds = re.findall(r'\d*\sfriends|\d*\sfriend',usr_info.text.strip())[0]
                             usr_num_frnds = re.sub(r'\sfriends|\sfriend','',usr_num_frnds)
@@ -301,18 +304,18 @@ class FalseDmitry:
         '''
         attr_fn_map = {
             'url': lambda: self.user_url,
-            'id': self.get_id(),
-            'name': self.get_name(),
-            'image_path': self.get_image_path(),
-            'ratings_count': self.get_num_ratings(),
-            'reviews_count': self.get_num_reviews(),
-            'ratings_average': self.get_avg_ratings(),
-            'favorite_genres': self.get_favorite_genres(),
-            'featured_shelf': self.get_featured_shelf(),
-            'follower_count': self.get_follower_count(),
-            'friend_count': self.get_friend_count(),
-            'friends_sample': self.get_friends_sample(),
-            'following_sample': self.get_followings_sample()
+            'id': self.get_id,
+            'name': self.get_name,
+            'image_path': self.get_image_path,
+            'ratings_count': self.get_num_ratings,
+            'reviews_count': self.get_num_reviews,
+            'ratings_average': self.get_avg_ratings,
+            'favorite_genres': self.get_favorite_genres,
+            'featured_shelf': self.get_featured_shelf,
+            'follower_count': self.get_follower_count,
+            'friend_count': self.get_friend_count,
+            'friends_sample': self.get_friends_sample,
+            'following_sample': self.get_followings_sample
         } 
         exclude_set = set(exclude_attrs) if exclude_attrs else set([])
         usr_dict = {}
@@ -396,9 +399,10 @@ if __name__=='__main__':
     async def main():
         async with aiohttp.ClientSession(headers=_rand_headers(_AGENTS)) as session:
             dmtry = FalseDmitry()
-            usr = await dmtry.load_user_async(session=session,
-                                                     user_identifier='96985983')
-            dat = usr.get_all_data()
+            await dmtry.load_user_async(session=session,
+                                  user_identifier='161852665')
+            dat = dmtry.get_all_data(to_dict = True)
+            
             
             for a,b in dat.items():
                 print(f'{a}:\n{b}')

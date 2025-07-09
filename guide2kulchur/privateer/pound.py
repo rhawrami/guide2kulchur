@@ -1,17 +1,17 @@
-import requests
-from bs4 import BeautifulSoup, Tag
 from datetime import datetime
 import json
 import re
-import aiohttp
 import asyncio
 import time
 import warnings
 from typing import Optional, Dict, List, Union, Any
 from types import SimpleNamespace
 
-from recruits import (_AGENTS, _TIMEOUT, _rand_headers, _check_soup, _get_similar_books, 
-                      _query_books, _query_books_async, _parse_id, _get_similar_books_async, _get_script_el)
+import aiohttp
+import requests
+from bs4 import BeautifulSoup, Tag
+
+from guide2kulchur.privateer.recruits import (_AGENTS, _TIMEOUT, _rand_headers, _parse_id)
 
 '''
 Pound: the class for collecting GoodReads author data.
@@ -23,9 +23,9 @@ class Pound:
         '''GoodReads AUTHOR data scraper. Sequential and asynchronous capabilities available.'''
         self._soup: Optional[BeautifulSoup] = None
         self._info_main: Optional[Tag] = None
-
         self._a_url:  Optional[str] = None
     
+
     async def load_author_async(self,
                                 session: aiohttp.ClientSession,
                                 author_identifier: Optional[str] = None) -> Optional['Pound']:
@@ -47,7 +47,10 @@ class Pound:
             else:
                 raise ValueError('Give me an identifier damnit!')
             self.a_url = author_identifier
-            print(f'attempting {self.a_url} at time {time.ctime()}')
+
+            a_id = _parse_id(self.a_url)
+            print(f'{a_id} ATTEMPT @ {time.ctime()}')
+            
             async with session.get(url=self.a_url,
                                    headers=_rand_headers(_AGENTS)) as resp:
                 
@@ -66,18 +69,19 @@ class Pound:
                 self._info_left = info_left
                 self._info_right = info_right
                 
-                print(f'{self.a_url} pulled at time {time.ctime()}')
+                print(f'{a_id} PULLED @ {time.ctime()}')
                 return self
             
         except asyncio.TimeoutError:
-            print(f"Timeout loading {self.a_url}")
+            print(f"Timeout loading {a_id}")
             return None
         except aiohttp.ClientError as er:
-            print(f"Client error loading {self.a_url}: {er}")
+            print(f"Client error loading {a_id}: {er}")
             return None
         except Exception as er:
-            print(f"Error loading book {author_identifier}: {er}")
+            print(f"Error loading author {a_id}: {er}")
     
+
     def load_author(self,
                   author_identifier: Optional[str] = None) -> Optional['Pound']:
         '''
@@ -116,6 +120,7 @@ class Pound:
             print(er)
             return None
     
+
     def get_name(self) -> Optional[str]:
         '''returns author name'''
         h1 = self._info_right.find('h1', class_='authorName')
@@ -125,10 +130,12 @@ class Pound:
         else:
             return None
     
+
     def get_id(self) -> Optional[str]:
         '''returns author ID.'''
         return _parse_id(self.a_url)
     
+
     def get_image_path(self) -> Optional[str]:
         '''returns image path of author'''
         try:
@@ -137,6 +144,7 @@ class Pound:
         except Exception:
             return None
     
+
     def get_birth_date(self) -> Optional[str]:
         '''returns birth date'''
         bd = self._info_right.find('div', {'itemprop': 'birthDate'})
@@ -147,6 +155,7 @@ class Pound:
         else:
             return None
     
+
     def get_death_date(self) -> Optional[str]:
         '''returns death date'''
         dd = self._info_right.find('div', {'itemprop': 'deathDate'})
@@ -157,6 +166,7 @@ class Pound:
         else:
             return None
         
+
     def get_top_genres(self) -> Optional[List[str]]:
         '''returns top genres author's top genres'''
         try:
@@ -169,6 +179,7 @@ class Pound:
         except Exception:
             return None
     
+
     def get_influences(self) -> Optional[List[Dict[str,str]]]:
         '''returns other writers that author was influenced by'''
         try:
@@ -189,6 +200,7 @@ class Pound:
         except Exception:
             return None
     
+
     def get_description(self) -> Optional[str]:
         '''returns author's description'''
         try:
@@ -198,6 +210,7 @@ class Pound:
         except Exception:
             return None
     
+
     def get_follower_count(self) -> Optional[int]:
         '''returns number of users following the author'''
         try:
@@ -209,6 +222,7 @@ class Pound:
         except:
             return None
             
+
     def get_num_ratings(self) -> Optional[int]:
         '''returns number of ratings given to author's works'''
         try:
@@ -219,6 +233,7 @@ class Pound:
         except Exception:
             return None
     
+
     def get_num_reviews(self) -> Optional[int]:
         '''returns number of reviews given to author's works'''
         try:
@@ -229,6 +244,7 @@ class Pound:
         except Exception:
             return None
     
+
     def get_average_rating(self) -> Optional[float]:
         '''returns author's average rating'''
         try:
@@ -238,6 +254,7 @@ class Pound:
         except Exception:
             return None
     
+
     def get_sample_books(self) -> Optional[List[Dict[str,Any]]]:
         '''returns sample (max n = 10) of author's most popular books'''
         # if anyone ever reads this: I know, this is very ugly. 
@@ -294,46 +311,79 @@ class Pound:
         
         except Exception:
             return None
+    
+
+    def get_all_data(self,
+                     exclude_attrs: Optional[List[str]] = None,
+                     to_dict: bool = False) -> Union[Dict[str,Any],SimpleNamespace]:
+        '''returns all scraped data
+        
+        returns the following attributes:
+        - url: author URL
+        - id: author ID
+        - name: author name
+        - birth: author birth date
+        - death: author death date
+        - top_genres: author's top genres
+        - description: description of author
+        - image_url: URL to author image
+        - rating: average rating of author's works
+        - rating_count: number of ratings given to author's works
+        - review_count: number of reviews given to author's works
+        - follower_count: number of users following the author
+        - influences: list of other authors that influenced the author
+        - sample_books: sample of author's works
+        '''
+        attr_fn_map = {
+            'url': lambda: self.a_url,
+            'id': self.get_id,
+            'name': self.get_name,
+            'birth': self.get_birth_date,
+            'death': self.get_death_date,
+            'top_genres': self.get_top_genres,
+            'description': self.get_description,
+            'image_url': self.get_image_path,
+            'rating': self.get_average_rating,
+            'rating_count': self.get_num_ratings,
+            'review_count': self.get_num_reviews,
+            'follower_count': self.get_follower_count,
+            'influences': self.get_influences,
+            'sample_books': self.get_sample_books
+        }
+        exclude_set = set(exclude_attrs) if exclude_attrs else set([])
+        authr_dict = {}
+        for attr,fn in attr_fn_map.items():
+            if exclude_attrs:
+                if attr not in exclude_set:
+                    authr_dict[attr] = fn()
+            else:
+                authr_dict[attr] = fn()
+        if len(authr_dict) == 0:
+            warnings.warn('Warning: returning empty object; param exclude_attrs should not include all attrs') 
+            return authr_dict if to_dict else SimpleNamespace()
+        return authr_dict if to_dict else SimpleNamespace(**authr_dict)
+
 
     
 
 if __name__=='__main__':
-    async def main():
-        async with aiohttp.ClientSession(headers=_rand_headers(_AGENTS)) as session:
-            pnd = Pound()
-            usr = await pnd.load_author_async(session=session,
-                                            author_identifier='35258')
-            st = f'''
-NAME: {usr.get_name()}
-
-ID: {usr.get_id()}
-
-BIRTH: {usr.get_birth_date()}
-
-DEATH: {usr.get_death_date()}
-
-TOP GENRES: {usr.get_top_genres()}
-
-DESCRIPTION: {usr.get_description()}
-
-AVG RATING: {usr.get_average_rating()}
-
-NUM RATING: {usr.get_num_ratings()}
-
-NUM REVIEW: {usr.get_num_reviews()}
-
-FOLLOWER COUNT: {usr.get_follower_count()}
-
-IMG PATH: {usr.get_image_path()}
-
-INFLUENCES: {usr.get_influences()}
-
-SAMPLE OF BOOKS
-                  '''
-            print(st)
-            for bk in usr.get_sample_books():
-                for a,b in bk.items():
-                    print(f'{a} :: {b}')
-                print()
-
-    asyncio.run(main())
+    async def get_one(session: aiohttp.ClientSession,
+                      id_: str):
+        
+        pnd = Pound()
+        author = await pnd.load_author_async(session=session,
+                                                author_identifier=id_)
+        dat = author.get_all_data()
+        for a,b in dat.__dict__.items():
+            print(f'{a}: {b}')
+        print('\n---------------------------------------------------------\n')
+    
+    async def get_more(ids_: List[str]):
+        async with asyncio.Semaphore(2):
+            async with aiohttp.ClientSession(headers=_rand_headers(_AGENTS)) as sesh:
+                tasks = [get_one(sesh,id_) for id_ in ids_]
+                await asyncio.gather(*tasks)
+                
+            
+    ids_ = ['7276904', '5201530', '17205711', '55727']
+    asyncio.run(get_more(ids_))

@@ -1,143 +1,49 @@
-import requests
-from bs4 import BeautifulSoup
-import json
-import re
-import aiohttp
 import asyncio
+import re
+from typing import Optional, Dict, List, Tuple, Any
 import random
 
-from recruits import AGENTS, TIMEOUT, rand_headers, _parse_id
-from alexandria import Alexandria
+import aiohttp
+from bs4 import BeautifulSoup
 
-'''
-Herodotus, the OG historian and arguably the most prescient 
-man in history, has been vindicated so many times that MLE should
-be renamed to Herodotilian estimation. But back to scraping. In 
-herodotus.py, we'll be scraping time trends.
+from guide2kulchur.privateer.recruits import _AGENTS, _TIMEOUT, _rand_headers, _parse_id
+from guide2kulchur.privateer.alexandria import Alexandria
 
-Given that we're just scraping from the annual awards, this won't 
-be as optimized as Alexandria, but it'll be fine for our purposes
-'''
-
-def _get_num_votes(element):
-    '''returns number of votes for a book'''
-    try:
-        el_votes = element.find('strong',class_='uitext result').text.strip().lower()
-        num_votes = int(re.sub(r',|\svotes$','',el_votes))
-        return num_votes
-    except Exception as er:
-        print(er)
-
-def _get_bk_url_and_id(element):
-    '''returns url and id of a book in tuple form (url,id)'''
-    try:
-        rel_url = element.find('a',class_='pollAnswer__bookLink')['href']
-        gbk_url = 'https://www.goodreads.com' + rel_url
-        gbk_id = _parse_id(gbk_url)
-        return (gbk_url,gbk_id)
-    except Exception as er:
-        print(er)
-
-    
-YR_START = 2011
-YR_END = 2024
-URL_ = 'https://www.goodreads.com/choiceawards/best-books-{yr}'
-
-async def _get_books_from_genre(session: aiohttp.ClientSession,
-                                genre_url: str,
-                                cat: str,
-                                year: int)->list:
-    try:
-        async with session.get(url=genre_url,headers=rand_headers(AGENTS),timeout=TIMEOUT) as resp:
-            if resp.status != 200:
-                    print(f'{resp.status} for {genre_url}')
-                    return None
-            
-            text = await resp.text()
-            soup = BeautifulSoup(text,'lxml')
-
-            pollcontents = soup.find('div',class_='pollContents')
-            if pollcontents:
-                g_bks = pollcontents.find_all('div',class_='inlineblock pollAnswer resultShown')
-                if g_bks:
-                    g_bks_metadat = {
-                        _get_bk_url_and_id(gbk)[1]: {
-                            'num_votes': _get_num_votes(gbk),
-                            'won_url': _get_bk_url_and_id(gbk)[0],
-                            'genre_won': cat,
-                            'year_won': year
-                        } for gbk in g_bks
-                    }
-
-                    g_bks_dat = await Alexandria.multiload_books(books=[gbk for gbk in g_bks_metadat.keys()],
-                                                                 write_json=False,
-                                                                 max_concurrent=3)
-                    new_dat = []
-                    for bk in g_bks_dat:
-                        id_ = bk['id']
-                        new_dict = dict(**g_bks_metadat[id_], **bk)
-                        new_dat.append(new_dict)
-                    
-                    return new_dat
-
-    except asyncio.TimeoutError:
-            print(f"Timeout loading {genre_url}")
-            return None
-    except aiohttp.ClientError as er:
-        print(f"Client error genre {genre_url}: {er}")
-        return None
-    except Exception as er:
-        print(f"Error loading genre {genre_url}: {er}")
+_awards_url = 'https://www.goodreads.com/choiceawards/best-books-{year}'
 
 class Herodotus:
-    '''The Ionians are calling, brother. Will you pick up?'''
-    def __init__(self):
-        '''scrape Anual GoodReads Choice Awards data.'''
-    
-    async def scrape1yr(self,
-                        session: aiohttp.ClientSession,
-                        year: int)->list:
-        '''scrapes one year of Annual GoodReads Choice Awards school data
+    '''"For God tolerates pride in none but Himself. Haste is the mother of failure - 
+       and for failure we always pay a heavy price; it is in delay our profit lies - 
+       perhaps it may not immediately be apparent, but we shall find it, sure enough, as time goes on."'''
+    def __init__(self, 
+                 semaphore: int):
+        '''Scrape Goodreads Annual Choice Awards book data asynchronously.
         
-        :param year: (int) awards year, ex. yr = 2022
-        :param return_dat: (bool) if True, returns data in dict format
+        :semaphore: value fed into an asyncio Semaphore, controlling number of requests in this case.
         '''
-        year_url = URL_.format(yr=year)
-        try:
-            async with session.get(url=year_url,
-                                   headers=rand_headers(AGENTS)) as resp:
-                if resp.status != 200:
-                    print(f'{resp.status} for {year_url}')
-                    return None
-                
-                text = await resp.text()
-                soup = BeautifulSoup(text,'lxml')
-
-                container1 = soup.find('div',class_='clearFix',id='categories')
-                if container1:
-                    container2 = container1.find_all('div',class_='category clearFix')
-                    if container2:
-
-                        cat_urls = [
-                            (f"https://www.goodreads.com{i.find('a')['href']}", # Category url, e.g., https://www.goodreads.com/choiceawards/readers-favorite-fiction-books-2024
-                            i.find('a').find('h4').text.strip()) # Category title, e.g., Fiction
-                            for i
-                            in container2
-                        ]
-
-                dat = []
-                failed_cats = []
-                for cat_url,cat in cat_urls:
-                    try:
-                        res = await _get_books_from_genre(session,cat_url,cat,year)
-                        dat.append(res)
-                    except Exception as er:
-                        print(f'Error for {cat}: {er}')
-                        failed_cats.append((cat_url,cat))
-                    finally:
-                        await asyncio.sleep(5)
-                return dat, failed_cats
+        self._sem = asyncio.Semaphore(semaphore)
     
+
+    async def _pull_categories(self,
+                               session: aiohttp.ClientSession,
+                               year: int) -> List[Tuple[str,str]]:
+        '''returns urls to categoried awards for a given year
+        
+        :session: an aiohttp ClientSession
+        :year: a given award year
+        '''
+        y_url = _awards_url.format(year=year)
+
+        try:
+            async with session.get(url = y_url, 
+                               timeout=_TIMEOUT,
+                               headers=_rand_headers(_AGENTS)) as resp:
+                if resp.status != 200:
+                    print(f'{resp.status} for {year}')
+                    return None
+                    
+                text = await resp.text()
+                
         except asyncio.TimeoutError:
             print(f"Timeout loading {year}")
             return None
@@ -145,30 +51,157 @@ class Herodotus:
             print(f"Client error loading {year}: {er}")
             return None
         except Exception as er:
-            print(f"Error loading year {year}: {er}")
-    
-    @staticmethod
-    async def scrape_multiyear(years=[],
-                               max_concurrent = 3,
-                               write_json=True,
-                               json_path=''):
-        '''downloads multiple years of Goodreads Awards data'''
+            print(f'Other error loading {year}: {er}')
+        
+        soup = BeautifulSoup(text,'lxml')
+        cat_box = soup.find('div', class_ = 'categoryContainer')
 
+        cats = []
+        for cat in cat_box.find_all('div', class_ = ['category','clearFix']):
+            try:
+                c_partial_url = cat.find('a')['href'].strip()
+                c_url = 'http://goodreads.com' + c_partial_url
+                c_desc = cat.find('h4', class_ = 'category__copy').text.strip()
+                cats.append((c_desc,c_url)) 
+            except TypeError:
+                continue
+        
+        return cats
+    
+    
+    async def _pull_single_bk_dat(self,
+                                  session: aiohttp.ClientSession,
+                                  year: int,
+                                  category: str,
+                                  bk_id: str) -> Optional[Alexandria]:
+        '''pulls data for a single book, using Alexandria
+        
+        :session: an aiohttp ClientSession
+        :year: award year
+        :category: award category
+        :bk_id: Goodreads book ID
+        '''
+        try:
+            async with self._sem:
+                alx = Alexandria()
+                await alx.load_book_async(session,
+                                    bk_id)
+                dat = await alx.get_all_data_async(session=session,
+                                                   exclude_attrs=['similar_books'],
+                                                   to_dict= True)
+                print(f'{dat['title']} by {dat['author']} @ [{category}] ({year})')
+                
+            await asyncio.sleep(random.uniform(0,1))
 
-if __name__=='__main__':
-    async def main():
-        connector = aiohttp.TCPConnector(
-                                limit=100,
-                                limit_per_host=20,
-                                ttl_dns_cache=300,
-                                use_dns_cache=True
-                                )
-        async with aiohttp.ClientSession(connector=connector) as session:
-            hrd = Herodotus()
-            dat_23 = await hrd.scrape1yr(session=session, year=2023)
-            return dat_23
+        except Exception as er:
+            print(er)
+            return None
+        
+        return dat
     
-    books = asyncio.run(main())
+
+    async def _pull_bk_data(self,
+                            session: aiohttp.ClientSession,
+                            year: int,
+                            category_desc: str,
+                            category_url: str) -> List[Dict[str,Any]]:
+        '''pulls total book data from a given award category in a given year.
+        
+        :session: an aiohttp ClientSession
+        :year: award year to pull data from
+        :category_desc: award category description
+        :category_url: award category URL
+        '''
+        try:
+            async with self._sem:
+                async with session.get(url = category_url,
+                                timeout=_TIMEOUT,
+                                headers=_rand_headers(_AGENTS)) as resp:
+                
+                    if resp.status != 200:
+                            print(f'{resp.status} for {category_url}')
+                            return None
+                        
+                    text = await resp.text()
+                
+                soup = BeautifulSoup(text,'lxml')
+            poll_box = soup.find('div', class_ = 'pollContents')
+            
+            bk_dat = []
+            for bk in poll_box.find_all('div', class_ = ['inlineblock', 'pollAnswer']):
+                try:
+                    num_votes_str = bk.find('strong').text.strip()
+                    num_votes_cln = re.sub(r',|\svotes|\s','',num_votes_str)
+                    num_votes = int(num_votes_cln)
+                    
+                    bk_url = 'http://goodreads.com' + bk.find('a', class_ = 'pollAnswer__bookLink')['href'].strip()
+                    bk_id = _parse_id(bk_url)
+                    bk_d = {
+                        'year': year,
+                        'category': category_desc,
+                        'id': bk_id,
+                        'num_votes': num_votes
+                    }
+                    bk_dat.append(bk_d)
+                    
+                except TypeError:
+                    continue
+
+            bk_ids = [bk['id'] for bk in bk_dat]
+            tasks = [self._pull_single_bk_dat(session=session,
+                                              year=year,
+                                              category=category_desc,
+                                              bk_id=id_) for id_ in bk_ids]
+
+            bkres = await asyncio.gather(*tasks,return_exceptions=True)
+            successes = [res for res in bkres if res is not None and not isinstance(res,Exception)]
+
+            await asyncio.sleep(random.uniform(0,2))
+            
+            num_votes_map = {bk['id']: bk['num_votes'] for bk in bk_dat}
+            for s in successes:
+                s['award_year'] = year
+                s['award_category'] = category_desc
+                s['award_num_votes'] = num_votes_map[s['id']]
+            
+            await asyncio.sleep(random.uniform(0,2))
+            return successes
+                
+        except asyncio.TimeoutError:
+            print(f"Timeout loading {category_url}")
+            return None
+        except aiohttp.ClientError as er:
+            print(f"Client error loading {category_url}: {er}")
+            return None
     
-    
-    
+
+    async def pull_one_year(self,
+                            session: aiohttp.ClientSession,
+                            year: int) -> List[Dict[str,Any]]:
+        '''Pull one year of Goodreads Annual Choice Awards book data asynchronously.
+        
+        :session: an asyncio ClientSession
+        :year: a given year to pull data from
+        '''
+        try:
+            async with self._sem:
+                async with session as sesh:
+                    cats = await self._pull_categories(sesh,year)
+                    
+                    master_dat = []
+                    for desc,url in cats:
+                        bkd = await self._pull_bk_data(session=sesh,
+                                                       year=year,
+                                                       category_desc=desc,
+                                                       category_url=url)                
+                        if bkd:
+                            master_dat.extend(bkd)
+                        
+                        await asyncio.sleep(random.uniform(5,10))
+
+        except Exception:
+            return None
+        
+        return master_dat
+        
+

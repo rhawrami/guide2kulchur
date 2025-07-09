@@ -11,7 +11,7 @@ import requests
 from bs4 import BeautifulSoup, Tag
 import aiohttp
 
-from recruits import (_AGENTS, _TIMEOUT, _rand_headers, _check_soup, _get_similar_books, 
+from guide2kulchur.privateer.recruits import (_AGENTS, _TIMEOUT, _rand_headers, _check_soup, _get_similar_books, 
                       _query_books, _query_books_async, _parse_id, _get_similar_books_async, _get_script_el)
 
 '''
@@ -62,10 +62,10 @@ class Alexandria:
             elif query_str and not book_identifier:
                 book_identifier = await _query_books_async(session,query_str)
             else:
-                raise ValueError('Give me a query string or an identifier damnit!')
+                raise ValueError('Alexandria requires book identifier or query string.')
             self.book_url = book_identifier
             b_id = _parse_id(self.book_url)
-            print(f'ATTEMPT {b_id} @ {time.ctime()}')
+            print(f'{b_id} ATTEMPT @ {time.ctime()}')
             async with session.get(url=self.book_url,
                                    headers=_rand_headers(_AGENTS)) as resp:
                 
@@ -83,7 +83,7 @@ class Alexandria:
                 self.info_main_metadat = info_main_metadat
                 self.details = details
                 
-                print(f'PULLED {b_id} @ {time.ctime()}')
+                print(f'{b_id} PULLED @ {time.ctime()}')
                 return self
             
         except asyncio.TimeoutError:
@@ -128,9 +128,11 @@ class Alexandria:
             elif query_str and not book_identifier:
                 book_identifier = _query_books(query_str)
             else:
-                raise ValueError('Give me a query string or an identifier damnit!')
+                raise ValueError('Alexandria requires book identifier or query string.')
             self.book_url = book_identifier
+            b_id = _parse_id(self.book_url)
 
+            print(f'{b_id} ATTEMPT @ {time.ctime()}')
             resp = requests.get(book_identifier,headers=_rand_headers(_AGENTS))
             text = resp.text
             soup = BeautifulSoup(text,'lxml')
@@ -141,14 +143,20 @@ class Alexandria:
             self.info_main = info_main
             self.info_main_metadat = info_main_metadat
             self.details = details
+
+            print(f'{b_id} ATTEMPT @ {time.ctime()}')
             return self
         
         except requests.HTTPError as er:
-            print(er)
-    
+            print(f'HTTP Error for {b_id}')
+            return None
+        except Exception as er:
+            print(f'Other Error for {b_id}: {er}')
+            return None
+        
 
     def get_title(self) -> Optional[str]:
-        '''returns title (str) of book.'''
+        '''returns title of book.'''
         if not self.info_main:
             return None
         t1 = self.info_main.find('div', class_='BookPageTitleSection__title').find('h1')
@@ -161,7 +169,7 @@ class Alexandria:
     
 
     def get_author_name(self) -> Optional[str]:
-        '''returns author name (str) of book'''
+        '''returns author name of book'''
         if not self.info_main_metadat:
             return None
         a_n = self.info_main_metadat.find('span', class_='ContributorLink__name')
@@ -169,7 +177,7 @@ class Alexandria:
     
 
     def get_author_id(self) -> Optional[str]:
-        '''returns author id (str) of book'''
+        '''returns author id of book'''
         if not self.info_main_metadat:
             return None
         a_url = self.info_main_metadat.find('a', class_='ContributorLink')
@@ -181,7 +189,7 @@ class Alexandria:
     
 
     def get_isbn(self) -> Optional[str]:
-        '''returns isbn (str) of book'''
+        '''returns isbn of book'''
         headscript = self.soup.find('head').find('script',{'type': 'application/ld+json'})
         if headscript:
             return _get_script_el(headscript.text,'isbn')
@@ -190,7 +198,7 @@ class Alexandria:
     
 
     def get_language(self) -> Optional[str]:
-        '''returns language (str) of book'''
+        '''returns language of book'''
         headscript = self.soup.find('head').find('script',{'type': 'application/ld+json'})
         if headscript:
             return _get_script_el(headscript.text,'language')
@@ -199,7 +207,7 @@ class Alexandria:
     
 
     def get_image_path(self) -> Optional[str]:
-        '''returns image path (str) of book'''
+        '''returns image path of book'''
         headscript = self.soup.find('head').find('script',{'type': 'application/ld+json'})
         if headscript:
             return _get_script_el(headscript.text,'pic_path')
@@ -208,7 +216,7 @@ class Alexandria:
 
 
     def get_description(self) -> Optional[str]:
-        '''returns description (str) of book'''
+        '''returns description of book'''
         if not self.info_main_metadat:
             return None
         tc = self.info_main_metadat.find('div',class_='TruncatedContent')
@@ -224,7 +232,7 @@ class Alexandria:
     
 
     def get_rating(self) -> Optional[float]:
-        '''returns rating (float) of book'''
+        '''returns average rating of book'''
         if not self.info_main_metadat:
             return None
         b_r = self.info_main_metadat.find('div', class_='RatingStatistics__rating')
@@ -232,7 +240,7 @@ class Alexandria:
 
 
     def get_rating_count(self) -> Optional[int]:
-        '''returns ratings count (int) of book'''
+        '''returns ratings count sof book'''
         if not self.info_main_metadat:
             return None
         r_c = self.info_main_metadat.find('span', {'data-testid': 'ratingsCount'})
@@ -246,7 +254,7 @@ class Alexandria:
     
 
     def get_ratings_dist(self) -> Optional[Dict[str,float]]:
-        '''returns discrete ratings distribution (dict) of book'''
+        '''returns discrete ratings distribution of book'''
         review_stats = self.soup.find('div',class_='RatingsHistogram RatingsHistogram__interactive')
         if not review_stats:
             return None
@@ -269,7 +277,7 @@ class Alexandria:
 
 
     def get_review_count(self) -> Optional[int]:
-        '''returns review count (int) of book'''
+        '''returns review count of book'''
         if not self.info_main_metadat:
             return None
         r_c = self.info_main_metadat.find('span', {'data-testid': 'reviewsCount'})
@@ -283,7 +291,7 @@ class Alexandria:
 
 
     def get_top_genres(self) -> Optional[List[str]]:
-        '''returns top genres (list) of book'''
+        '''returns top genres of book'''
         if not self.info_main_metadat:
             return None
         g_l = self.info_main_metadat.find('ul',{'aria-label': 'Top genres for this book'})
@@ -299,7 +307,7 @@ class Alexandria:
     
 
     def get_currently_reading(self) -> Optional[int]:
-        '''returns number of users (int) currently reading book'''
+        '''returns number of users currently reading book'''
         if not self.info_main_metadat:
             return None
         c_r = self.info_main_metadat.find('div', {'data-testid': 'currentlyReadingSignal'})
@@ -313,7 +321,7 @@ class Alexandria:
 
 
     def get_want_to_read(self) -> Optional[int]:
-        '''returns number of users (int) who want to read the book'''
+        '''returns number of users who want to read the book'''
         if not self.info_main_metadat:
             return None
         w_r = self.info_main_metadat.find('div', {'data-testid': 'toReadSignal'})
@@ -327,7 +335,7 @@ class Alexandria:
 
 
     def get_page_legth(self) -> Optional[int]:
-        '''returns page length (int) of book'''
+        '''returns page length of book'''
         if not self.details:
             return None
         p_l = self.details.find('p', {'data-testid': 'pagesFormat'})
@@ -342,7 +350,7 @@ class Alexandria:
     
 
     def get_first_published(self) -> Optional[str]:
-        '''returns date (str, form 'DD/MM/YYYY') of when book is first published'''
+        '''returns date ('DD/MM/YYYY') of when book is first published'''
         if not self.details:
             return None
         f_p = self.details.find('p', {'data-testid': 'publicationInfo'})
@@ -383,13 +391,14 @@ class Alexandria:
     def get_all_data(self,
                      exclude_attrs: Optional[List[str]] = None,
                      to_dict: bool = False) -> Union[Dict[str,Any],SimpleNamespace]:
-        '''returns dict of all scraped data.
+        '''returns all scraped data.
         
         returns the following attributes:
         - url: book URL
         - title: book title
         - author: author of book
         - author_url: URL to author's page
+        - image_url: path to book cover image
         - description: book description
         - rating: book rating (0-5)
         - rating_distribution: distribution of ratings in a dict; 
