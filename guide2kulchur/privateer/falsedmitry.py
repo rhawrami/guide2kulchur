@@ -8,57 +8,60 @@ from types import SimpleNamespace
 
 import aiohttp
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
-from guide2kulchur.privateer.recruits import (_AGENTS, _TIMEOUT, _rand_headers,_get_user_stat,_parse_id)
+from guide2kulchur.privateer.recruits import (_AGENTS, _rand_headers,_get_user_stat,_parse_id)
 
-'''
-FalseDmitry: the class for collecting GoodReads user data.
-'''
 
 class FalseDmitry:
-    '''Dmitry Ivanovich, Lazarus of the Motherland'''
+    '''Dmitry Ivanovich: collect PUBLICLY AVAILABLE Goodreads user data.'''
     def __init__(self):
         '''GoodReads user data scraper. Sequential and asynchronous capabilities available.'''
-        self.soup = None
-        self.user_url = None
+        self.soup: Optional[BeautifulSoup] = None
+        self._info_main: Optional[Tag] = None
+        self._info_left: Optional[Tag] = None
+        self._info_right: Optional[Tag] = None
+        self.user_url: Optional[str] = None
     
     async def load_user_async(self,
                               session: aiohttp.ClientSession,
-                              user_identifier: str) -> None:
-        '''loads Goodreads USER data asynchronously
+                              user_identifier: str,
+                              see_progress: bool = True) -> None:
+        '''load GoodReads user data (ASYNC).
         
         :param session:
          an aiohttp.ClientSession object
-        :param user_identifier (str):
-         url to GoodReads User page, or unique User identifier:
+        :param user_identifier:
+         Unique Goodreads user ID, or URL to the user's page.
+        :param see_progress:
+         if True, prints progress statements and updates. If False, progress statements are suppressed.
         '''
         try:
             if user_identifier:
-                if len(re.compile(r'^https://www.goodreads.com/user/show/\d*').findall(user_identifier)) > 0:
+                if len(re.compile(r'^https://www.goodreads.com/user/show/\d*').findall(user_identifier)):
                     user_identifier = user_identifier
-                elif len(re.compile(r'^\d*$').findall(user_identifier)) > 0:
+                elif len(re.compile(r'^\d*$').findall(user_identifier)):
                     user_identifier = f'https://www.goodreads.com/user/show/{user_identifier}'
                 else:
                     raise ValueError('user_identifier must be full URL string OR user identification number')
             else:
-                raise ValueError('user_identifier must be full URL string OR user identification number')
+                raise ValueError('Provide user identification.')
             self.user_url = user_identifier
             
             u_id = _parse_id(self.user_url)
-            print(f'{u_id} ATTEMPT @ {time.ctime()}')
+            print(f'{u_id} ATTEMPT @ {time.ctime()}') if see_progress else None
 
             async with session.get(url=self.user_url,
                                    headers=_rand_headers(_AGENTS)) as resp:
                 if resp.status != 200:
-                    print(f'{resp.status} for {self.b_url}')
+                    print(f'{resp.status} for {self.user_url}')
                     return None
                 
                 text = await resp.text()
                 soup = BeautifulSoup(text,'lxml')
 
                 if soup.find('div', {'id':'privateProfile'}):
-                    raise Exception(f'User {u_id} is private. Returning None')
+                    print(f'User {u_id} is private. Returning None.')
                     
                 info_main = soup.find('div',class_='mainContentFloat')
                 info_left = info_main.find('div', class_='leftContainer')
@@ -69,22 +72,71 @@ class FalseDmitry:
                 self._info_left = info_left
                 self._info_right = info_right
                 
-                print(f'{u_id} PULLED @ {time.ctime()}')
+                print(f'{u_id} SUCCESSFULLY PULLED @ {time.ctime()}') if see_progress else None
                 return self
     
         except asyncio.TimeoutError:
-            print(f'TIMEOUT ERROR for {u_id}')
+            print(f'TIMEOUT ERROR for {u_id}; returning None')
             return None
-        except aiohttp.ClientError as er:
-            print(f'CLIENT ERROR for {u_id}: {er}')
+        except aiohttp.ClientError:
+            print(f'CLIENT ERROR for {u_id}; returning None')
             return None
         except Exception as er:
-            print(f'OTHER ERROR for {u_id}: {er}')
+            print(f'OTHER ERROR for {u_id}: {er}; returning None')
+            return None
+
+    
+    def load_user(self,
+                  user_identifier: Optional[str] = None,
+                  see_progress: bool = True) -> Optional['FalseDmitry']:
+        '''load GoodReads user data.
+
+        :param user_identifier:
+         Unique Goodreads user ID, or URL to the user's page.
+        :param see_progress:
+         if True, prints progress statements and updates. If False, progress statements are suppressed.
+        '''
+        try:
+            if user_identifier:
+                if len(re.compile(r'^https://www.goodreads.com/author/show/\d*').findall(user_identifier)):
+                    user_identifier = user_identifier
+                elif len(re.compile(r'^\d*$').findall(user_identifier)):
+                    user_identifier = f'https://www.goodreads.com/user/show/{user_identifier}'
+                else:
+                    raise ValueError('user_identifier must be full URL string OR identification serial number')
+            else:
+                raise ValueError('Give me an identifier damnit!')
+            self.u_url = user_identifier
+
+            u_id = _parse_id(self.user_url)
+            print(f'{u_id} ATTEMPT @ {time.ctime()}') if see_progress else None
+
+            resp = requests.get(self.a_url,headers=_rand_headers(_AGENTS))
+            text = resp.text
+            soup = BeautifulSoup(text,'lxml')
+
+            if soup.find('div', {'id':'privateProfile'}):
+                raise Exception(f'User {u_id} is private. Returning None')
+                    
+            info_main = soup.find('div',class_='mainContentFloat')
+            info_left = info_main.find('div', class_='leftContainer')
+            info_right = info_main.find('div', class_='rightContainer')
+
+            self._soup = soup
+            self._info_main = info_main
+            self._info_left = info_left
+            self._info_right = info_right
+            
+            print(f'{u_id} SUCCESSFULLY PULLED @ {time.ctime()}') if see_progress else None
+            return self
+        
+        except requests.HTTPError:
+            print(f'HTTP ERROR for {u_id}; returning None.')
             return None
 
 
     def get_name(self) -> Optional[str]:
-        '''returns name of user'''
+        '''returns name of loaded Goodreads user.'''
         name_box = self._info_left.find('h1', class_='userProfileName')
         if name_box:
             return name_box.text.strip()
@@ -93,23 +145,23 @@ class FalseDmitry:
     
 
     def get_id(self) -> Optional[str]:
-        '''returns user ID.'''
+        '''returns unique ID of loaded Goodreads user.'''
         return _parse_id(self.user_url)
         
 
-    def get_image_path(self) -> Optional[str]:
-        '''returns image path of user'''
+    def get_image_url(self) -> Optional[str]:
+        '''returns URL to loaded Goodreads user's profile picture.'''
         pic_box = self._info_left.find('div',class_='leftAlignedProfilePicture')
         if pic_box:
             pfp = pic_box.find('img')
             if pfp:
                 pfp_path = pfp['src']
-                return pfp_path
+                return pfp_path if 'nophoto' not in pfp_path else None
         return None
     
 
-    def get_num_ratings(self) -> Optional[float]:
-        '''returns number of ratings given by user'''
+    def get_rating_count(self) -> Optional[float]:
+        '''returns number of ratings given by loaded Goodreads user.'''
         user_stats = self._info_left.find('div',
                                           class_='profilePageUserStatsInfo').find_all('a')
         if user_stats:
@@ -119,8 +171,8 @@ class FalseDmitry:
             return None
     
 
-    def get_avg_ratings(self) -> Optional[float]:
-        '''returns average of ratings given by user'''
+    def get_rating(self) -> Optional[float]:
+        '''returns average of book ratings given by loaded Goodreads user.'''
         user_stats = self._info_left.find('div',
                                           class_='profilePageUserStatsInfo').find_all('a')
         if user_stats:
@@ -130,8 +182,8 @@ class FalseDmitry:
             return None
         
 
-    def get_num_reviews(self) -> Optional[int]:
-        '''returns number of reviews given by user'''
+    def get_review_count(self) -> Optional[int]:
+        '''returns number of reviews given by loaded Goodreads user.'''
         user_stats = self._info_left.find('div',
                                           class_='profilePageUserStatsInfo').find_all('a')
         if user_stats:
@@ -142,11 +194,14 @@ class FalseDmitry:
     
     
     def get_favorite_genres(self) -> Optional[List[str]]:
-        '''returns a user's favorite genres'''
+        '''returns a list of loaded Goodreads user's favorite genres.'''
         g_list = []
-        genre_box = self._info_right.find_all('div',class_='stacked clearFloats bigBox')
-        if genre_box:
-            genre_box = genre_box[-1]
+        genre_box_all = self._info_right.find_all('div',class_='stacked clearFloats bigBox')
+        if genre_box_all:
+            genre_box = genre_box_all[-1]
+            box_header = genre_box.find('h2').text.lower()
+            if not re.search(r'favorite.*genre',box_header):
+                return None
             genres_list = genre_box.find('div',class_='bigBoxContent containerWithHeaderContent')
             if genres_list:
                 genres = genres_list.find_all('a')
@@ -159,7 +214,7 @@ class FalseDmitry:
 
 
     def get_featured_shelf(self) -> Optional[Dict[str,List[Dict]]]: # a mess of an annotation, sorry
-        '''returns a user's featured shelf'''
+        '''returns featured shelf of loaded Goodreads user.'''
         fs_box = self._info_left.find('div', {'id':'featured_shelf'})
         if fs_box:
             fs_title = fs_box.find('h2').find('a').text.strip()
@@ -169,23 +224,100 @@ class FalseDmitry:
 
         dat_dict = {}
         if img_grid:
-            if len(img_grid.find_all('a')) > 0:
+            if len(img_grid.find_all('a')):
                 dat = []
                 for obj in img_grid.find_all('a'):
                     bk_url = re.sub(r'^.*show\/|\..*$','',obj['href'])
-                    bk_title = obj.find('img')['title']
+                    bk_title_and_author = obj.find('img')['title']
+                    bk_title = re.sub(r'\sby.*','',bk_title_and_author)
+                    try:
+                        bk_author_grp = re.search(r'by\s.*$',bk_title_and_author).group(0)
+                        bk_author = re.sub(r'^by\s','',bk_author_grp)
+                    except Exception:
+                        bk_author = None
+
                     bk_dat = {
                         'id': bk_url,
-                        'title': bk_title
+                        'title': bk_title,
+                        'author': bk_author
                     }
                     dat.append(bk_dat)
                 dat_dict[fs_title] = dat
                 return dat_dict
         return None
+    
+    def get_currently_reading_sample(self) -> Optional[List[Dict[str,str]]]:
+        '''returns sample of books loaded Goodreads user is currently reading.'''
+        content_boxes = self._info_left.find_all('div',class_ = ['clearFloats','bigBox'])
+        cur_read_box = None
+        for box in content_boxes:
+            box_title = box.find('h2')
+            if box_title:
+                if re.search(r'currently.*reading', box_title.text.lower()):
+                    cur_read_box = box
+        if not cur_read_box:
+            return None
+        currently_reading = cur_read_box.find('div', {'id': 'currentlyReadingReviews'})
+        
+        cr_books = []
+        for bk in currently_reading.find_all('div', class_ = 'Updates'):
+            try:
+                bk_info = bk.find('a', class_ = 'bookTitle')
+                bk_id = _parse_id(bk_info['href'])
+                bk_title = bk_info.text.strip()
+                
+                authr_info = bk.find('a', class_ = 'authorName')
+                authr_id = _parse_id(authr_info['href'])
+                authr_name = authr_info.text.strip()
+
+                bk_dat = {
+                    'id': bk_id,
+                    'title': bk_title,
+                    'author_id': authr_id,
+                    'author': authr_name
+                }
+                cr_books.append(bk_dat)
+            except Exception:
+                continue
+        return None if not len(cr_books) else cr_books
+    
+
+    def get_quotes_sample(self) -> Optional[List[Dict[str,str]]]:
+        '''returns sample of quotes selected by loaded Goodreads user (note that this is dynamic).'''
+        content_boxes = self._info_left.find_all('div',class_ = ['clearFloats','bigBox'])
+        quotes_box = None
+        for box in content_boxes:
+            box_title = box.find('h2')
+            if box_title:
+                if re.search(r'^.*uotes', box_title.text.lower()):
+                    quotes_box = box
+        if not quotes_box:
+            return None
+        
+        quotes = []
+        for quote in quotes_box.find_all('div', class_ = ['quote', 'mediumText']):
+            try:
+                q_txt_all = quote.find('div', class_ = 'quoteText').text.strip()
+                q_txt = re.search(r'“.*”',q_txt_all).group(0)
+                q_txt = re.sub(r'”|“|"','',q_txt).strip()
+                author = quote.find('span', class_ = 'authorOrTitle').text.strip()
+                author = re.sub(r',.*$','',author)
+                author_url = quote.find('a', class_ = 'leftAlignedImage')['href']
+                author_id = _parse_id(author_url)
+
+                quote_dat = {
+                    'author_id': author_id,
+                    'author': author,
+                    'quote': q_txt
+                }
+                quotes.append(quote_dat)
+            except Exception:
+                continue
+        return None if not len(quotes) else quotes
 
 
     def get_follower_count(self) -> Optional[int]:
-        '''returns user's follower count'''
+        '''returns number of users following loaded Goodreads user.'''
         margin_links = self._info_right.find_all('a',class_='actionLinkLite')
         if len(margin_links) > 0:
             for lnk in margin_links:
@@ -198,7 +330,7 @@ class FalseDmitry:
 
 
     def get_followings_sample(self) -> Optional[List[Dict[str,Any]]]:
-        '''returns a sample of user's followings'''
+        '''returns a sample list of users that the loaded Goodreads user is following.'''
         boxes = self._info_right.find_all('div',class_='clearFloats bigBox')
         for box in boxes:
             title = box.find('a').text
@@ -221,7 +353,7 @@ class FalseDmitry:
 
 
     def get_friend_count(self) -> Optional[int]:
-        '''returns a user's friend count'''
+        '''returns number of friends that loaded Goodreads user has.'''
         boxes = self._info_right.find_all('div',class_='clearFloats bigBox')
         for box in boxes:
             friend_box_id = box.find('h2',class_='brownBackground')
@@ -239,7 +371,7 @@ class FalseDmitry:
 
 
     def get_friends_sample(self) -> Optional[List[Dict[str,Any]]]:
-        '''returns a sample of user's friends'''
+        '''returns a sample list of users that the loaded Goodreads user is friends with.'''
         boxes = self._info_right.find_all('div',class_='clearFloats bigBox')
         for box in boxes:
             friend_box_id = box.find('h2',class_='brownBackground')
@@ -254,7 +386,7 @@ class FalseDmitry:
             if friends:
                 f_list = []
                 fb = box.find('div',class_='bigBoxContent containerWithHeaderContent')
-                if len(fb) > 0:
+                if len(fb):
                     for frnd in fb.find_all('div',recursive=False):
                         usr_info = frnd.find('div',class_='left')
                         if usr_info:
@@ -264,7 +396,7 @@ class FalseDmitry:
                             
                             usr_num_bks = re.findall(r'\d*\sbooks|\d*\sbook',usr_info.text.strip())[0]
                             usr_num_bks = re.sub(r'\sbooks|\sbook','',usr_num_bks)
-                            usr_num_bks = int(usr_num_bks) if len(usr_num_bks) else None # ERROR
+                            usr_num_bks = int(usr_num_bks) if len(usr_num_bks) else None 
 
                             usr_num_frnds = re.findall(r'\d*\sfriends|\d*\sfriend',usr_info.text.strip())[0]
                             usr_num_frnds = re.sub(r'\sfriends|\sfriend','',usr_num_frnds)
@@ -284,38 +416,47 @@ class FalseDmitry:
     def get_all_data(self,
                      exclude_attrs: Optional[List[str]] = None,
                      to_dict: bool = False) -> Union[Dict[str,Any],SimpleNamespace]:
-        '''returns dict of all scraped data.
+        '''returns collection of data from loaded Goodreads user.
+
+        :param exclude_attrs:
+         list of user attributes to exclude. If None, collects all available attributes. See below for available user attributes.
+        :param to_dict:
+         if True, converts data collection to Dict format; otherwise, data is returned in SimpleNamespace format.
         
-        returns the following attributes:
-        - url: user URL
-        - id: user ID
-        - name: user name
-        - image_path: user profile-picture path
-        - ratings_count: number of ratings given
-        - reviews_count: number of reviews given
-        - ratings_average: average (1-5) of ratings given
-        - favorite_genres: list of user's favorite genres
+        ------------------------------------------------------------------------------
+        returns the following available attributes:
+        - **url** (str): URL to Goodreads user page
+        - **id** (str): unique Goodreads user ID
+        - **name** (str): user's name
+        - **image_url** (str): URL to user's profile picture
+        - **rating** (float): average of book ratings given by user (1-5)
+        - **rating_count** (int): number of user ratings given
+        - **review_count** (int): number of user reviews given
+        - **favorite_genres** (List[str]): list of user's favorite genres
             - e.g., ['Fiction', 'Historical Fiction', 'Alternate History']
-        - featured_shelf: user's featured shelf
-        - follower_count: number of users following THIS user
-        - friend_count: number of friends
-        - friends_sample: sample list of user's friends
-        - following_sample: sample list of users that THIS user is following
+        - **currently_reading_sample** (List[Dict]): sample list of books that user is currently reading
+        - **quotes_sample** (List[Dict]): sample list of quotes selected by user (note that this is dynamic)
+        - **follower_count** (int): number of users that are following the loaded user
+        - **friend_count** (int): number of users that user is friends with
+        - **friends_sample** (List[Dict]): sample list of user's friends
+        - **followings_sample** (List[Dict]): sample list of user's followings
         '''
         attr_fn_map = {
             'url': lambda: self.user_url,
             'id': self.get_id,
             'name': self.get_name,
-            'image_path': self.get_image_path,
-            'ratings_count': self.get_num_ratings,
-            'reviews_count': self.get_num_reviews,
-            'ratings_average': self.get_avg_ratings,
+            'image_url': self.get_image_url,
+            'rating': self.get_rating,
+            'rating_count': self.get_rating_count,
+            'review_count': self.get_review_count,
             'favorite_genres': self.get_favorite_genres,
+            'currently_reading_sample': self.get_currently_reading_sample,
+            'quotes_sample': self.get_quotes_sample,
             'featured_shelf': self.get_featured_shelf,
             'follower_count': self.get_follower_count,
             'friend_count': self.get_friend_count,
             'friends_sample': self.get_friends_sample,
-            'following_sample': self.get_followings_sample
+            'followings_sample': self.get_followings_sample
         } 
         exclude_set = set(exclude_attrs) if exclude_attrs else set([])
         usr_dict = {}
@@ -325,88 +466,8 @@ class FalseDmitry:
                     usr_dict[attr] = fn()
             else:
                 usr_dict[attr] = fn()
-        if len(usr_dict) == 0:
+        if not len(usr_dict):
             warnings.warn('Warning: returning empty object; param exclude_attrs should not include all attrs') 
             return usr_dict if to_dict else SimpleNamespace()
         return usr_dict if to_dict else SimpleNamespace(**usr_dict)
-    
-
-async def multiload_users(users = [], 
-                          max_concurrent = 3,
-                          write_json=True,
-                          json_path='')->list:
-    '''loads multiple GoodReads users, returns list of users
-    
-    :param books: list of user url/identifier strings
-    :param max_concurrent: maximum concurrent requests
-    :param write_json: if True, write users to json
-    :param json_path: if write_json, then specifies file path
-    '''
-    semaphore = asyncio.Semaphore(max_concurrent)
-    async def load1(session, usr1):
-        '''loads 1 user'''
-        async with semaphore:
-            try:
-                user = FalseDmitry()
-                res = await user.load_user_async(session=session,
-                                                    user_identifier=usr1)
-                if res:
-                    bkdat = res.get_all_data()
-                    return bkdat
-                else:
-                    print(f'Failed to load {usr1}')
-                    return None
-                
-            except asyncio.TimeoutError:
-                print(f'Timeout for {usr1}')
-            except Exception as er:
-                print(f'Error for {usr1}: {er}')
-                return None
-            
-            finally:
-                await asyncio.sleep(0.2)
-    
-    connector = aiohttp.TCPConnector(
-                            limit=100,
-                            limit_per_host=20,
-                            ttl_dns_cache=300,
-                            use_dns_cache=True
-                            )
-    
-    async with aiohttp.ClientSession(timeout=_TIMEOUT,
-                                        connector=connector,
-                                        headers=_rand_headers(_AGENTS)) as session:
-        tasks = [load1(session,usr) for usr in users]
-        usrs_res = await asyncio.gather(*tasks,return_exceptions=True)    
-    
-        successes = [res for res in usrs_res if res is not None and not isinstance(res,Exception)]
-        fails = len(usrs_res) - len(successes)
-
-    bks_dct = {
-        'num_success': len(successes),
-        'num_fail': fails,
-        'results': successes
-    }
-
-    if write_json:
-        with open(json_path,'w',encoding='utf-8') as jpath:
-            json.dump(bks_dct,jpath,indent=4,ensure_ascii=False)
-
-    return successes
-                    
-
-if __name__=='__main__':
-    async def main():
-        async with aiohttp.ClientSession(headers=_rand_headers(_AGENTS)) as session:
-            dmtry = FalseDmitry()
-            await dmtry.load_user_async(session=session,
-                                  user_identifier='161852665')
-            dat = dmtry.get_all_data(to_dict = True)
-            
-            
-            for a,b in dat.items():
-                print(f'{a}:\n{b}')
-                print()
-            
-    asyncio.run(main())
     

@@ -81,7 +81,7 @@ def _parse_id(url: str) -> Optional[str]:
     :url: book/author/user url
     '''
     id_ = re.findall(r'\d+',url)
-    if len(id_) > 0:
+    if len(id_):
         return id_[0]
     else:
         return None
@@ -191,11 +191,12 @@ async def _get_similar_books_async(session: aiohttp.ClientSession,
                     continue # this is the original book
                 else:
                     b_url = 'https://www.goodreads.com' + book.find('a',itemprop='url')['href']
+                    b_id = _parse_id(b_url)
                     b_title = book.find_all('span',itemprop='name')[0].text.strip()
                     b_author = book.find_all('span',itemprop='name')[1].text.strip()
                     dat.append({
-                        'book': b_title,
-                        'url': b_url,
+                        'id': b_id,
+                        'title': b_title,
                         'author': b_author
                     })
             return dat

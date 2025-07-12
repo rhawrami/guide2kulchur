@@ -17,7 +17,7 @@ class Herodotus:
        perhaps it may not immediately be apparent, but we shall find it, sure enough, as time goes on."'''
     def __init__(self, 
                  semaphore: int):
-        '''Scrape Goodreads Annual Choice Awards book data asynchronously.
+        '''Scrape PUBLICLY AVAILABLE Goodreads Annual Choice Awards book data asynchronously.
         
         :semaphore: value fed into an asyncio Semaphore, controlling number of requests in this case.
         '''
@@ -125,7 +125,7 @@ class Herodotus:
                     text = await resp.text()
                 
                 soup = BeautifulSoup(text,'lxml')
-            poll_box = soup.find('div', class_ = 'pollContents')
+                poll_box = soup.find('div', class_ = 'pollContents')
             
             bk_dat = []
             for bk in poll_box.find_all('div', class_ = ['inlineblock', 'pollAnswer']):

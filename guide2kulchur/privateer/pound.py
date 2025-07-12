@@ -11,51 +11,51 @@ import aiohttp
 import requests
 from bs4 import BeautifulSoup, Tag
 
-from guide2kulchur.privateer.recruits import (_AGENTS, _TIMEOUT, _rand_headers, _parse_id)
+from guide2kulchur.privateer.recruits import (_AGENTS, _rand_headers, _parse_id)
 
-'''
-Pound: the class for collecting GoodReads author data.
-'''
 
 class Pound:
-    '''"Treat the bureaucrat with every consideration, and when he ultimately dies do not replace him."'''
+    '''Ezra Pound: collect PUBLICLY AVAILABLE Goodreads author data.'''
     def __init__(self):
-        '''GoodReads AUTHOR data scraper. Sequential and asynchronous capabilities available.'''
+        '''GoodReads author data scraper. Sequential and asynchronous capabilities available.'''
         self._soup: Optional[BeautifulSoup] = None
         self._info_main: Optional[Tag] = None
-        self._a_url:  Optional[str] = None
+        self._author_url:  Optional[str] = None
     
 
     async def load_author_async(self,
                                 session: aiohttp.ClientSession,
-                                author_identifier: Optional[str] = None) -> Optional['Pound']:
-        '''
-        load GoodReads author data asynchronously.
-
+                                author_identifier: Optional[str] = None,
+                                see_progress: bool = True) -> Optional['Pound']:
+        '''load GoodReads author data (ASYNC).
+        
         :param session:
          an aiohttp.ClientSession object
-        :param author_identifier (str):
-         url to GoodReads author page.'''
+        :param user_identifier:
+         Unique Goodreads author ID, or URL to the author's page.
+        :param see_progress:
+         if True, prints progress statements and updates. If False, progress statements are suppressed.
+        '''
         try:
             if author_identifier:
-                if len(re.compile(r'^https://www.goodreads.com/author/show/\d*').findall(author_identifier)) > 0:
+                if len(re.compile(r'^https://www.goodreads.com/author/show/\d*').findall(author_identifier)):
                     author_identifier = author_identifier
-                elif len(re.compile(r'^\d*$').findall(author_identifier)) > 0:
+                elif len(re.compile(r'^\d*$').findall(author_identifier)):
                     author_identifier = f'https://www.goodreads.com/author/show/{author_identifier}'
                 else:
                     raise ValueError('author_identifier must be full URL string OR identification serial number')
             else:
-                raise ValueError('Give me an identifier damnit!')
-            self.a_url = author_identifier
+                raise ValueError('Provide author identification.')
+            self.author_url = author_identifier
 
-            a_id = _parse_id(self.a_url)
-            print(f'{a_id} ATTEMPT @ {time.ctime()}')
+            a_id = _parse_id(self.author_url)
+            print(f'{a_id} ATTEMPT @ {time.ctime()}') if see_progress else None
             
-            async with session.get(url=self.a_url,
+            async with session.get(url=self.author_url,
                                    headers=_rand_headers(_AGENTS)) as resp:
                 
                 if resp.status != 200:
-                    print(f'{resp.status} for {self.a_url}')
+                    print(f'{resp.status} for {self.author_url}')
                     return None
                 
                 text = await resp.text()
@@ -69,40 +69,46 @@ class Pound:
                 self._info_left = info_left
                 self._info_right = info_right
                 
-                print(f'{a_id} PULLED @ {time.ctime()}')
+                print(f'{a_id} SUCCESSFULLY PULLED @ {time.ctime()}') if see_progress else None
                 return self
             
         except asyncio.TimeoutError:
-            print(f"Timeout loading {a_id}")
+            print(f'TIMEOUT ERROR for {a_id}; returning None')
             return None
         except aiohttp.ClientError as er:
-            print(f"Client error loading {a_id}: {er}")
+            print(f'CLIENT ERROR for {a_id}: {er}; returning None')
             return None
         except Exception as er:
-            print(f"Error loading author {a_id}: {er}")
+            print(f'OTHER ERROR for {a_id}: {er}; returning None')
+            return None
     
 
     def load_author(self,
-                  author_identifier: Optional[str] = None) -> Optional['Pound']:
-        '''
-        load GoodReads author data.
+                    author_identifier: Optional[str] = None,
+                    see_progress: bool = None) -> Optional['Pound']:
+        '''load GoodReads author data.
 
-        :param session:
-         an aiohttp.ClientSession object
+        :param author_identifier:
+         Unique Goodreads author ID, or URL to the author's page.
+        :param see_progress:
+         if True, prints progress statements and updates. If False, progress statements are suppressed.
         '''
         try:
             if author_identifier:
-                if len(re.compile(r'^https://www.goodreads.com/author/show/\d*').findall(author_identifier)) > 0:
+                if len(re.compile(r'^https://www.goodreads.com/author/show/\d*').findall(author_identifier)):
                     author_identifier = author_identifier
-                elif len(re.compile(r'^\d*$').findall(author_identifier)) > 0:
+                elif len(re.compile(r'^\d*$').findall(author_identifier)):
                     author_identifier = f'https://www.goodreads.com/author/show/{author_identifier}'
                 else:
                     raise ValueError('author_identifier must be full URL string OR identification serial number')
             else:
-                raise ValueError('Give me an identifier damnit!')
-            self.a_url = author_identifier
+                raise ValueError('Provide author identification.')
+            self.author_url = author_identifier
 
-            resp = requests.get(self.a_url,headers=_rand_headers(_AGENTS))
+            a_id = _parse_id(self.author_url)
+            print(f'{a_id} ATTEMPT @ {time.ctime()}') if see_progress else None
+
+            resp = requests.get(self.author_url,headers=_rand_headers(_AGENTS))
             text = resp.text
             soup = BeautifulSoup(text,'lxml')
             info_main = soup.find('div', class_='mainContentFloat')
@@ -114,15 +120,16 @@ class Pound:
             self._info_left = info_left
             self._info_right = info_right
             
+            print(f'{a_id} SUCCESSFULLY PULLED @ {time.ctime()}') if see_progress else None
             return self
         
         except requests.HTTPError as er:
-            print(er)
+            print(f'HTTP ERROR for {a_id}; returning None.')
             return None
     
 
     def get_name(self) -> Optional[str]:
-        '''returns author name'''
+        '''returns name of loaded Goodreads author.'''
         h1 = self._info_right.find('h1', class_='authorName')
         if h1:
             name = h1.find('span')
@@ -132,21 +139,34 @@ class Pound:
     
 
     def get_id(self) -> Optional[str]:
-        '''returns author ID.'''
-        return _parse_id(self.a_url)
+        '''returns unique ID of loaded Goodreads author.'''
+        return _parse_id(self.author_url)
     
 
-    def get_image_path(self) -> Optional[str]:
-        '''returns image path of author'''
+    def get_image_url(self) -> Optional[str]:
+        '''returns URL to loaded Goodreads author's image.'''
         try:
             img = self._info_left.find('img')
-            return img['src'].strip()
+            img_url = img['src'].strip()
+            return img_url if 'nophoto' not in img_url else None
         except Exception:
             return None
     
 
+    def get_birth_place(self) -> Optional[str]:
+        '''returns birth place of loaded Goodreads author.'''
+        txt = self._info_right.text.strip()
+        
+        matches = re.findall(r'in.*\n', txt)
+        if len(matches):
+            birth_place = re.sub(r'in\s|\n','',matches[0])
+            return birth_place
+        else:
+            return None
+
+
     def get_birth_date(self) -> Optional[str]:
-        '''returns birth date'''
+        '''returns birth date (in "DD/MM/YY" format) of loaded Goodreads author.'''
         bd = self._info_right.find('div', {'itemprop': 'birthDate'})
         if bd:
             bdt = bd.text.strip()
@@ -157,7 +177,7 @@ class Pound:
     
 
     def get_death_date(self) -> Optional[str]:
-        '''returns death date'''
+        '''returns death date (in "DD/MM/YY" format) of loaded Goodreads author.'''
         dd = self._info_right.find('div', {'itemprop': 'deathDate'})
         if dd:
             ddt = dd.text.strip()
@@ -168,7 +188,7 @@ class Pound:
         
 
     def get_top_genres(self) -> Optional[List[str]]:
-        '''returns top genres author's top genres'''
+        '''returns loaded Goodreads author's top genres.'''
         try:
             genre_title = [i for i in self._info_right.find_all('div', class_='dataTitle') if i.text == 'Genre'][0]
             genre_box = genre_title.find_next_siblings()[0]
@@ -181,7 +201,7 @@ class Pound:
     
 
     def get_influences(self) -> Optional[List[Dict[str,str]]]:
-        '''returns other writers that author was influenced by'''
+        '''returns list of other authors that loaded Goodreads author is influenced by.'''
         try:
             data_titles = self._info_right.find_all('div', class_ = 'dataTitle')
             influence_txt = [dt for dt in data_titles if 'fluence' in dt.text][0]
@@ -202,7 +222,7 @@ class Pound:
     
 
     def get_description(self) -> Optional[str]:
-        '''returns author's description'''
+        '''returns description of loaded Goodreads author.'''
         try:
             author_info = self._info_right.find('div', class_ = 'aboutAuthorInfo')
             info = author_info.find_all('span')[-1]
@@ -212,7 +232,7 @@ class Pound:
     
 
     def get_follower_count(self) -> Optional[int]:
-        '''returns number of users following the author'''
+        '''returns number of users following loaded Goodreads author.'''
         try:
             h2 = self._info_left.find_all('h2')
             followers = [h.text.strip() for h in h2 if 'follower' in h.text.strip().lower()][0]
@@ -223,8 +243,8 @@ class Pound:
             return None
             
 
-    def get_num_ratings(self) -> Optional[int]:
-        '''returns number of ratings given to author's works'''
+    def get_rating_count(self) -> Optional[int]:
+        '''returns number of ratings given to loaded Goodreads author's works.'''
         try:
             agg_stats = self._info_right.find('div', class_ = 'hreview-aggregate')
             num_rate_str = agg_stats.find('span', {'itemprop': 'ratingCount'}).text.strip()
@@ -234,8 +254,8 @@ class Pound:
             return None
     
 
-    def get_num_reviews(self) -> Optional[int]:
-        '''returns number of reviews given to author's works'''
+    def get_review_count(self) -> Optional[int]:
+        '''returns number of reviews given to loaded Goodreads author's works.'''
         try:
             agg_stats = self._info_right.find('div', class_ = 'hreview-aggregate')
             num_rev_str = agg_stats.find('span', {'itemprop': 'reviewCount'}).text.strip()
@@ -245,8 +265,8 @@ class Pound:
             return None
     
 
-    def get_average_rating(self) -> Optional[float]:
-        '''returns author's average rating'''
+    def get_rating(self) -> Optional[float]:
+        '''returns loaded Goodread author's average book rating.'''
         try:
             agg_stats = self._info_right.find('div', class_ = 'hreview-aggregate')
             avg_rate = agg_stats.find('span', {'itemprop': 'ratingValue'}).text.strip()
@@ -255,8 +275,8 @@ class Pound:
             return None
     
 
-    def get_sample_books(self) -> Optional[List[Dict[str,Any]]]:
-        '''returns sample (max n = 10) of author's most popular books'''
+    def get_books_sample(self) -> Optional[List[Dict[str,Any]]]:
+        '''returns sample (max n = 10) of loaded Goodreads author's most popular books.'''
         # if anyone ever reads this: I know, this is very ugly. 
         # But it works most of the time probably. I haven't written any tests yet.
         try:
@@ -298,7 +318,7 @@ class Pound:
                     bk_id = _parse_id(bkt['href'].strip())
 
                     bk_dict = {
-                        'name': bk_title,
+                        'title': bk_title,
                         'id': bk_id,
                         'year_published': bk_yr_pub,
                         'rating_average': bk_avg_rat,
@@ -312,43 +332,79 @@ class Pound:
         except Exception:
             return None
     
+    def get_quotes_sample(self) -> Optional[List[str]]:
+        '''returns sample (max n = 3) list of top quotes by loaded Goodreads author.'''
+        qt_title_bar = None
+        for div in self._info_right.find_all('div', style = True):
+            try:
+                first_a = div.find('a')
+                if re.search(r'^quotes by.*$',first_a.text.lower()):
+                    qt_title_bar = div
+            except AttributeError:
+                continue
+        if not qt_title_bar:
+            return None
+        qt_box = qt_title_bar.find_next_sibling('div')
+        if qt_box:
+            quotes = []
+            for qt in qt_box.find_all('div', class_ = ['quote', 'mediumText']):
+                try:
+                    qt_txt_all = qt.find('div', class_ = 'quoteText').text
+                    qt_txt = re.search(r'“.*”',qt_txt_all).group(0)
+                    qt_txt = re.sub(r'“|”','',qt_txt)
+                    quotes.append(qt_txt)
+                except AttributeError:
+                    continue
+            return None if not len(quotes) else quotes
+        return None
+        
 
     def get_all_data(self,
                      exclude_attrs: Optional[List[str]] = None,
                      to_dict: bool = False) -> Union[Dict[str,Any],SimpleNamespace]:
-        '''returns all scraped data
+        '''returns collection of data from loaded Goodreads author.
+
+        :param exclude_attrs:
+         list of user attributes to exclude. If None, collects all available attributes. See below for available author attributes.
+        :param to_dict:
+         if True, converts data collection to Dict format; otherwise, data is returned in SimpleNamespace format.
         
-        returns the following attributes:
-        - url: author URL
-        - id: author ID
-        - name: author name
-        - birth: author birth date
-        - death: author death date
-        - top_genres: author's top genres
-        - description: description of author
-        - image_url: URL to author image
-        - rating: average rating of author's works
-        - rating_count: number of ratings given to author's works
-        - review_count: number of reviews given to author's works
-        - follower_count: number of users following the author
-        - influences: list of other authors that influenced the author
-        - sample_books: sample of author's works
+        ------------------------------------------------------------------------------
+        returns the following available attributes:
+        - **url** (str): URL to Goodreads author page
+        - **id** (str): unique Goodreads author ID
+        - **name** (str): author's name
+        - **description** (str): description of author
+        - **image_url** (str): URL to author's cover picture
+        - **birth_place** (str): author's place of birth
+        - **birth** (str): author's birth date (in "MM/DD/YYYY" format)
+        - **death** (str): author's death date (in "MM/DD/YYYY" format)
+        - **top_genres** (List[str]): list of author's favorite genres
+            - e.g., ['Fiction', 'Historical Fiction', 'Alternate History']
+        - **rating** (str): average of user ratings given to author's works (1-5)
+        - **rating_count** (int): number of user ratings given to author's works
+        - **review_count** (int): number of user reviews given to author's works
+        - **follower_count** (int): number of users are following the author
+        - **influences** (List[Dict]): list of other authors that current author is influenced by 
+        - **sample_books** (List[Dict]): sample (max n = 10) of loaded Goodreads author's most popular books
         '''
         attr_fn_map = {
-            'url': lambda: self.a_url,
+            'url': lambda: self.author_url,
             'id': self.get_id,
             'name': self.get_name,
+            'description': self.get_description,
+            'image_url': self.get_image_url,
+            'birth_place': self.get_birth_place,
             'birth': self.get_birth_date,
             'death': self.get_death_date,
             'top_genres': self.get_top_genres,
-            'description': self.get_description,
-            'image_url': self.get_image_path,
-            'rating': self.get_average_rating,
-            'rating_count': self.get_num_ratings,
-            'review_count': self.get_num_reviews,
-            'follower_count': self.get_follower_count,
             'influences': self.get_influences,
-            'sample_books': self.get_sample_books
+            'books_sample': self.get_books_sample,
+            'quotes_sample': self.get_quotes_sample,
+            'rating': self.get_rating,
+            'rating_count': self.get_rating_count,
+            'review_count': self.get_review_count,
+            'follower_count': self.get_follower_count
         }
         exclude_set = set(exclude_attrs) if exclude_attrs else set([])
         authr_dict = {}
@@ -362,28 +418,3 @@ class Pound:
             warnings.warn('Warning: returning empty object; param exclude_attrs should not include all attrs') 
             return authr_dict if to_dict else SimpleNamespace()
         return authr_dict if to_dict else SimpleNamespace(**authr_dict)
-
-
-    
-
-if __name__=='__main__':
-    async def get_one(session: aiohttp.ClientSession,
-                      id_: str):
-        
-        pnd = Pound()
-        author = await pnd.load_author_async(session=session,
-                                                author_identifier=id_)
-        dat = author.get_all_data()
-        for a,b in dat.__dict__.items():
-            print(f'{a}: {b}')
-        print('\n---------------------------------------------------------\n')
-    
-    async def get_more(ids_: List[str]):
-        async with asyncio.Semaphore(2):
-            async with aiohttp.ClientSession(headers=_rand_headers(_AGENTS)) as sesh:
-                tasks = [get_one(sesh,id_) for id_ in ids_]
-                await asyncio.gather(*tasks)
-                
-            
-    ids_ = ['7276904', '5201530', '17205711', '55727']
-    asyncio.run(get_more(ids_))

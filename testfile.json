@@ -1,0 +1,255 @@
+{
+    "category": "author",
+    "query_start": "Fri Jul 11 21:42:45 2025",
+    "query_end": "Fri Jul 11 21:42:45 2025",
+    "attempted": 3,
+    "successes": 3,
+    "failures": 0,
+    "success_rate": 1.0,
+    "results": [
+        {
+            "url": "https://www.goodreads.com/author/show/5725109",
+            "id": "5725109",
+            "name": "Allen B. Downey",
+            "description": "Allen Downey is a Professor Emeritus at Olin College and the author of a series of freetextbooks related to software and data science, including Think Python, Think Bayes, and Think Complexity, which are also published by O\u2019Reilly Media. His blog, Probably Overthinking It, features articles on Bayesian probability and statistics. He holds a Ph.D. in computer science from U.C. Berkeley, and M.S. and B.S. degrees from MIT.",
+            "image_url": "https://images.gr-assets.com/authors/1552317384p5/5725109.jpg",
+            "birth_place": "ince",
+            "birth": null,
+            "death": null,
+            "top_genres": [
+                "Nonfiction"
+            ],
+            "influences": null,
+            "books_sample": null,
+            "quotes_sample": [
+                "For all live births, the mean pregnancy length is 38.6 weeks, the standard deviation is 2.7 weeks, which means we should expect deviations of 2-3 weeks to be common."
+            ],
+            "rating": 3.99,
+            "rating_count": 3196,
+            "review_count": 384,
+            "follower_count": 233
+        },
+        {
+            "url": "https://www.goodreads.com/author/show/29963",
+            "id": "29963",
+            "name": "W.B. Yeats",
+            "description": "William Butler Yeats was an Irish poet and dramatist, and one of the foremost figures of 20th century literature. A pillar of both the Irish and British literary establishments, in his later years Yeats served as an Irish Senator for two terms. He was a driving force behind the Irish Literary Revival, and along with Lady Gregory and Edward Martyn founded the Abbey Theatre, serving as its chief during its early years. In 1923 he was awarded the Nobel Prize in Literature for what the Nobel Committee described as \"inspired poetry, which in a highly artistic form gives expression to the spirit of a whole nation.\" He was the first Irishman so honored. Yeats is generally considered one of the few writers who completed their greatest works after being awarded the Nobel Prize; such works include The Tower (1928) and The Winding Stair and Other Poems (1929).Yeats was born and educated in Dublin but spent his childhood in County Sligo. He studied poetry in his youth, and from an early age was fascinated by both Irish legends and the occult. Those topics feature in the first phase of his work, which lasted roughly until the turn of the century. His earliest volume of verse was published in 1889, and those slow paced and lyrical poems display debts to Edmund Spenser and Percy Bysshe Shelley, as well as to the Pre-Raphaelite poets. From 1900, Yeats' poetry grew more physical and realistic. He largely renounced the transcendental beliefs of his youth, though he remained preoccupied with physical and spiritual masks, as well as with cyclical theories of life. --from Wikipedia",
+            "image_url": "https://images.gr-assets.com/authors/1440689155p5/29963.jpg",
+            "birth_place": "Sandymount, County Dublin, Ireland",
+            "birth": "06/13/1865",
+            "death": "01/28/1939",
+            "top_genres": [
+                "Poetry",
+                "Religion & Spirituality",
+                "Literature & Fiction"
+            ],
+            "influences": [
+                {
+                    "author": "Edmund Spenser",
+                    "id": "11145"
+                },
+                {
+                    "author": "Percy Bysshe Shelley",
+                    "id": "45882"
+                },
+                {
+                    "author": "William Blake",
+                    "id": "13453"
+                },
+                {
+                    "author": "Ernest Rhys",
+                    "id": "268580"
+                },
+                {
+                    "author": "John Keats",
+                    "id": "11978"
+                },
+                {
+                    "author": "Friedrich Nietzsche",
+                    "id": "1938"
+                },
+                {
+                    "author": "William Sharp",
+                    "id": "355654"
+                }
+            ],
+            "books_sample": [
+                {
+                    "title": "The Collected Poems of W.B. Yeats",
+                    "id": "53022",
+                    "year_published": 1933,
+                    "rating_average": 4.23,
+                    "rating_count": 39715
+                },
+                {
+                    "title": "Irish Fairy and Folk Tales",
+                    "id": "770876",
+                    "year_published": 1888,
+                    "rating_average": 4.04,
+                    "rating_count": 5821
+                },
+                {
+                    "title": "Selected Poems",
+                    "id": "138164",
+                    "year_published": 1939,
+                    "rating_average": 4.13,
+                    "rating_count": 5298
+                },
+                {
+                    "title": "The Celtic Twilight: Faerie and Folklore",
+                    "id": "194204",
+                    "year_published": 1893,
+                    "rating_average": 4.02,
+                    "rating_count": 3287
+                },
+                {
+                    "title": "Poetry, Drama and Prose",
+                    "id": "138165",
+                    "year_published": 2000,
+                    "rating_average": 4.27,
+                    "rating_count": 2899
+                },
+                {
+                    "title": "Selected Poems and Four Plays",
+                    "id": "53021",
+                    "year_published": 1996,
+                    "rating_average": 4.34,
+                    "rating_count": 1650
+                },
+                {
+                    "title": "A Terrible Beauty Is Born",
+                    "id": "29407888",
+                    "year_published": 1916,
+                    "rating_average": 3.65,
+                    "rating_count": 1283
+                },
+                {
+                    "title": "The Tower",
+                    "id": "138167",
+                    "year_published": 1928,
+                    "rating_average": 3.98,
+                    "rating_count": 1107
+                },
+                {
+                    "title": "W.B. Yeats",
+                    "id": "817543",
+                    "year_published": 1895,
+                    "rating_average": 4.03,
+                    "rating_count": 942
+                },
+                {
+                    "title": "Cathleen ni Houlihan",
+                    "id": "974912",
+                    "year_published": 1902,
+                    "rating_average": 3.58,
+                    "rating_count": 1033
+                }
+            ],
+            "quotes_sample": [
+                "The world is full of magic things, patiently waiting for our senses to grow sharper.",
+                "I have spread my dreams under your feet.Tread softly because you tread on my dreams.",
+                "For he would be thinking of loveTill the stars had run awayAnd the shadows eaten the moon."
+            ],
+            "rating": 4.11,
+            "rating_count": 94630,
+            "review_count": 4832,
+            "follower_count": 2516
+        },
+        {
+            "url": "https://www.goodreads.com/author/show/193536",
+            "id": "193536",
+            "name": "Ren\u00e9 Girard",
+            "description": "Ren\u00e9 Girard was a French-born American historian, literary critic, and philosopher of social science whose work belongs to the tradition of anthropological philosophy.He was born in the southern French city of Avignon on Christmas day in 1923. Between 1943 and 1947, he studied in Paris at the \u00c9cole des Chartres, an institution for the training of archivists and historians, where he specialized in medieval history. In 1947 he went to Indiana University on a year\u2019s fellowship and eventually made almost his entire career in the United States. He completed a PhD in history at Indiana University in 1950 but also began to teach literature, the field in which he would first make his reputation. He taught at Duke University and at Bryn Mawr before becoming a professor at Johns Hopkins in Baltimore. In 1971 he went to the State University of New York at Buffalo for five years, returned to Johns Hopkins, and then finished his academic career at Stanford University where he taught between 1981 and his retirement in 1995.Girard is the author of nearly thirty books, with his writings spanning many academic domains. Although the reception of his work is different in each of these areas, there is a growing body of secondary literature on his work and his influence on disciplines such as literary criticism, critical theory, anthropology, theology, psychology, mythology, sociology, economics, cultural studies, and philosophy.Girard\u2019s fundamental ideas, which he has developed throughout his career and provide the foundation for his thinking, are that desire is mimetic (all of our desires are borrowed from other people), that all conflict originates in mimetic desire (mimetic rivalry), that the scapegoat mechanism is the origin of sacrifice and the foundation of human culture, and religion was necessary in human evolution to control the violence that can come from mimetic rivalry, and that the Bible reveals these ideas and denounces the scapegoat mechanism.In 1990, friends and colleagues of Girard\u2019s established the Colloquium on Violence and Religion to further research and discussion about the themes of Girard\u2019s work. The Colloquium meets annually either in Europe or the United States.Ren\u00e9 Girard died on November 4, 2015, at the age of 91 in Stanford.",
+            "image_url": "https://images.gr-assets.com/authors/1449517211p5/193536.jpg",
+            "birth_place": "Avignon , France",
+            "birth": "12/25/1923",
+            "death": "11/04/2015",
+            "top_genres": [
+                "Social Sciences",
+                "Philosophy"
+            ],
+            "influences": null,
+            "books_sample": [
+                {
+                    "title": "I See Satan Fall Like Lightning",
+                    "id": "242319",
+                    "year_published": 1999,
+                    "rating_average": 4.31,
+                    "rating_count": 1600
+                },
+                {
+                    "title": "Violence and the Sacred",
+                    "id": "337521",
+                    "year_published": 1972,
+                    "rating_average": 4.15,
+                    "rating_count": 1341
+                },
+                {
+                    "title": "The Scapegoat",
+                    "id": "604562",
+                    "year_published": 1982,
+                    "rating_average": 4.15,
+                    "rating_count": 937
+                },
+                {
+                    "title": "Things Hidden Since the Foundation of the World",
+                    "id": "337517",
+                    "year_published": 1978,
+                    "rating_average": 4.25,
+                    "rating_count": 834
+                },
+                {
+                    "title": "Deceit, Desire and the Novel: Self and Other in Literary Structure",
+                    "id": "337520",
+                    "year_published": 1961,
+                    "rating_average": 4.26,
+                    "rating_count": 712
+                },
+                {
+                    "title": "Resurrection from the Underground: Feodor Dostoevsky",
+                    "id": "46298",
+                    "year_published": 1963,
+                    "rating_average": 4.24,
+                    "rating_count": 243
+                },
+                {
+                    "title": "Sacrifice",
+                    "id": "11172069",
+                    "year_published": 2003,
+                    "rating_average": 3.85,
+                    "rating_count": 236
+                },
+                {
+                    "title": "A Theatre of Envy: William Shakespeare",
+                    "id": "1721268",
+                    "year_published": 1990,
+                    "rating_average": 4.29,
+                    "rating_count": 196
+                },
+                {
+                    "title": "The Girard Reader (Crossroad Herder Book)",
+                    "id": "257787",
+                    "year_published": 1996,
+                    "rating_average": 4.1,
+                    "rating_count": 192
+                },
+                {
+                    "title": "Battling to the End: Conversations with Beno\u00eet Chantre",
+                    "id": "7171525",
+                    "year_published": 2007,
+                    "rating_average": 4.29,
+                    "rating_count": 137
+                }
+            ],
+            "quotes_sample": [
+                "Everywhere and always, when human beings either cannot or dare not take their anger out on the thing that has caused it, they unconsciously search for substitutes, and more often than not they find them.",
+                "The goal of religious thinking is exactly the same as that of technological research -- namely, practical action. Whenever man is truly concerned with obtaining concrete results, whenever he is hard pressed by reality, he abandons abstract speculation and reverts to a mode of response that becomes increasingly cautious and conservative as the forces he hopes to subdue, or at least to outrun, draw ever nearer.",
+                "Passive, submissive imitation does exist, but hatred of conformity and extreme individualism are no less imitative. Today they constitute a negative conformism that is more formidable than the positive version. More and more, it seems to me, modern individualism assumes the form of a desperate denial of the fact that, through mimetic desire, each of us seeks to impose his will upon his fellow man, whom he professes to love but more often despises."
+            ],
+            "rating": 4.18,
+            "rating_count": 7426,
+            "review_count": 932,
+            "follower_count": 795
+        }
+    ]
+}
