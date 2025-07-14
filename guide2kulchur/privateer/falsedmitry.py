@@ -1,4 +1,3 @@
-import json
 import time
 import re
 import asyncio
@@ -36,26 +35,26 @@ class FalseDmitry:
         :param see_progress:
          if True, prints progress statements and updates. If False, progress statements are suppressed.
         '''
-        try:
-            if user_identifier:
-                if len(re.compile(r'^https://www.goodreads.com/user/show/\d*').findall(user_identifier)):
-                    user_identifier = user_identifier
-                elif len(re.compile(r'^\d*$').findall(user_identifier)):
-                    user_identifier = f'https://www.goodreads.com/user/show/{user_identifier}'
-                else:
-                    raise ValueError('user_identifier must be full URL string OR user identification number')
+        if user_identifier:
+            if re.match(r'^https://www.goodreads.com/user/show/\d*',user_identifier):
+                user_identifier = user_identifier
+            elif re.match(r'^\d*$', user_identifier):
+                user_identifier = f'https://www.goodreads.com/author/show/{user_identifier}'
             else:
-                raise ValueError('Provide user identification.')
-            self.user_url = user_identifier
-            
-            u_id = _parse_id(self.user_url)
+                raise ValueError('user_identifier must be full URL string OR user identification number')
+        else:
+            raise ValueError('Provide user identification.')
+        self.user_url = user_identifier
+        
+        u_id = _parse_id(self.user_url)
+
+        try:
             print(f'{u_id} ATTEMPT @ {time.ctime()}') if see_progress else None
 
             async with session.get(url=self.user_url,
                                    headers=_rand_headers(_AGENTS)) as resp:
                 if resp.status != 200:
-                    print(f'{resp.status} for {self.user_url}')
-                    return None
+                    raise Exception(f'Improper request respose: {resp.status} recieved for author {u_id}')
                 
                 text = await resp.text()
                 soup = BeautifulSoup(text,'lxml')
@@ -75,15 +74,12 @@ class FalseDmitry:
                 print(f'{u_id} SUCCESSFULLY PULLED @ {time.ctime()}') if see_progress else None
                 return self
     
-        except asyncio.TimeoutError:
-            print(f'TIMEOUT ERROR for {u_id}; returning None')
-            return None
-        except aiohttp.ClientError:
-            print(f'CLIENT ERROR for {u_id}; returning None')
-            return None
+        except asyncio.TimeoutError as er:
+            raise asyncio.TimeoutError(f'Timeout Error for user {u_id}.')
+        except aiohttp.ClientError as er:
+            raise aiohttp.ClientError(f'Client Error for user {u_id}: {er}.')
         except Exception as er:
-            print(f'OTHER ERROR for {u_id}: {er}; returning None')
-            return None
+            raise Exception(f'Unexpected Error for user {u_id}: {er}.')
 
     
     def load_user(self,
@@ -96,27 +92,27 @@ class FalseDmitry:
         :param see_progress:
          if True, prints progress statements and updates. If False, progress statements are suppressed.
         '''
-        try:
-            if user_identifier:
-                if len(re.compile(r'^https://www.goodreads.com/author/show/\d*').findall(user_identifier)):
-                    user_identifier = user_identifier
-                elif len(re.compile(r'^\d*$').findall(user_identifier)):
-                    user_identifier = f'https://www.goodreads.com/user/show/{user_identifier}'
-                else:
-                    raise ValueError('user_identifier must be full URL string OR identification serial number')
+        if user_identifier:
+            if re.match(r'^https://www.goodreads.com/user/show/\d*',user_identifier):
+                user_identifier = user_identifier
+            elif re.match(r'^\d*$', user_identifier):
+                user_identifier = f'https://www.goodreads.com/author/show/{user_identifier}'
             else:
-                raise ValueError('Give me an identifier damnit!')
-            self.u_url = user_identifier
-
-            u_id = _parse_id(self.user_url)
+                raise ValueError('user_identifier must be full URL string OR user identification number')
+        else:
+            raise ValueError('Provide user identification.')
+        self.user_url = user_identifier
+        
+        u_id = _parse_id(self.user_url)
+        try:
             print(f'{u_id} ATTEMPT @ {time.ctime()}') if see_progress else None
 
             resp = requests.get(self.a_url,headers=_rand_headers(_AGENTS))
             text = resp.text
             soup = BeautifulSoup(text,'lxml')
 
-            if soup.find('div', {'id':'privateProfile'}):
-                raise Exception(f'User {u_id} is private. Returning None')
+            if resp.status != 200:
+                raise Exception(f'Improper request respose: {resp.status} recieved for author {u_id}')
                     
             info_main = soup.find('div',class_='mainContentFloat')
             info_left = info_main.find('div', class_='leftContainer')
@@ -131,8 +127,9 @@ class FalseDmitry:
             return self
         
         except requests.HTTPError:
-            print(f'HTTP ERROR for {u_id}; returning None.')
-            return None
+            raise requests.HTTPError(f'HTTP Error for user {u_id}.')
+        except Exception as er:
+            raise Exception(f'Unexpected Error for user {u_id}: {er}')
 
 
     def get_name(self) -> Optional[str]:

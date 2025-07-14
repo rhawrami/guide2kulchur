@@ -13,18 +13,19 @@ from guide2kulchur.privateer.recruits import _TIMEOUT
 # We'll be scraping years sequentially, but we'll be pulling
 # data within each year asynchronously
 async def main() -> None:
-    '''multiple years of Goodreads book award data, write annual data to json'''
+    '''collect multiple years of PUBLICLY AVAILABLE Goodreads book award data, write annual data to json'''
     MAIN_DIR = 'data'
     AWARD_DIR = 'goodreads-choice-awards'
-    os.makedirs(os.path.join(MAIN_DIR,AWARD_DIR), exist_ok=True)
+    AWARD_SUB_DIR = 'books'
+    os.makedirs(os.path.join(MAIN_DIR,AWARD_DIR,AWARD_SUB_DIR), exist_ok=True)
 
     MIN,MAX = 2011,2024
     prompt = f'''
 Hello there. This script allows you to scrape Goodreads Annual Choice Awards book data for a collection
-of years. The data collected will be placed in the 'data/goodreads-choice-awards/' directory. For a preview of
+of years. The data collected will be placed in the 'data/goodreads-choice-awards/books/' directory. For a preview of
 what the awards look like, please use this link: https://www.goodreads.com/choiceawards/best-books-2024
 
-To begin scraping, please enter the collection of award years you'd like to scrape. NB:
+To begin, please enter the collection of award years you'd like to scrape. NB:
 
 - Award data is available from 2011 to 2024, as of {time.ctime()}.
 - Separate the years by a space; press Enter when you are done.
@@ -77,13 +78,13 @@ Enter years here: '''
                 'results': successes
             }
             
-            f_name = os.path.join(MAIN_DIR,AWARD_DIR,f'winners_{yr}.json')
+            f_name = os.path.join(MAIN_DIR,AWARD_DIR,AWARD_SUB_DIR,f'winners_{yr}.json')
         with open(f_name,'w') as yr_file:
             json.dump(dat,yr_file,indent=4)
         print(f'------------PULLED {yr} AWARDS------------')
         print(f'------------WRITTEN {yr} AWARDS TO {f_name}------------\n')
         WAIT_TIME = 30 # long, but I'm trying to be nice :)
-        await asyncio.sleep(WAIT_TIME)
+        time.sleep(WAIT_TIME)
     
     closing = '''
 -----   -----   -----   -----   -----   -----   -----   -----   -----   -----   -----   -----   ----- 
@@ -100,6 +101,7 @@ earth, yet we learned once and for all to stand for a cause and if necessary to 
 -----   -----   -----   -----   -----   -----   -----   -----   -----   -----   -----   -----   ----- 
 '''
     print(closing)
+
 
 if __name__=='__main__':
     asyncio.run(main())

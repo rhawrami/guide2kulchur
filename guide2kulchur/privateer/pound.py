@@ -1,5 +1,4 @@
 from datetime import datetime
-import json
 import re
 import asyncio
 import time
@@ -36,19 +35,20 @@ class Pound:
         :param see_progress:
          if True, prints progress statements and updates. If False, progress statements are suppressed.
         '''
-        try:
-            if author_identifier:
-                if len(re.compile(r'^https://www.goodreads.com/author/show/\d*').findall(author_identifier)):
-                    author_identifier = author_identifier
-                elif len(re.compile(r'^\d*$').findall(author_identifier)):
-                    author_identifier = f'https://www.goodreads.com/author/show/{author_identifier}'
-                else:
-                    raise ValueError('author_identifier must be full URL string OR identification serial number')
+        if author_identifier:
+            if re.match(r'^https://www.goodreads.com/author/show/\d*',author_identifier):
+                author_identifier = author_identifier
+            elif re.match(r'^\d*$', author_identifier):
+                author_identifier = f'https://www.goodreads.com/author/show/{author_identifier}'
             else:
-                raise ValueError('Provide author identification.')
-            self.author_url = author_identifier
+                raise ValueError('author_identifier must be full URL string OR identification serial number')
+        else:
+            raise ValueError('Provide author identification.')
+        self.author_url = author_identifier
 
-            a_id = _parse_id(self.author_url)
+        a_id = _parse_id(self.author_url)
+        
+        try:
             print(f'{a_id} ATTEMPT @ {time.ctime()}') if see_progress else None
             
             async with session.get(url=self.author_url,
@@ -72,15 +72,12 @@ class Pound:
                 print(f'{a_id} SUCCESSFULLY PULLED @ {time.ctime()}') if see_progress else None
                 return self
             
-        except asyncio.TimeoutError:
-            print(f'TIMEOUT ERROR for {a_id}; returning None')
-            return None
+        except asyncio.TimeoutError as er:
+            raise asyncio.TimeoutError(f'Timeout Error for author {a_id}.')
         except aiohttp.ClientError as er:
-            print(f'CLIENT ERROR for {a_id}: {er}; returning None')
-            return None
+            raise aiohttp.ClientError(f'Client Error for author {a_id}: {er}.')
         except Exception as er:
-            print(f'OTHER ERROR for {a_id}: {er}; returning None')
-            return None
+            raise Exception(f'Unexpected Error for author {a_id}: {er}.')
     
 
     def load_author(self,
@@ -93,19 +90,20 @@ class Pound:
         :param see_progress:
          if True, prints progress statements and updates. If False, progress statements are suppressed.
         '''
-        try:
-            if author_identifier:
-                if len(re.compile(r'^https://www.goodreads.com/author/show/\d*').findall(author_identifier)):
-                    author_identifier = author_identifier
-                elif len(re.compile(r'^\d*$').findall(author_identifier)):
-                    author_identifier = f'https://www.goodreads.com/author/show/{author_identifier}'
-                else:
-                    raise ValueError('author_identifier must be full URL string OR identification serial number')
+        if author_identifier:
+            if re.match(r'^https://www.goodreads.com/author/show/\d*',author_identifier):
+                author_identifier = author_identifier
+            elif re.match(r'^\d*$', author_identifier):
+                author_identifier = f'https://www.goodreads.com/author/show/{author_identifier}'
             else:
-                raise ValueError('Provide author identification.')
-            self.author_url = author_identifier
+                raise ValueError('author_identifier must be full URL string OR identification serial number')
+        else:
+            raise ValueError('Provide author identification.')
+        self.author_url = author_identifier
 
-            a_id = _parse_id(self.author_url)
+        a_id = _parse_id(self.author_url)
+        
+        try:
             print(f'{a_id} ATTEMPT @ {time.ctime()}') if see_progress else None
 
             resp = requests.get(self.author_url,headers=_rand_headers(_AGENTS))
@@ -123,10 +121,11 @@ class Pound:
             print(f'{a_id} SUCCESSFULLY PULLED @ {time.ctime()}') if see_progress else None
             return self
         
-        except requests.HTTPError as er:
-            print(f'HTTP ERROR for {a_id}; returning None.')
-            return None
-    
+        except requests.HTTPError:
+            raise requests.HTTPError(f'HTTP Error for author {a_id}.')
+        except Exception as er:
+            raise Exception(f'Unexpected Error for author {a_id}: {er}')
+        
 
     def get_name(self) -> Optional[str]:
         '''returns name of loaded Goodreads author.'''
@@ -156,7 +155,9 @@ class Pound:
     def get_birth_place(self) -> Optional[str]:
         '''returns birth place of loaded Goodreads author.'''
         txt = self._info_right.text.strip()
-        
+        birth_place_exists = re.search('born.*in',txt.lower())
+        if not birth_place_exists:
+            return None
         matches = re.findall(r'in.*\n', txt)
         if len(matches):
             birth_place = re.sub(r'in\s|\n','',matches[0])
@@ -170,7 +171,10 @@ class Pound:
         bd = self._info_right.find('div', {'itemprop': 'birthDate'})
         if bd:
             bdt = bd.text.strip()
-            birth_date = datetime.strptime(bdt,'%B %d, %Y').strftime('%m/%d/%Y')
+            try:
+                birth_date = datetime.strptime(bdt,'%B %d, %Y').strftime('%m/%d/%Y')
+            except ValueError: # stupid, fix this later
+                return None
             return birth_date
         else:
             return None
@@ -293,7 +297,7 @@ class Pound:
                         or 'publish' in sp.text][0].text.strip() # what a mess lol
                 
                 try:
-                    pub = re.search(r'published\n.*\d*',bkstats) ## WHAT IF THERE's NO A TAG
+                    pub = re.search(r'published\n.*\d*',bkstats) 
                     if pub:
                         bk_yr_pub = re.sub(r'\s|[a-zA-Z]','',pub.group(0))
                         bk_yr_pub = int(bk_yr_pub)

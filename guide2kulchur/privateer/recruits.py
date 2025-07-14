@@ -14,6 +14,7 @@ _AGENTS = [
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15'
 ]
 
+
 _TIMEOUT = aiohttp.ClientTimeout(total=10,
                                 connect=15,
                                 sock_read=30)
@@ -106,7 +107,10 @@ def _query_books(search_str: str) -> str:
         else:
             raise LookupError(f'No results shown for query: "{search_str}"')
     except requests.HTTPError as er:
-        raise er
+        print(er)
+        return None
+    except Exception:
+        return None
 
 
 async def _query_books_async(session: aiohttp.ClientSession,
@@ -132,10 +136,13 @@ async def _query_books_async(session: aiohttp.ClientSession,
             else:
                 raise LookupError(f'No results shown for query: "{search_str}"')
     except aiohttp.ClientError as er:
-        raise er
+        print(er)
+        return None
+    except Exception:
+        return None
 
 
-def _get_similar_books(similar_url: str) -> Optional[List[str]]:
+def _get_similar_books(similar_url: str) -> Optional[List[Dict[str,str]]]:
     '''returns similar book data for a given book
 
     :similar_url: original GoodReads book url 
@@ -165,15 +172,18 @@ def _get_similar_books(similar_url: str) -> Optional[List[str]]:
                     'title': b_title,
                     'author': b_author
                 })
-        return dat
+        return dat if len(dat) else None
 
     except requests.HTTPError as er:
+        print(er)
+        return None
+    except Exception as er:
         print(er)
         return None
 
 
 async def _get_similar_books_async(session: aiohttp.ClientSession,
-                                   similar_url: str) -> Optional[List[str]]:
+                                   similar_url: str) -> Optional[List[Dict[str,str]]]:
     '''ASYNC returns similar book data for a given book
 
     :similar_url: original GoodReads book url 
@@ -199,8 +209,11 @@ async def _get_similar_books_async(session: aiohttp.ClientSession,
                         'title': b_title,
                         'author': b_author
                     })
-            return dat
+            return dat if len(dat) else None
     except aiohttp.ClientError as er:
+        print(er)
+        return None
+    except Exception as er:
         print(er)
         return None
     

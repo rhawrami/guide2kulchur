@@ -11,8 +11,10 @@ from guide2kulchur.privateer.falsedmitry import FalseDmitry
 from guide2kulchur.privateer.pound import Pound
 from guide2kulchur.privateer.recruits import _rand_headers, _TIMEOUT, _AGENTS
 
+# "All America is an insane asylum" - E.P.
 
 async def _load_one_book_aio(session: aiohttp.ClientSession,
+                             semaphore: asyncio.Semaphore,
                              identifer: str,
                              exclude_attrs: Optional[List[str]] = None,
                              see_progress: bool = True,
@@ -20,31 +22,34 @@ async def _load_one_book_aio(session: aiohttp.ClientSession,
             '''load one Goodreads book ASYNC
             
             :session: an aiohttp.ClientSession
+            :semaphore: an asyncio.Semaphore
             :identifer: a book ID or URL
             :exclude_attrs: book attributes to exclude
             :see_progress: view progress for each book pull
             :to_dict: convert book data to dict; otherwise, stays SimpleNamespace
             '''
-            try:
-                alx = Alexandria()
-                await alx.load_book_async(session=session,
-                                          book_identifier=identifer,
-                                          see_progress=see_progress)
-                if exclude_attrs:
-                     if 'similar_books' in exclude_attrs:
-                          bk_dat = alx.get_all_data(exclude_attrs=exclude_attrs,
-                                                    to_dict=to_dict)
-                else:
-                    bk_dat = await alx.get_all_data_async(session=session,
-                                                          exclude_attrs=exclude_attrs,
-                                                          to_dict=to_dict)
-                return bk_dat
-            
-            except Exception:
-                return None
+            async with semaphore:
+                try:
+                    alx = Alexandria()
+                    await alx.load_book_async(session=session,
+                                            book_identifier=identifer,
+                                            see_progress=see_progress)
+                    if exclude_attrs:
+                        if 'similar_books' in exclude_attrs:
+                            bk_dat = alx.get_all_data(exclude_attrs=exclude_attrs,
+                                                        to_dict=to_dict)
+                    else:
+                        bk_dat = await alx.get_all_data_async(session=session,
+                                                            exclude_attrs=exclude_attrs,
+                                                            to_dict=to_dict)
+                    return bk_dat
+                
+                except Exception:
+                    return None
 
 
 async def _load_one_user_aio(session: aiohttp.ClientSession,
+                             semaphore: asyncio.Semaphore,
                              identifer: str,
                              exclude_attrs: Optional[List[str]] = None,
                              see_progress: bool = True,
@@ -52,25 +57,28 @@ async def _load_one_user_aio(session: aiohttp.ClientSession,
             '''load one Goodreads user ASYNC
             
             :session: an aiohttp.ClientSession
+            :semaphore: an asyncio.Semaphore
             :identifer: a user ID or URL
             :exclude_attrs: user attributes to exclude
             :see_progress: view progress for each user pull
             :to_dict: convert user data to dict; otherwise, stays SimpleNamespace
             '''
-            try:
-                dmitry = FalseDmitry()
-                await dmitry.load_user_async(session=session,
-                                             user_identifier=identifer,
-                                             see_progress=see_progress)
-                usr_dat = dmitry.get_all_data(exclude_attrs=exclude_attrs,
-                                              to_dict=to_dict)
-                return usr_dat
-                
-            except Exception:
-                return None
+            async with semaphore:
+                try:
+                    dmitry = FalseDmitry()
+                    await dmitry.load_user_async(session=session,
+                                                user_identifier=identifer,
+                                                see_progress=see_progress)
+                    usr_dat = dmitry.get_all_data(exclude_attrs=exclude_attrs,
+                                                to_dict=to_dict)
+                    return usr_dat
+                    
+                except Exception:
+                    return None
 
 
 async def _load_one_author_aio(session: aiohttp.ClientSession,
+                               semaphore: asyncio.Semaphore,
                                identifer: str,
                                exclude_attrs: Optional[List[str]] = None,
                                see_progress: bool = True,
@@ -78,28 +86,32 @@ async def _load_one_author_aio(session: aiohttp.ClientSession,
             '''load one Goodreads author ASYNC
             
             :session: an aiohttp.ClientSession
+            :semaphore: an asyncio.Semaphore
             :identifer: a author ID or URL
             :exclude_attrs: author attributes to exclude
             :see_progress: view progress for each author pull
             :to_dict: convert author data to dict; otherwise, stays SimpleNamespace
             '''
-            try:
-                pnd = Pound()
-                await pnd.load_author_async(session=session,
-                                            author_identifier=identifer,
-                                            see_progress=see_progress)
-                authr_dat = pnd.get_all_data(exclude_attrs=exclude_attrs,
-                                             to_dict=to_dict)
-                return authr_dat
-                
-            except Exception:
-                return None
+            async with semaphore:
+                try:
+                    pnd = Pound()
+                    await pnd.load_author_async(session=session,
+                                                author_identifier=identifer,
+                                                see_progress=see_progress)
+                    authr_dat = pnd.get_all_data(exclude_attrs=exclude_attrs,
+                                                to_dict=to_dict)
+                    return authr_dat
+                    
+                except Exception:
+                    return None
 
 
 async def bulk_load_aio(category: str,
                         identifiers: List[str],
                         exclude_attrs: Optional[List[str]] = None,
-                        semaphore: int = 3,
+                        semaphore_count: int = 3,
+                        batch_delay: Optional[int] = None,
+                        batch_size: Optional[int] = None,
                         to_dict: bool = False,
                         see_progress: bool = True,
                         write_json: Optional[str] = None):
@@ -108,7 +120,9 @@ async def bulk_load_aio(category: str,
     :param category: category to pull from; options include ['book', 'user', 'author']
     :param identifiers: unique item identifiers, or unique URLs
     :param exclude_attrs: item attributes to exclude
-    :param semaphore: semaphore control; defaults to three requests
+    :param semaphore_count: semaphore control; defaults to three requests
+    :parm batch_delay: determines number of seconds to sleep per completion of each batch
+    :param batch_size: determines batch size
     :param to_dict: converts data to dict type; otherwise, stays SimpleNamespace
     :param see_progress: view per-unit progress
     :param write_json: file_name to write data to json
@@ -123,26 +137,33 @@ async def bulk_load_aio(category: str,
         'author': _load_one_author_aio
     }
     cat_fn = cat_fn_map[category]
+    
+    sem = asyncio.Semaphore(semaphore_count)
     bulk_data = []
-    async with asyncio.Semaphore(semaphore):
-        async with aiohttp.ClientSession(headers=_rand_headers(_AGENTS),
-                                         timeout=_TIMEOUT) as sesh:
-            tasks = [cat_fn(session=sesh,
-                            identifer=id_,
-                            exclude_attrs=exclude_attrs,
-                            see_progress=see_progress,
-                            to_dict=to_dict) for id_ in identifiers]
-            
-            time_start = time.ctime()
-            async for item in asyncio.as_completed(tasks):
-                result = await item
-                if not result: 
-                    if see_progress:
-                            print(f'Error for this')
-                    continue
-                else:
-                    bulk_data.append(result)
-            time_end = time.ctime()
+    async with aiohttp.ClientSession(headers=_rand_headers(_AGENTS),
+                                        timeout=_TIMEOUT) as sesh:
+        tasks = [cat_fn(session=sesh,
+                        semaphore=sem,
+                        identifer=id_,
+                        exclude_attrs=exclude_attrs,
+                        see_progress=see_progress,
+                        to_dict=to_dict) for id_ in identifiers]
+        
+        time_start = time.ctime()
+        completed = 0
+        async for item in asyncio.as_completed(tasks):
+            if batch_delay and batch_size:
+                 if completed > 0 and completed % batch_size == 0:
+                      time.sleep(batch_delay)
+            result = await item
+            if not result: 
+                if see_progress:
+                        print(f'Error for this')
+                continue
+            else:
+                bulk_data.append(result)
+            completed += 1
+        time_end = time.ctime()
     
     attempted = len(identifiers)
     successes = len(bulk_data)
@@ -181,7 +202,9 @@ success rate: {success_rate}
 
 async def bulk_books_aio(book_ids: List[str],
                          exclude_attrs: Optional[List[str]] = None,
-                         semaphore: int = 3,
+                         semaphore_count: int = 3,
+                         batch_delay: Optional[int] = None,
+                         batch_size: Optional[int] = None,
                          to_dict: bool = False,
                          see_progress: bool = True,
                          write_json: Optional[str] = None):
@@ -189,7 +212,9 @@ async def bulk_books_aio(book_ids: List[str],
     
     :param book_ids: unique book identifiers, or book URLs
     :param exclude_attrs: book attributes to exclude; see below for options
-    :param semaphore: semaphore control; defaults to three requests
+    :param semaphore_count: semaphore control; defaults to three requests
+    :parm batch_delay: determines number of seconds to sleep per completion of each batch
+    :param batch_size: determines batch size
     :param to_dict: converts data to dict type; otherwise, stays SimpleNamespace
     :param see_progress: view per-book progress
     :param write_json: file_name to write data to json
@@ -222,7 +247,9 @@ async def bulk_books_aio(book_ids: List[str],
     await bulk_load_aio(category='book',
                         identifiers=book_ids,
                         exclude_attrs=exclude_attrs,
-                        semaphore=semaphore,
+                        semaphore_count=semaphore_count,
+                        batch_delay=batch_delay,
+                        batch_size=batch_size,
                         to_dict=to_dict,
                         see_progress=see_progress,
                         write_json=write_json)
@@ -230,7 +257,9 @@ async def bulk_books_aio(book_ids: List[str],
 
 async def bulk_users_aio(user_ids: List[str],
                          exclude_attrs: Optional[List[str]] = None,
-                         semaphore: int = 3,
+                         semaphore_count: int = 3,
+                         batch_delay: Optional[int] = None,
+                         batch_size: Optional[int] = None,
                          to_dict: bool = False,
                          see_progress: bool = True,
                          write_json: Optional[str] = None):
@@ -238,7 +267,9 @@ async def bulk_users_aio(user_ids: List[str],
     
     :param book_ids: unique user identifiers, or user URLs
     :param exclude_attrs: user attributes to exclude; see below for options
-    :param semaphore: semaphore control; defaults to three requests
+    :param semaphore_count: semaphore control; defaults to three requests
+    :parm batch_delay: determines number of seconds to sleep per completion of each batch
+    :param batch_size: determines batch size
     :param to_dict: converts data to dict type; otherwise, stays SimpleNamespace
     :param see_progress: view per-user progress
     :param write_json: file_name to write data to json
@@ -267,7 +298,9 @@ async def bulk_users_aio(user_ids: List[str],
     await bulk_load_aio(category='user',
                         identifiers=user_ids,
                         exclude_attrs=exclude_attrs,
-                        semaphore=semaphore,
+                        semaphore_count=semaphore_count,
+                        batch_delay=batch_delay,
+                        batch_size=batch_size,
                         to_dict=to_dict,
                         see_progress=see_progress,
                         write_json=write_json)
@@ -275,7 +308,9 @@ async def bulk_users_aio(user_ids: List[str],
 
 async def bulk_authors_aio(author_ids: List[str],
                            exclude_attrs: Optional[List[str]] = None,
-                           semaphore: int = 3,
+                           semaphore_count: int = 3,
+                           batch_delay: Optional[int] = None,
+                           batch_size: Optional[int] = None,
                            to_dict: bool = False,
                            see_progress: bool = True,
                            write_json: Optional[str] = None):
@@ -283,7 +318,9 @@ async def bulk_authors_aio(author_ids: List[str],
     
     :param author_ids: unique author identifiers, or author URLs
     :param exclude_attrs: author attributes to exclude; see below for options
-    :param semaphore: semaphore control; defaults to three requests
+    :param semaphore_count: semaphore control; defaults to three requests
+    :parm batch_delay: determines number of seconds to sleep per completion of each batch
+    :param batch_size: determines batch size
     :param to_dict: converts data to dict type; otherwise, stays SimpleNamespace
     :param see_progress: view per-author progress
     :param write_json: file_name to write data to json
@@ -313,18 +350,22 @@ async def bulk_authors_aio(author_ids: List[str],
     await bulk_load_aio(category='author',
                         identifiers=author_ids,
                         exclude_attrs=exclude_attrs,
-                        semaphore=semaphore,
+                        semaphore_count=semaphore_count,
+                        batch_delay=batch_delay,
+                        batch_size=batch_size,
                         to_dict=to_dict,
                         see_progress=see_progress,
                         write_json=write_json)
     
 
 if __name__ == '__main__':
-    items = ['29963', '193536', '5725109']
+    items = ['21559', '65483', '1113469']
     
     async def main():
          await bulk_authors_aio(author_ids=items,
-                                semaphore=2,
+                                semaphore_count=3,
+                                batch_delay=10,
+                                batch_size=2,
                                 to_dict=False,
                                 see_progress=False,
                                 write_json='testfile.json')
