@@ -26,7 +26,7 @@ class FalseDmitry:
                               session: aiohttp.ClientSession,
                               user_identifier: str,
                               see_progress: bool = True) -> None:
-        '''load GoodReads user data (ASYNC).
+        '''load GoodReads user data asynchronously.
         
         :param session:
          an aiohttp.ClientSession object
@@ -49,18 +49,18 @@ class FalseDmitry:
         u_id = _parse_id(self.user_url)
 
         try:
-            print(f'{u_id} ATTEMPT @ {time.ctime()}') if see_progress else None
+            print(f'{u_id} attempt @ {time.ctime()}') if see_progress else None
 
             async with session.get(url=self.user_url,
                                    headers=_rand_headers(_AGENTS)) as resp:
                 if resp.status != 200:
-                    raise Exception(f'Improper request respose: {resp.status} recieved for author {u_id}')
+                    raise Exception(f'Improper request respose: {resp.status} recieved for user {u_id}')
                 
                 text = await resp.text()
                 soup = BeautifulSoup(text,'lxml')
 
                 if soup.find('div', {'id':'privateProfile'}):
-                    print(f'User {u_id} is private. Returning None.')
+                    raise Exception(f'User {u_id} has a private profile; unable to get user data.')
                     
                 info_main = soup.find('div',class_='mainContentFloat')
                 info_left = info_main.find('div', class_='leftContainer')
@@ -71,13 +71,13 @@ class FalseDmitry:
                 self._info_left = info_left
                 self._info_right = info_right
                 
-                print(f'{u_id} SUCCESSFULLY PULLED @ {time.ctime()}') if see_progress else None
+                print(f'{u_id} pulled @ {time.ctime()}') if see_progress else None
                 return self
     
-        except asyncio.TimeoutError as er:
+        except asyncio.TimeoutError:
             raise asyncio.TimeoutError(f'Timeout Error for user {u_id}.')
-        except aiohttp.ClientError as er:
-            raise aiohttp.ClientError(f'Client Error for user {u_id}: {er}.')
+        except aiohttp.ClientError:
+            raise aiohttp.ClientError(f'Client Error for user {u_id}.')
         except Exception as er:
             raise Exception(f'Unexpected Error for user {u_id}: {er}.')
 
@@ -105,14 +105,16 @@ class FalseDmitry:
         
         u_id = _parse_id(self.user_url)
         try:
-            print(f'{u_id} ATTEMPT @ {time.ctime()}') if see_progress else None
+            print(f'{u_id} attempt @ {time.ctime()}') if see_progress else None
 
             resp = requests.get(self.a_url,headers=_rand_headers(_AGENTS))
+            if resp.status_code != 200:
+                raise Exception(f'Improper request respose: {resp.status_code} recieved for user {u_id}')
             text = resp.text
             soup = BeautifulSoup(text,'lxml')
 
-            if resp.status != 200:
-                raise Exception(f'Improper request respose: {resp.status} recieved for author {u_id}')
+            if soup.find('div', {'id':'privateProfile'}):
+                raise Exception(f'User {u_id} has a private profile; unable to get user data.')
                     
             info_main = soup.find('div',class_='mainContentFloat')
             info_left = info_main.find('div', class_='leftContainer')
@@ -123,7 +125,7 @@ class FalseDmitry:
             self._info_left = info_left
             self._info_right = info_right
             
-            print(f'{u_id} SUCCESSFULLY PULLED @ {time.ctime()}') if see_progress else None
+            print(f'{u_id} pulled @ {time.ctime()}') if see_progress else None
             return self
         
         except requests.HTTPError:
@@ -132,8 +134,15 @@ class FalseDmitry:
             raise Exception(f'Unexpected Error for user {u_id}: {er}')
 
 
+    def _confirm_loaded(self) -> None:
+        '''checks if attributes have been defined; raises error if not.'''
+        if not self._soup:
+            raise RuntimeError('Goodreads user not yet loaded; use "load_user" method prior to any "get_[user_attr]" methods.')
+        
+
     def get_name(self) -> Optional[str]:
         '''returns name of loaded Goodreads user.'''
+        self._confirm_loaded()
         name_box = self._info_left.find('h1', class_='userProfileName')
         if name_box:
             return name_box.text.strip()
@@ -143,11 +152,13 @@ class FalseDmitry:
 
     def get_id(self) -> Optional[str]:
         '''returns unique ID of loaded Goodreads user.'''
+        self._confirm_loaded()
         return _parse_id(self.user_url)
         
 
     def get_image_url(self) -> Optional[str]:
         '''returns URL to loaded Goodreads user's profile picture.'''
+        self._confirm_loaded()
         pic_box = self._info_left.find('div',class_='leftAlignedProfilePicture')
         if pic_box:
             pfp = pic_box.find('img')
@@ -159,6 +170,7 @@ class FalseDmitry:
 
     def get_rating_count(self) -> Optional[float]:
         '''returns number of ratings given by loaded Goodreads user.'''
+        self._confirm_loaded()
         user_stats = self._info_left.find('div',
                                           class_='profilePageUserStatsInfo').find_all('a')
         if user_stats:
@@ -170,6 +182,7 @@ class FalseDmitry:
 
     def get_rating(self) -> Optional[float]:
         '''returns average of book ratings given by loaded Goodreads user.'''
+        self._confirm_loaded()
         user_stats = self._info_left.find('div',
                                           class_='profilePageUserStatsInfo').find_all('a')
         if user_stats:
@@ -181,6 +194,7 @@ class FalseDmitry:
 
     def get_review_count(self) -> Optional[int]:
         '''returns number of reviews given by loaded Goodreads user.'''
+        self._confirm_loaded()
         user_stats = self._info_left.find('div',
                                           class_='profilePageUserStatsInfo').find_all('a')
         if user_stats:
@@ -192,6 +206,7 @@ class FalseDmitry:
     
     def get_favorite_genres(self) -> Optional[List[str]]:
         '''returns a list of loaded Goodreads user's favorite genres.'''
+        self._confirm_loaded()
         g_list = []
         genre_box_all = self._info_right.find_all('div',class_='stacked clearFloats bigBox')
         if genre_box_all:
@@ -212,6 +227,7 @@ class FalseDmitry:
 
     def get_featured_shelf(self) -> Optional[Dict[str,List[Dict]]]: # a mess of an annotation, sorry
         '''returns featured shelf of loaded Goodreads user.'''
+        self._confirm_loaded()
         fs_box = self._info_left.find('div', {'id':'featured_shelf'})
         if fs_box:
             fs_title = fs_box.find('h2').find('a').text.strip()
@@ -245,6 +261,7 @@ class FalseDmitry:
     
     def get_currently_reading_sample(self) -> Optional[List[Dict[str,str]]]:
         '''returns sample of books loaded Goodreads user is currently reading.'''
+        self._confirm_loaded()
         content_boxes = self._info_left.find_all('div',class_ = ['clearFloats','bigBox'])
         cur_read_box = None
         for box in content_boxes:
@@ -281,6 +298,7 @@ class FalseDmitry:
 
     def get_quotes_sample(self) -> Optional[List[Dict[str,str]]]:
         '''returns sample of quotes selected by loaded Goodreads user (note that this is dynamic).'''
+        self._confirm_loaded()
         content_boxes = self._info_left.find_all('div',class_ = ['clearFloats','bigBox'])
         quotes_box = None
         for box in content_boxes:
@@ -315,6 +333,7 @@ class FalseDmitry:
 
     def get_follower_count(self) -> Optional[int]:
         '''returns number of users following loaded Goodreads user.'''
+        self._confirm_loaded()
         margin_links = self._info_right.find_all('a',class_='actionLinkLite')
         if len(margin_links) > 0:
             for lnk in margin_links:
@@ -328,6 +347,7 @@ class FalseDmitry:
 
     def get_followings_sample(self) -> Optional[List[Dict[str,Any]]]:
         '''returns a sample list of users that the loaded Goodreads user is following.'''
+        self._confirm_loaded()
         boxes = self._info_right.find_all('div',class_='clearFloats bigBox')
         for box in boxes:
             title = box.find('a').text
@@ -351,6 +371,7 @@ class FalseDmitry:
 
     def get_friend_count(self) -> Optional[int]:
         '''returns number of friends that loaded Goodreads user has.'''
+        self._confirm_loaded()
         boxes = self._info_right.find_all('div',class_='clearFloats bigBox')
         for box in boxes:
             friend_box_id = box.find('h2',class_='brownBackground')
@@ -369,6 +390,7 @@ class FalseDmitry:
 
     def get_friends_sample(self) -> Optional[List[Dict[str,Any]]]:
         '''returns a sample list of users that the loaded Goodreads user is friends with.'''
+        self._confirm_loaded()
         boxes = self._info_right.find_all('div',class_='clearFloats bigBox')
         for box in boxes:
             friend_box_id = box.find('h2',class_='brownBackground')
@@ -438,6 +460,7 @@ class FalseDmitry:
         - **friends_sample** (List[Dict]): sample list of user's friends
         - **followings_sample** (List[Dict]): sample list of user's followings
         '''
+        self._confirm_loaded()
         attr_fn_map = {
             'url': lambda: self.user_url,
             'id': self.get_id,

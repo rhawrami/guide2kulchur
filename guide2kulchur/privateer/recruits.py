@@ -88,7 +88,7 @@ def _parse_id(url: str) -> Optional[str]:
         return None
 
 
-def _query_books(search_str: str) -> str:
+def _query_books(search_str: str) -> Optional[str]:
     '''returns the url to to top resulted book page from a Goodreads search query
     
     :search_str: search string for a desired book
@@ -107,14 +107,13 @@ def _query_books(search_str: str) -> str:
         else:
             raise LookupError(f'No results shown for query: "{search_str}"')
     except requests.HTTPError as er:
-        print(er)
-        return None
-    except Exception:
-        return None
+        raise requests.HTTPError(f'HTTP error for query {search_str}')
+    except Exception as er:
+        raise Exception(f'Unexpected error for query: {er}')
 
 
 async def _query_books_async(session: aiohttp.ClientSession,
-                             search_str: str) -> str:
+                             search_str: str) -> Optional[str]:
     '''ASYNC returns the url to to top resulted book page from a Goodreads search query
     
     :session: async client session
@@ -136,10 +135,9 @@ async def _query_books_async(session: aiohttp.ClientSession,
             else:
                 raise LookupError(f'No results shown for query: "{search_str}"')
     except aiohttp.ClientError as er:
-        print(er)
-        return None
-    except Exception:
-        return None
+        raise aiohttp.ClientError('Client Error for query.')
+    except Exception as er:
+        raise Exception(f'Unexpected error for query: {er}')
 
 
 def _get_similar_books(similar_url: str) -> Optional[List[Dict[str,str]]]:

@@ -13,7 +13,7 @@ classifiers = [
 version = "1.0"
 authors = [{"name" = "rhawrami", "email" = "ravanhawrami@gmail.com"}]
 readme = {"file" = "README.md", content-type = "text/markdown"}
-dependencies = ["aiohttp", "requests", "lxml", "bs4"]
+dependencies = ["aiohttp", "requests", "lxml", "bs4", "asyncpg"]
 
 [tool.setuptools]
-packages = { find = { include = ["guide2kulchur"], exclude = ["scripts","tests","data"] } }
+packages = { find = { include = ["guide2kulchur"], exclude = ["scripts","tests","data","db"] } }

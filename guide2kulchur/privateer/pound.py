@@ -10,7 +10,7 @@ import aiohttp
 import requests
 from bs4 import BeautifulSoup, Tag
 
-from guide2kulchur.privateer.recruits import (_AGENTS, _rand_headers, _parse_id)
+from guide2kulchur.privateer.recruits import _AGENTS, _rand_headers, _parse_id
 
 
 class Pound:
@@ -26,14 +26,14 @@ class Pound:
                                 session: aiohttp.ClientSession,
                                 author_identifier: Optional[str] = None,
                                 see_progress: bool = True) -> Optional['Pound']:
-        '''load GoodReads author data (ASYNC).
+        '''load GoodReads author data asynchronously.
         
         :param session:
          an aiohttp.ClientSession object
         :param user_identifier:
          Unique Goodreads author ID, or URL to the author's page.
         :param see_progress:
-         if True, prints progress statements and updates. If False, progress statements are suppressed.
+         if True, prints progress statements and updates. If False, progress statements are suppressed. 
         '''
         if author_identifier:
             if re.match(r'^https://www.goodreads.com/author/show/\d*',author_identifier):
@@ -49,14 +49,12 @@ class Pound:
         a_id = _parse_id(self.author_url)
         
         try:
-            print(f'{a_id} ATTEMPT @ {time.ctime()}') if see_progress else None
+            print(f'{a_id} attempt @ {time.ctime()}') if see_progress else None
             
             async with session.get(url=self.author_url,
                                    headers=_rand_headers(_AGENTS)) as resp:
-                
                 if resp.status != 200:
-                    print(f'{resp.status} for {self.author_url}')
-                    return None
+                    raise Exception(f'Improper request respose: {resp.status} recieved for author {a_id}')
                 
                 text = await resp.text()
                 soup = BeautifulSoup(text,'lxml')
@@ -69,13 +67,13 @@ class Pound:
                 self._info_left = info_left
                 self._info_right = info_right
                 
-                print(f'{a_id} SUCCESSFULLY PULLED @ {time.ctime()}') if see_progress else None
+                print(f'{a_id} pulled @ {time.ctime()}') if see_progress else None
                 return self
             
-        except asyncio.TimeoutError as er:
+        except asyncio.TimeoutError:
             raise asyncio.TimeoutError(f'Timeout Error for author {a_id}.')
-        except aiohttp.ClientError as er:
-            raise aiohttp.ClientError(f'Client Error for author {a_id}: {er}.')
+        except aiohttp.ClientError:
+            raise aiohttp.ClientError(f'Client Error for author {a_id}.')
         except Exception as er:
             raise Exception(f'Unexpected Error for author {a_id}: {er}.')
     
@@ -104,9 +102,12 @@ class Pound:
         a_id = _parse_id(self.author_url)
         
         try:
-            print(f'{a_id} ATTEMPT @ {time.ctime()}') if see_progress else None
+            print(f'{a_id} attempt @ {time.ctime()}') if see_progress else None
 
             resp = requests.get(self.author_url,headers=_rand_headers(_AGENTS))
+            if resp.status_code != 200:
+                raise Exception(f'Improper request respose: {resp.status_code} recieved for author {a_id}')
+            
             text = resp.text
             soup = BeautifulSoup(text,'lxml')
             info_main = soup.find('div', class_='mainContentFloat')
@@ -118,7 +119,7 @@ class Pound:
             self._info_left = info_left
             self._info_right = info_right
             
-            print(f'{a_id} SUCCESSFULLY PULLED @ {time.ctime()}') if see_progress else None
+            print(f'{a_id} pulled @ {time.ctime()}') if see_progress else None
             return self
         
         except requests.HTTPError:
@@ -127,8 +128,15 @@ class Pound:
             raise Exception(f'Unexpected Error for author {a_id}: {er}')
         
 
+    def _confirm_loaded(self) -> None:
+        '''checks if attributes have been defined; raises error if not.'''
+        if not self._soup:
+            raise RuntimeError('Goodreads author not yet loaded; use "load_author" method prior to any "get_[author_attr]" methods.')
+    
+
     def get_name(self) -> Optional[str]:
         '''returns name of loaded Goodreads author.'''
+        self._confirm_loaded()
         h1 = self._info_right.find('h1', class_='authorName')
         if h1:
             name = h1.find('span')
@@ -139,11 +147,13 @@ class Pound:
 
     def get_id(self) -> Optional[str]:
         '''returns unique ID of loaded Goodreads author.'''
+        self._confirm_loaded()
         return _parse_id(self.author_url)
     
 
     def get_image_url(self) -> Optional[str]:
         '''returns URL to loaded Goodreads author's image.'''
+        self._confirm_loaded()
         try:
             img = self._info_left.find('img')
             img_url = img['src'].strip()
@@ -154,6 +164,7 @@ class Pound:
 
     def get_birth_place(self) -> Optional[str]:
         '''returns birth place of loaded Goodreads author.'''
+        self._confirm_loaded()
         txt = self._info_right.text.strip()
         birth_place_exists = re.search('born.*in',txt.lower())
         if not birth_place_exists:
@@ -168,6 +179,7 @@ class Pound:
 
     def get_birth_date(self) -> Optional[str]:
         '''returns birth date (in "DD/MM/YY" format) of loaded Goodreads author.'''
+        self._confirm_loaded()
         bd = self._info_right.find('div', {'itemprop': 'birthDate'})
         if bd:
             bdt = bd.text.strip()
@@ -182,6 +194,7 @@ class Pound:
 
     def get_death_date(self) -> Optional[str]:
         '''returns death date (in "DD/MM/YY" format) of loaded Goodreads author.'''
+        self._confirm_loaded()
         dd = self._info_right.find('div', {'itemprop': 'deathDate'})
         if dd:
             ddt = dd.text.strip()
@@ -193,6 +206,7 @@ class Pound:
 
     def get_top_genres(self) -> Optional[List[str]]:
         '''returns loaded Goodreads author's top genres.'''
+        self._confirm_loaded()
         try:
             genre_title = [i for i in self._info_right.find_all('div', class_='dataTitle') if i.text == 'Genre'][0]
             genre_box = genre_title.find_next_siblings()[0]
@@ -206,6 +220,7 @@ class Pound:
 
     def get_influences(self) -> Optional[List[Dict[str,str]]]:
         '''returns list of other authors that loaded Goodreads author is influenced by.'''
+        self._confirm_loaded()
         try:
             data_titles = self._info_right.find_all('div', class_ = 'dataTitle')
             influence_txt = [dt for dt in data_titles if 'fluence' in dt.text][0]
@@ -227,6 +242,7 @@ class Pound:
 
     def get_description(self) -> Optional[str]:
         '''returns description of loaded Goodreads author.'''
+        self._confirm_loaded()
         try:
             author_info = self._info_right.find('div', class_ = 'aboutAuthorInfo')
             info = author_info.find_all('span')[-1]
@@ -237,6 +253,7 @@ class Pound:
 
     def get_follower_count(self) -> Optional[int]:
         '''returns number of users following loaded Goodreads author.'''
+        self._confirm_loaded()
         try:
             h2 = self._info_left.find_all('h2')
             followers = [h.text.strip() for h in h2 if 'follower' in h.text.strip().lower()][0]
@@ -249,6 +266,7 @@ class Pound:
 
     def get_rating_count(self) -> Optional[int]:
         '''returns number of ratings given to loaded Goodreads author's works.'''
+        self._confirm_loaded()
         try:
             agg_stats = self._info_right.find('div', class_ = 'hreview-aggregate')
             num_rate_str = agg_stats.find('span', {'itemprop': 'ratingCount'}).text.strip()
@@ -260,6 +278,7 @@ class Pound:
 
     def get_review_count(self) -> Optional[int]:
         '''returns number of reviews given to loaded Goodreads author's works.'''
+        self._confirm_loaded()
         try:
             agg_stats = self._info_right.find('div', class_ = 'hreview-aggregate')
             num_rev_str = agg_stats.find('span', {'itemprop': 'reviewCount'}).text.strip()
@@ -271,6 +290,7 @@ class Pound:
 
     def get_rating(self) -> Optional[float]:
         '''returns loaded Goodread author's average book rating.'''
+        self._confirm_loaded()
         try:
             agg_stats = self._info_right.find('div', class_ = 'hreview-aggregate')
             avg_rate = agg_stats.find('span', {'itemprop': 'ratingValue'}).text.strip()
@@ -283,61 +303,74 @@ class Pound:
         '''returns sample (max n = 10) of loaded Goodreads author's most popular books.'''
         # if anyone ever reads this: I know, this is very ugly. 
         # But it works most of the time probably. I haven't written any tests yet.
-        try:
-            agg_stats = self._info_right.find('div', class_ = 'hreview-aggregate')
-            books_tab = agg_stats.find_next_sibling('table').find_all('tr', {'itemtype': 'http://schema.org/Book'})
-            
-            books = []
-            for bk in books_tab:
-                elements = bk.find_all('td')
-                bk_info = [el for el in elements if el.find('a', class_ = 'bookTitle')][0]
-                bkt = bk_info.find('a', class_ = 'bookTitle')
-                bkstats = [sp for sp in bk_info.find_all('span') 
-                        if 'edition' in sp.text
-                        or 'publish' in sp.text][0].text.strip() # what a mess lol
-                
-                try:
-                    pub = re.search(r'published\n.*\d*',bkstats) 
-                    if pub:
-                        bk_yr_pub = re.sub(r'\s|[a-zA-Z]','',pub.group(0))
-                        bk_yr_pub = int(bk_yr_pub)
-                    else:
-                        bk_yr_pub = None
-                    
-                    avgrat = re.search(r'.*avg rating',bkstats)
-                    if avgrat:
-                        bk_avg_rat = re.sub(r'\s|[a-zA-Z]','',avgrat.group(0))
-                        bk_avg_rat = float(bk_avg_rat)
-                    else:
-                        bk_avg_rat = None
-                    
-                    numrat = bkstats.split('—')
-                    if len(numrat) > 1:
-                        bk_num_rat = re.sub(r'\s|[a-zA-Z]|,','',numrat[1])
-                        bk_num_rat = int(bk_num_rat)
-                    else:
-                        bk_num_rat = None
-
-                    bk_title = bkt.text.strip()
-                    bk_id = _parse_id(bkt['href'].strip())
-
-                    bk_dict = {
-                        'title': bk_title,
-                        'id': bk_id,
-                        'year_published': bk_yr_pub,
-                        'rating_average': bk_avg_rat,
-                        'rating_count': bk_num_rat
-                    }
-                    books.append(bk_dict)
-                except Exception:
-                    continue
-            return books
-        
-        except Exception:
-            return None
+        self._confirm_loaded()
     
+        agg_stats = self._info_right.find('div', class_ = 'hreview-aggregate')
+        if agg_stats:
+            books_tab = agg_stats.find_next_sibling('table').find_all('tr', {'itemtype': 'http://schema.org/Book'})
+        else:
+            return None
+        
+        books = []
+        for bk in books_tab:
+            elements = bk.find_all('td')
+            if len(elements) > 1:
+                bk_info = elements[1]   # second element contains all the info we need
+            else:
+                return None
+
+            title_and_id = bk_info.find('a', class_ = 'bookTitle')
+            try:
+                bk_url = title_and_id['href'].strip()
+                bk_id = _parse_id(bk_url)
+                bk_title = title_and_id.find('span').text.strip()
+            except Exception:
+                continue    # we need title and ID, or else this entry is useless
+            
+            div_boxes = bk_info.find_all('div')
+            if len(div_boxes):
+                text_elements = div_boxes[-1].find('span', class_ = ['greyText', 'smallText', 'uitext'])
+            
+            if text_elements:
+                try:
+                    rate_stats = text_elements.find('span', class_ = 'minirating')
+                    rating = re.search(r'\d.*avg rating|avg rating', rate_stats.text).group(0)
+                    avg_rating_str = re.sub(r'avg rating|\s', '', rating)
+                    avg_rating = float(avg_rating_str)
+                except Exception:
+                    avg_rating = None
+                if avg_rating:
+                    try:
+                        num_rat = re.search(r'\d+ ratings|1 rating',rate_stats.text.replace(',','')).group(0)
+                        num_rating_str = re.match(r'\d+',num_rat).group(0)
+                        num_rating = int(num_rating_str)
+                    except Exception:
+                        num_rating = None
+                else:
+                    num_rating = None
+                try:
+                    pub_date = re.search(r'published\n+.*\d+',text_elements.text).group(0).strip()
+                    publish_date_str = re.sub(r'published|\s', '', pub_date)
+                    publish_date = int(publish_date_str)
+                except Exception:
+                    publish_date = None
+            else:
+                avg_rating = num_rating = publish_date = None
+            
+            bk_dat = {
+                'title': bk_title,
+                'id': bk_id,
+                'first_published': publish_date,
+                'rating': avg_rating,
+                'rating_count': num_rating
+            }
+            books.append(bk_dat)
+        return books if len(books) else None
+
+
     def get_quotes_sample(self) -> Optional[List[str]]:
         '''returns sample (max n = 3) list of top quotes by loaded Goodreads author.'''
+        self._confirm_loaded()
         qt_title_bar = None
         for div in self._info_right.find_all('div', style = True):
             try:
@@ -392,6 +425,7 @@ class Pound:
         - **influences** (List[Dict]): list of other authors that current author is influenced by 
         - **sample_books** (List[Dict]): sample (max n = 10) of loaded Goodreads author's most popular books
         '''
+        self._confirm_loaded()
         attr_fn_map = {
             'url': lambda: self.author_url,
             'id': self.get_id,
@@ -422,3 +456,23 @@ class Pound:
             warnings.warn('Warning: returning empty object; param exclude_attrs should not include all attrs') 
             return authr_dict if to_dict else SimpleNamespace()
         return authr_dict if to_dict else SimpleNamespace(**authr_dict)
+
+
+if __name__ == '__main__':
+    async def main(bks: List[str]) -> None:
+        async with aiohttp.ClientSession() as sesh:
+            tasks = [Pound().load_author_async(sesh,a_id) for a_id in bks]
+            async for task in asyncio.as_completed(tasks):
+                res = await task
+                sample_bks = res.get_books_sample()
+                for bk in sample_bks:
+                    for cat,val in bk.items():
+                        print(f'{cat} :: {val}')
+                    print()
+                print('zzz...\n---------------------------------------------------------')
+                time.sleep(2)
+    
+    my_bks = ['903', '360618']
+    asyncio.run(main(bks = my_bks))
+
+        

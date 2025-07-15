@@ -10,14 +10,14 @@ import requests
 from bs4 import BeautifulSoup, Tag
 import aiohttp
 
-from guide2kulchur.privateer.recruits import (_AGENTS, _rand_headers, _check_soup, _get_similar_books, 
-                      _query_books, _query_books_async, _parse_id, _get_similar_books_async, _get_script_el)
+from guide2kulchur.privateer.recruits import (_AGENTS, _rand_headers, _check_soup, _get_similar_books, _query_books, 
+                                              _query_books_async, _parse_id, _get_similar_books_async, _get_script_el)
 
 
 class Alexandria:
     '''Alexandria: collect PUBLICLY AVAILABLE Goodreads book data.'''
     def __init__(self):
-        '''GoodReads BOOK data scraper. Seq. and Async capabilities available.'''
+        '''GoodReads BOOK data scraper. Async capabilities available.'''
         self._soup: Optional[BeautifulSoup] = None
         self._info_main: Optional[Tag] = None
         self._info_main_metadat: Optional[Tag] = None
@@ -30,7 +30,7 @@ class Alexandria:
                               book_identifier: Optional[str] = None,
                               query_str: Optional[str] = None,
                               see_progress: bool = True) -> Optional['Alexandria']:
-        '''load GoodReads book data (ASYNC).
+        '''load GoodReads book data asynchronously.
 
         :param session:
          an aiohttp.ClientSession object
@@ -57,9 +57,12 @@ class Alexandria:
             elif re.match(r'^\d*$', book_identifier):
                 book_identifier = f'https://www.goodreads.com/book/show/{book_identifier}'
             else:
-                raise ValueError('book_identifier must be full URL string OR identification serial number')
-        elif query_str and not book_identifier:
-            book_identifier = await _query_books_async(session,query_str)
+                raise ValueError('book_identifier must be full URL string OR identification serial number.')
+        elif query_str:
+            try:
+                book_identifier = await _query_books_async(session,query_str)
+            except Exception as er:
+                raise Exception(f'Error for search string {query_str}: {er}. Please try again, or find the book identifier.')
         else:
             raise ValueError('Alexandria requires book identifier or query string.')
         self.book_url = book_identifier
@@ -67,7 +70,7 @@ class Alexandria:
         b_id = _parse_id(self.book_url)
 
         try:
-            print(f'{b_id} ATTEMPT @ {time.ctime()}') if see_progress else None
+            print(f'{b_id} attempt @ {time.ctime()}') if see_progress else None
 
             async with session.get(url=self.book_url,
                                    headers=_rand_headers(_AGENTS)) as resp:
@@ -86,16 +89,16 @@ class Alexandria:
                 self._info_main_metadat = info_main_metadat
                 self._details = details
                 
-                print(f'{b_id} SUCCESSFULLY PULLED @ {time.ctime()}') if see_progress else None
+                print(f'{b_id} pulled @ {time.ctime()}') if see_progress else None
                 return self
             
-        except asyncio.TimeoutError as er:
-            raise asyncio.TimeoutError(f'TIMEOUT ERROR for {b_id}; returning None')
-        except aiohttp.ClientError as er:
-            raise aiohttp.ClientError(f'CLIENT ERROR for {b_id}: {er}.')
+        except asyncio.TimeoutError:
+            raise asyncio.TimeoutError(f'Timeout Error for {b_id}.')
+        except aiohttp.ClientError:
+            raise aiohttp.ClientError(f'Client Error for {b_id}.')
         except Exception as er:
-            raise Exception(f'OTHER ERROR for {b_id}: {er}.')
-    
+            raise Exception(f'Unexpected Error for {b_id}: {er}.')
+
 
     def load_book(self,
                   book_identifier: Optional[str] = None,
@@ -127,8 +130,11 @@ class Alexandria:
                 book_identifier = f'https://www.goodreads.com/book/show/{book_identifier}'
             else:
                 raise ValueError('book_identifier must be full URL string OR identification serial number')
-        elif query_str and not book_identifier:
-            book_identifier = _query_books(query_str)
+        elif query_str:
+            try:
+                book_identifier = _query_books(query_str)
+            except Exception as er:
+                raise Exception(f'Error for search string {query_str}: {er}. Please try again, or find the book identifier.')
         else:
             raise ValueError('Alexandria requires book identifier or query string.')
         self.book_url = book_identifier
@@ -136,9 +142,12 @@ class Alexandria:
         b_id = _parse_id(self.book_url)
         
         try:
-            print(f'{b_id} ATTEMPT @ {time.ctime()}') if see_progress else None
+            print(f'{b_id} attempt @ {time.ctime()}') if see_progress else None
 
             resp = requests.get(book_identifier,headers=_rand_headers(_AGENTS))
+            if resp.status_code != 200:
+                raise Exception(f'Improper request respose: {resp.status_code} recieved for book {b_id}')
+            
             text = resp.text
             soup = BeautifulSoup(text,'lxml')
             info_main = soup.find('div', class_='BookPage__mainContent')
@@ -150,17 +159,24 @@ class Alexandria:
             self._info_main_metadat = info_main_metadat
             self._details = details
 
-            print(f'{b_id} SUCCESSFULLY PULLED @ {time.ctime()}') if see_progress else None
+            print(f'{b_id} pulled @ {time.ctime()}') if see_progress else None
             return self
         
         except requests.HTTPError:
             raise requests.HTTPError(f'HTTP Error for book {b_id}.')
         except Exception as er:
             raise Exception(f'Unexpected Error for book {b_id}: {er}')
-        
+    
+
+    def _confirm_loaded(self) -> None:
+        '''checks if attributes have been defined; raises error if not.'''
+        if not self._soup:
+            raise RuntimeError('Goodreads book not yet loaded; use "load_book" method prior to any "get_[book_attr]" methods.')
+    
 
     def get_title(self) -> Optional[str]:
         '''returns title of loaded Goodreads book.'''
+        self._confirm_loaded()
         if not self._info_main:
             return None
         t1 = self._info_main.find('div', class_='BookPageTitleSection__title').find('h1')
@@ -169,11 +185,13 @@ class Alexandria:
 
     def get_id(self) -> Optional[str]:
         '''returns unique ID of loaded Goodreads book.'''
+        self._confirm_loaded()
         return _parse_id(self.book_url)
     
 
     def get_author_name(self) -> Optional[str]:
         '''returns author name of loaded Goodreads book.'''
+        self._confirm_loaded()
         if not self._info_main_metadat:
             return None
         a_n = self._info_main_metadat.find('span', class_='ContributorLink__name')
@@ -182,6 +200,7 @@ class Alexandria:
 
     def get_author_id(self) -> Optional[str]:
         '''returns unique author ID of loaded Goodreads book.'''
+        self._confirm_loaded()
         if not self._info_main_metadat:
             return None
         a_url = self._info_main_metadat.find('a', class_='ContributorLink')
@@ -194,6 +213,7 @@ class Alexandria:
 
     def get_isbn(self) -> Optional[str]:
         '''returns ISBN of loaded Goodreads book.'''
+        self._confirm_loaded()
         headscript = self._soup.find('head').find('script',{'type': 'application/ld+json'})
         if headscript:
             return _get_script_el(headscript.text,'isbn')
@@ -203,6 +223,7 @@ class Alexandria:
 
     def get_language(self) -> Optional[str]:
         '''returns language of loaded Goodreads book.'''
+        self._confirm_loaded()
         headscript = self._soup.find('head').find('script',{'type': 'application/ld+json'})
         if headscript:
             return _get_script_el(headscript.text,'language')
@@ -212,6 +233,7 @@ class Alexandria:
 
     def get_image_url(self) -> Optional[str]:
         '''returns path to cover image of loaded Goodreads book.'''
+        self._confirm_loaded()
         headscript = self._soup.find('head').find('script',{'type': 'application/ld+json'})
         if headscript:
             return _get_script_el(headscript.text,'pic_path')
@@ -221,6 +243,7 @@ class Alexandria:
 
     def get_description(self) -> Optional[str]:
         '''returns description of loaded Goodreads book.'''
+        self._confirm_loaded()
         if not self._info_main_metadat:
             return None
         tc = self._info_main_metadat.find('div',class_='TruncatedContent')
@@ -237,6 +260,7 @@ class Alexandria:
 
     def get_rating(self) -> Optional[float]:
         '''returns average rating of loaded Goodreads book.'''
+        self._confirm_loaded()
         if not self._info_main_metadat:
             return None
         b_r = self._info_main_metadat.find('div', class_='RatingStatistics__rating')
@@ -245,6 +269,7 @@ class Alexandria:
 
     def get_rating_count(self) -> Optional[int]:
         '''returns number of ratings of loaded Goodreads book.'''
+        self._confirm_loaded()
         if not self._info_main_metadat:
             return None
         r_c = self._info_main_metadat.find('span', {'data-testid': 'ratingsCount'})
@@ -259,6 +284,7 @@ class Alexandria:
 
     def get_rating_dist(self) -> Optional[Dict[str,float]]:
         '''returns rating distribution of loaded Goodreads book.'''
+        self._confirm_loaded()
         review_stats = self._soup.find('div',class_='RatingsHistogram RatingsHistogram__interactive')
         if not review_stats:
             return None
@@ -282,6 +308,7 @@ class Alexandria:
 
     def get_review_count(self) -> Optional[int]:
         '''returns numebr of reviews of loaded Goodreads book.'''
+        self._confirm_loaded()
         if not self._info_main_metadat:
             return None
         r_c = self._info_main_metadat.find('span', {'data-testid': 'reviewsCount'})
@@ -296,6 +323,7 @@ class Alexandria:
 
     def get_top_genres(self) -> Optional[List[str]]:
         '''returns top genres of loaded Goodreads book.'''
+        self._confirm_loaded()
         if not self._info_main_metadat:
             return None
         g_l = self._info_main_metadat.find('ul',{'aria-label': 'Top genres for this book'})
@@ -312,6 +340,7 @@ class Alexandria:
 
     def get_currently_reading(self) -> Optional[int]:
         '''returns number of users currently reading loaded Goodreads book.'''
+        self._confirm_loaded()
         if not self._info_main_metadat:
             return None
         c_r = self._info_main_metadat.find('div', {'data-testid': 'currentlyReadingSignal'})
@@ -326,6 +355,7 @@ class Alexandria:
 
     def get_want_to_read(self) -> Optional[int]:
         '''returns number of users wanting to read loaded Goodreads book.'''
+        self._confirm_loaded()
         if not self._info_main_metadat:
             return None
         w_r = self._info_main_metadat.find('div', {'data-testid': 'toReadSignal'})
@@ -340,6 +370,7 @@ class Alexandria:
 
     def get_page_length(self) -> Optional[int]:
         '''returns page length of loaded Goodreads book.'''
+        self._confirm_loaded()
         if not self._details:
             return None
         p_l = self._details.find('p', {'data-testid': 'pagesFormat'})
@@ -355,6 +386,7 @@ class Alexandria:
 
     def get_first_published(self) -> Optional[str]:
         '''returns date ('DD/MM/YYYY') of when loaded Goodreads book was first published.'''
+        self._confirm_loaded()
         if not self._details:
             return None
         f_p = self._details.find('p', {'data-testid': 'publicationInfo'})
@@ -370,6 +402,7 @@ class Alexandria:
 
     def get_similar_books(self) -> Optional[List[Dict[str,str]]]:
         '''returns list of books (with authors included) similar to loaded Goodreads book.'''
+        self._confirm_loaded()
         bklst = self._soup.find('div', class_='BookDiscussions__list')
         if bklst:
             quote_url = bklst.find_all('a',class_='DiscussionCard')[0]['href'] # use this to get proper serial id
@@ -382,6 +415,7 @@ class Alexandria:
 
     async def get_similar_books_async(self,session) -> Optional[List[Dict[str,str]]]:
         '''returns list of books (with authors included) similar to loaded Goodreads book (ASYNC).'''
+        self._confirm_loaded()
         bklst = self._soup.find('div', class_='BookDiscussions__list')
         if bklst:
             quote_url = bklst.find_all('a',class_='DiscussionCard')[0]['href'] # use this to get proper serial id
@@ -424,6 +458,7 @@ class Alexandria:
         - **first_published** (str): book's initial publication date (in "MM/DD/YYYY" format)
         - **similar_books** (List[Dict]): list of similar books, with each element being a Dict of title/id/author_name
         '''
+        self._confirm_loaded()
         attr_fn_map = {
             'url': lambda: self.book_url,
             'id': self.get_id,
@@ -454,7 +489,7 @@ class Alexandria:
             else:
                 bk_dict[attr] = fn()
         if not len(bk_dict):
-            warnings.warn('Warning: returning empty object; param exclude_attrs should not include all attrs') 
+            warnings.warn('Warning: returning empty object; param exclude_attrs should not include all attrs.') 
             return bk_dict if to_dict else SimpleNamespace()
         return bk_dict if to_dict else SimpleNamespace(**bk_dict)
     
@@ -463,7 +498,7 @@ class Alexandria:
                                  session: aiohttp.ClientSession,
                                  exclude_attrs: Optional[List[str]] = None,
                                  to_dict: bool = False) -> Union[Dict[str,Any],SimpleNamespace]:
-        ''''returns collection of data from loaded Goodreads book (ASYNC).
+        '''returns collection of data from loaded Goodreads book asynchronously.
 
         :param session:
          an aiohttp.ClientSession object
@@ -494,6 +529,7 @@ class Alexandria:
         - **first_published** (str): book's initial publication date (in "MM/DD/YYYY" format)
         - **similar_books** (List[Dict]): list of similar books, with each element being a Dict of title/id/author_name
         '''
+        self._confirm_loaded()
         exclude_set = set(exclude_attrs) if exclude_attrs else set([])
         if 'similar_books' not in exclude_set:
             similar_books = await self.get_similar_books_async(session)
@@ -530,7 +566,7 @@ class Alexandria:
             else:
                 bk_dict[attr] = fn()
         if not len(bk_dict):
-            warnings.warn('Warning: returning empty object; param exclude_attrs should not include all attrs') 
+            warnings.warn('Warning: returning empty object; param exclude_attrs should not include all attrs.') 
             return bk_dict if to_dict else SimpleNamespace()
         return bk_dict if to_dict else SimpleNamespace(**bk_dict)
         
