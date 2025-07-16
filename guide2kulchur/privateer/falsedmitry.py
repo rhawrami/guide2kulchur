@@ -15,7 +15,7 @@ from guide2kulchur.privateer.recruits import (_AGENTS, _rand_headers,_get_user_s
 class FalseDmitry:
     '''Dmitry Ivanovich: collect PUBLICLY AVAILABLE Goodreads user data.'''
     def __init__(self):
-        '''GoodReads user data scraper. Sequential and asynchronous capabilities available.'''
+        '''GoodReads user data collector. Sequential and asynchronous capabilities available.'''
         self.soup: Optional[BeautifulSoup] = None
         self._info_main: Optional[Tag] = None
         self._info_left: Optional[Tag] = None
@@ -25,7 +25,7 @@ class FalseDmitry:
     async def load_user_async(self,
                               session: aiohttp.ClientSession,
                               user_identifier: str,
-                              see_progress: bool = True) -> None:
+                              see_progress: bool = True) -> Optional['FalseDmitry']:
         '''load GoodReads user data asynchronously.
         
         :param session:
@@ -39,7 +39,7 @@ class FalseDmitry:
             if re.match(r'^https://www.goodreads.com/user/show/\d*',user_identifier):
                 user_identifier = user_identifier
             elif re.match(r'^\d*$', user_identifier):
-                user_identifier = f'https://www.goodreads.com/author/show/{user_identifier}'
+                user_identifier = f'https://www.goodreads.com/user/show/{user_identifier}'
             else:
                 raise ValueError('user_identifier must be full URL string OR user identification number')
         else:
@@ -60,7 +60,7 @@ class FalseDmitry:
                 soup = BeautifulSoup(text,'lxml')
 
                 if soup.find('div', {'id':'privateProfile'}):
-                    raise Exception(f'User {u_id} has a private profile; unable to get user data.')
+                    raise Exception(f'User {u_id} has a private profile; unable to get user data')
                     
                 info_main = soup.find('div',class_='mainContentFloat')
                 info_left = info_main.find('div', class_='leftContainer')
@@ -490,4 +490,3 @@ class FalseDmitry:
             warnings.warn('Warning: returning empty object; param exclude_attrs should not include all attrs') 
             return usr_dict if to_dict else SimpleNamespace()
         return usr_dict if to_dict else SimpleNamespace(**usr_dict)
-    

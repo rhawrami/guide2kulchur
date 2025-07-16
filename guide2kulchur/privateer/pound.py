@@ -10,13 +10,13 @@ import aiohttp
 import requests
 from bs4 import BeautifulSoup, Tag
 
-from guide2kulchur.privateer.recruits import _AGENTS, _rand_headers, _parse_id
+from guide2kulchur.privateer.recruits import _AGENTS, _rand_headers, _parse_id, _rm_double_space
 
 
 class Pound:
     '''Ezra Pound: collect PUBLICLY AVAILABLE Goodreads author data.'''
     def __init__(self):
-        '''GoodReads author data scraper. Sequential and asynchronous capabilities available.'''
+        '''GoodReads author data collector. Sequential and asynchronous capabilities available.'''
         self._soup: Optional[BeautifulSoup] = None
         self._info_main: Optional[Tag] = None
         self._author_url:  Optional[str] = None
@@ -71,11 +71,11 @@ class Pound:
                 return self
             
         except asyncio.TimeoutError:
-            raise asyncio.TimeoutError(f'Timeout Error for author {a_id}.')
+            raise asyncio.TimeoutError(f'Timeout Error for author {a_id}')
         except aiohttp.ClientError:
-            raise aiohttp.ClientError(f'Client Error for author {a_id}.')
+            raise aiohttp.ClientError(f'Client Error for author {a_id}')
         except Exception as er:
-            raise Exception(f'Unexpected Error for author {a_id}: {er}.')
+            raise Exception(f'Unexpected Error for author {a_id}: {er}')
     
 
     def load_author(self,
@@ -123,7 +123,7 @@ class Pound:
             return self
         
         except requests.HTTPError:
-            raise requests.HTTPError(f'HTTP Error for author {a_id}.')
+            raise requests.HTTPError(f'HTTP Error for author {a_id}')
         except Exception as er:
             raise Exception(f'Unexpected Error for author {a_id}: {er}')
         
@@ -131,7 +131,7 @@ class Pound:
     def _confirm_loaded(self) -> None:
         '''checks if attributes have been defined; raises error if not.'''
         if not self._soup:
-            raise RuntimeError('Goodreads author not yet loaded; use "load_author" method prior to any "get_[author_attr]" methods.')
+            raise RuntimeError('Goodreads author not yet loaded; use "load_author" method prior to any "get_[author_attr]" methods')
     
 
     def get_name(self) -> Optional[str]:
@@ -140,7 +140,7 @@ class Pound:
         h1 = self._info_right.find('h1', class_='authorName')
         if h1:
             name = h1.find('span')
-            return name.text.strip() if name else None
+            return _rm_double_space(name.text.strip()) if name else None
         else:
             return None
     
@@ -165,16 +165,15 @@ class Pound:
     def get_birth_place(self) -> Optional[str]:
         '''returns birth place of loaded Goodreads author.'''
         self._confirm_loaded()
-        txt = self._info_right.text.strip()
-        birth_place_exists = re.search('born.*in',txt.lower())
-        if not birth_place_exists:
-            return None
-        matches = re.findall(r'in.*\n', txt)
-        if len(matches):
-            birth_place = re.sub(r'in\s|\n','',matches[0])
-            return birth_place
-        else:
-            return None
+        birth_place_header = self._info_right.find('div', class_ = 'dataTitle')
+        if birth_place_header:
+            if re.match(r'^Born$', birth_place_header.text.strip()):
+                txt = self._info_right.text.strip()
+                birth_place_messy = re.search(r'Born\n.*',txt)
+                if birth_place_messy:
+                    birth_place = re.sub(r'Born\nin|Born\n\s+in|Born\n', '', birth_place_messy.group(0).strip())
+                    return _rm_double_space(birth_place.strip())
+        return None
 
 
     def get_birth_date(self) -> Optional[str]:
@@ -246,7 +245,7 @@ class Pound:
         try:
             author_info = self._info_right.find('div', class_ = 'aboutAuthorInfo')
             info = author_info.find_all('span')[-1]
-            return info.text.strip()
+            return _rm_double_space(info.text.strip())
         except Exception:
             return None
     
@@ -323,7 +322,7 @@ class Pound:
             try:
                 bk_url = title_and_id['href'].strip()
                 bk_id = _parse_id(bk_url)
-                bk_title = title_and_id.find('span').text.strip()
+                bk_title = _rm_double_space(title_and_id.find('span').text.strip())
             except Exception:
                 continue    # we need title and ID, or else this entry is useless
             
@@ -389,6 +388,7 @@ class Pound:
                     qt_txt_all = qt.find('div', class_ = 'quoteText').text
                     qt_txt = re.search(r'“.*”',qt_txt_all).group(0)
                     qt_txt = re.sub(r'“|”','',qt_txt)
+                    qt_txt = _rm_double_space(qt_txt)
                     quotes.append(qt_txt)
                 except AttributeError:
                     continue
@@ -461,18 +461,13 @@ class Pound:
 if __name__ == '__main__':
     async def main(bks: List[str]) -> None:
         async with aiohttp.ClientSession() as sesh:
-            tasks = [Pound().load_author_async(sesh,a_id) for a_id in bks]
+            tasks = [Pound().load_author_async(sesh,a_id,False) for a_id in bks]
             async for task in asyncio.as_completed(tasks):
                 res = await task
-                sample_bks = res.get_books_sample()
-                for bk in sample_bks:
-                    for cat,val in bk.items():
-                        print(f'{cat} :: {val}')
-                    print()
-                print('zzz...\n---------------------------------------------------------')
+                print(f'-------------------\n{res.get_name()}::\n{res.get_birth_place()}\n-------------------\n')
                 time.sleep(2)
     
-    my_bks = ['903', '360618']
+    my_bks = ['93345']
     asyncio.run(main(bks = my_bks))
 
         

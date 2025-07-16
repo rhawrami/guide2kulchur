@@ -238,3 +238,13 @@ def _get_user_stat(txt: str,
     except ValueError:
         int_text = None
     return int_text
+
+
+def _rm_double_space(txt: str) -> Optional[str]:
+    '''returns string stripped of consecutive double (or more) spaces
+    
+    :txt: text string
+    '''
+    if not isinstance(txt, str):
+        return None
+    return re.sub(r'\s+', ' ', txt)

@@ -10,14 +10,14 @@ import requests
 from bs4 import BeautifulSoup, Tag
 import aiohttp
 
-from guide2kulchur.privateer.recruits import (_AGENTS, _rand_headers, _check_soup, _get_similar_books, _query_books, 
-                                              _query_books_async, _parse_id, _get_similar_books_async, _get_script_el)
+from guide2kulchur.privateer.recruits import (_AGENTS, _rand_headers, _check_soup, _get_similar_books, _query_books, _query_books_async, 
+                                              _parse_id, _get_similar_books_async, _get_script_el, _rm_double_space)
 
 
 class Alexandria:
     '''Alexandria: collect PUBLICLY AVAILABLE Goodreads book data.'''
     def __init__(self):
-        '''GoodReads BOOK data scraper. Async capabilities available.'''
+        '''GoodReads BOOK data collector. Async capabilities available.'''
         self._soup: Optional[BeautifulSoup] = None
         self._info_main: Optional[Tag] = None
         self._info_main_metadat: Optional[Tag] = None
@@ -57,12 +57,12 @@ class Alexandria:
             elif re.match(r'^\d*$', book_identifier):
                 book_identifier = f'https://www.goodreads.com/book/show/{book_identifier}'
             else:
-                raise ValueError('book_identifier must be full URL string OR identification serial number.')
+                raise ValueError('book_identifier must be full URL string OR identification serial number')
         elif query_str:
             try:
                 book_identifier = await _query_books_async(session,query_str)
             except Exception as er:
-                raise Exception(f'Error for search string {query_str}: {er}. Please try again, or find the book identifier.')
+                raise Exception(f'Error for search string {query_str}: {er}. Please try again, or find the book identifier')
         else:
             raise ValueError('Alexandria requires book identifier or query string.')
         self.book_url = book_identifier
@@ -93,11 +93,11 @@ class Alexandria:
                 return self
             
         except asyncio.TimeoutError:
-            raise asyncio.TimeoutError(f'Timeout Error for {b_id}.')
+            raise asyncio.TimeoutError(f'Timeout Error for {b_id}')
         except aiohttp.ClientError:
-            raise aiohttp.ClientError(f'Client Error for {b_id}.')
+            raise aiohttp.ClientError(f'Client Error for {b_id}')
         except Exception as er:
-            raise Exception(f'Unexpected Error for {b_id}: {er}.')
+            raise Exception(f'Unexpected Error for {b_id}: {er}')
 
 
     def load_book(self,
@@ -134,9 +134,9 @@ class Alexandria:
             try:
                 book_identifier = _query_books(query_str)
             except Exception as er:
-                raise Exception(f'Error for search string {query_str}: {er}. Please try again, or find the book identifier.')
+                raise Exception(f'Error for search string {query_str}: {er}. Please try again, or find the book identifier')
         else:
-            raise ValueError('Alexandria requires book identifier or query string.')
+            raise ValueError('Alexandria requires book identifier or query string')
         self.book_url = book_identifier
             
         b_id = _parse_id(self.book_url)
@@ -163,7 +163,7 @@ class Alexandria:
             return self
         
         except requests.HTTPError:
-            raise requests.HTTPError(f'HTTP Error for book {b_id}.')
+            raise requests.HTTPError(f'HTTP Error for book {b_id}')
         except Exception as er:
             raise Exception(f'Unexpected Error for book {b_id}: {er}')
     
@@ -195,7 +195,7 @@ class Alexandria:
         if not self._info_main_metadat:
             return None
         a_n = self._info_main_metadat.find('span', class_='ContributorLink__name')
-        return _check_soup(a_n)
+        return _rm_double_space(_check_soup(a_n))
     
 
     def get_author_id(self) -> Optional[str]:
@@ -255,7 +255,7 @@ class Alexandria:
                     description = None
         else:
             description = None
-        return description
+        return _rm_double_space(description)
     
 
     def get_rating(self) -> Optional[float]:
@@ -570,5 +570,3 @@ class Alexandria:
             return bk_dict if to_dict else SimpleNamespace()
         return bk_dict if to_dict else SimpleNamespace(**bk_dict)
         
-
-    
