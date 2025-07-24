@@ -1,3 +1,15 @@
+-- guide2kulchur database setup:
+    -- postgres v17
+-- top level schema:
+    -- relations
+        -- books: Goodreads book data; includes data like descriptions, ratings distributions, and publish date
+        -- users: Goodreads user data; includes data like favorite quotes, favorite genres, and list of friends
+        -- authors: Goodreads author data; includes data like birth date, list of influences, and top genres
+    -- notes:
+        -- 1. foreign keys won't be used here, as, for example, having the requirement that the author_id field in
+        --      the book relation correspond to an author tuple in authors would be untenable, unless I were to 
+        --      sequentially run author, then the author's books; no foreign keys simplifies the data-collection process
+
 CREATE TABLE IF NOT EXISTS books (
     id VARCHAR(20) PRIMARY KEY,
     url TEXT NOT NULL, 

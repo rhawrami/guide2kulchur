@@ -2,14 +2,25 @@ import time
 import re
 import asyncio
 import warnings
-from typing import Optional, Dict, List, Any, Union
+from typing import (
+    Optional, 
+    Dict, 
+    List, 
+    Any, 
+    Union,
+)
 from types import SimpleNamespace
 
 import aiohttp
 import requests
 from bs4 import BeautifulSoup, Tag
 
-from guide2kulchur.privateer.recruits import (_AGENTS, _rand_headers,_get_user_stat,_parse_id)
+from guide2kulchur.privateer.recruits import (
+    _AGENTS, 
+    _rand_headers,
+    _get_user_stat,
+    _parse_id,
+)
 
 
 class FalseDmitry:
@@ -26,7 +37,8 @@ class FalseDmitry:
                               session: aiohttp.ClientSession,
                               user_identifier: str,
                               see_progress: bool = True) -> Optional['FalseDmitry']:
-        '''load GoodReads user data asynchronously.
+        '''
+        load GoodReads user data asynchronously.
         
         :param session:
          an aiohttp.ClientSession object
@@ -85,7 +97,8 @@ class FalseDmitry:
     def load_user(self,
                   user_identifier: Optional[str] = None,
                   see_progress: bool = True) -> Optional['FalseDmitry']:
-        '''load GoodReads user data.
+        '''
+        load GoodReads user data.
 
         :param user_identifier:
          Unique Goodreads user ID, or URL to the user's page.
@@ -435,7 +448,8 @@ class FalseDmitry:
     def get_all_data(self,
                      exclude_attrs: Optional[List[str]] = None,
                      to_dict: bool = False) -> Union[Dict[str,Any],SimpleNamespace]:
-        '''returns collection of data from loaded Goodreads user.
+        '''
+        returns collection of data from loaded Goodreads user.
 
         :param exclude_attrs:
          list of user attributes to exclude. If None, collects all available attributes. See below for available user attributes.

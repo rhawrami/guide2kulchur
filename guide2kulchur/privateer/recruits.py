@@ -1,10 +1,15 @@
 import random
 import re
-from typing import List, Optional, Dict
+from typing import (
+    List, 
+    Optional, 
+    Dict
+)
 
 import requests
 import aiohttp
 from bs4 import BeautifulSoup
+
 
 _AGENTS = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -16,12 +21,13 @@ _AGENTS = [
 
 
 _TIMEOUT = aiohttp.ClientTimeout(total=10,
-                                connect=15,
-                                sock_read=30)
+                                 connect=15,
+                                 sock_read=30)
 
 
 def _rand_headers(agents: List[str] = _AGENTS) -> Dict[str,str]:
-    '''selects random agent header for HTTP requests
+    '''
+    selects random agent header for HTTP requests
 
     :agents: list of possible agents
     '''
@@ -40,7 +46,8 @@ def _rand_headers(agents: List[str] = _AGENTS) -> Dict[str,str]:
 
 def _check_soup(sp: Optional[BeautifulSoup],
                 other_opr: Optional[str] = None) -> Optional[str]:
-    '''checks if soup is empty; if not, returns text
+    '''
+    checks if soup is empty; if not, returns text
     
     :sp: BeautifulSoup object
     :other_opr: other string operation; currently only takes 'convert to num'
@@ -57,7 +64,8 @@ def _check_soup(sp: Optional[BeautifulSoup],
 
 def _get_script_el(script: str,
                    res_el: str) -> Optional[str]:
-    '''parses header script, returns desired element
+    '''
+    parses header script, returns desired element
     
     :script: Goodreads book header script
     :res_el: resulting element; currently accepts ['isbn', 'language', 'pic_path']
@@ -77,7 +85,8 @@ def _get_script_el(script: str,
 
 
 def _parse_id(url: str) -> Optional[str]:
-    '''parses Goodreads book/author/user url for unique ID,returns ID string
+    '''
+    parses Goodreads book/author/user url for unique ID,returns ID string
     
     :url: book/author/user url
     '''
@@ -89,7 +98,8 @@ def _parse_id(url: str) -> Optional[str]:
 
 
 def _query_books(search_str: str) -> Optional[str]:
-    '''returns the url to to top resulted book page from a Goodreads search query
+    '''
+    returns the url to to top resulted book page from a Goodreads search query
     
     :search_str: search string for a desired book
     '''
@@ -114,7 +124,8 @@ def _query_books(search_str: str) -> Optional[str]:
 
 async def _query_books_async(session: aiohttp.ClientSession,
                              search_str: str) -> Optional[str]:
-    '''ASYNC returns the url to to top resulted book page from a Goodreads search query
+    '''
+    ASYNC returns the url to to top resulted book page from a Goodreads search query
     
     :session: async client session
     :search_str: search string for a desired book
@@ -141,7 +152,8 @@ async def _query_books_async(session: aiohttp.ClientSession,
 
 
 def _get_similar_books(similar_url: str) -> Optional[List[Dict[str,str]]]:
-    '''returns similar book data for a given book
+    '''
+    returns similar book data for a given book
 
     :similar_url: original GoodReads book url 
 
@@ -182,7 +194,8 @@ def _get_similar_books(similar_url: str) -> Optional[List[Dict[str,str]]]:
 
 async def _get_similar_books_async(session: aiohttp.ClientSession,
                                    similar_url: str) -> Optional[List[Dict[str,str]]]:
-    '''ASYNC returns similar book data for a given book
+    '''
+    ASYNC returns similar book data for a given book
 
     :similar_url: original GoodReads book url 
 
@@ -218,7 +231,8 @@ async def _get_similar_books_async(session: aiohttp.ClientSession,
 
 def _get_user_stat(txt: str, 
                    st_type: str) -> Optional[int]:
-    '''returns number of ratings, or ratings average
+    '''
+    returns number of ratings, or ratings average
     
     :txt: text string
     :st_type: text string type; current options are ['num_ratings', 'avg_ratings', 'num_reviews']
@@ -241,7 +255,8 @@ def _get_user_stat(txt: str,
 
 
 def _rm_double_space(txt: str) -> Optional[str]:
-    '''returns string stripped of consecutive double (or more) spaces
+    '''
+    returns string stripped of consecutive double (or more) spaces
     
     :txt: text string
     '''

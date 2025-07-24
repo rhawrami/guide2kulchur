@@ -3,14 +3,25 @@ import re
 import asyncio
 import time
 import warnings
-from typing import Optional, Dict, List, Union, Any
 from types import SimpleNamespace
+from typing import (
+    Optional, 
+    Dict, 
+    List, 
+    Union, 
+    Any,
+)
 
 import aiohttp
 import requests
 from bs4 import BeautifulSoup, Tag
 
-from guide2kulchur.privateer.recruits import _AGENTS, _rand_headers, _parse_id, _rm_double_space
+from guide2kulchur.privateer.recruits import (
+    _AGENTS, 
+    _rand_headers, 
+    _parse_id, 
+    _rm_double_space,
+)
 
 
 class Pound:
@@ -26,7 +37,8 @@ class Pound:
                                 session: aiohttp.ClientSession,
                                 author_identifier: Optional[str] = None,
                                 see_progress: bool = True) -> Optional['Pound']:
-        '''load GoodReads author data asynchronously.
+        '''
+        load GoodReads author data asynchronously.
         
         :param session:
          an aiohttp.ClientSession object
@@ -81,7 +93,8 @@ class Pound:
     def load_author(self,
                     author_identifier: Optional[str] = None,
                     see_progress: bool = None) -> Optional['Pound']:
-        '''load GoodReads author data.
+        '''
+        load GoodReads author data.
 
         :param author_identifier:
          Unique Goodreads author ID, or URL to the author's page.
@@ -399,7 +412,8 @@ class Pound:
     def get_all_data(self,
                      exclude_attrs: Optional[List[str]] = None,
                      to_dict: bool = False) -> Union[Dict[str,Any],SimpleNamespace]:
-        '''returns collection of data from loaded Goodreads author.
+        '''
+        returns collection of data from loaded Goodreads author.
 
         :param exclude_attrs:
          list of user attributes to exclude. If None, collects all available attributes. See below for available author attributes.

@@ -3,15 +3,31 @@ import re
 import asyncio
 import time
 import warnings
-from typing import Optional, Dict, List, Union, Any
 from types import SimpleNamespace
+from typing import (
+    Optional, 
+    Dict, 
+    List, 
+    Union, 
+    Any,
+)
 
 import requests
-from bs4 import BeautifulSoup, Tag
 import aiohttp
+from bs4 import BeautifulSoup, Tag
 
-from guide2kulchur.privateer.recruits import (_AGENTS, _rand_headers, _check_soup, _get_similar_books, _query_books, _query_books_async, 
-                                              _parse_id, _get_similar_books_async, _get_script_el, _rm_double_space)
+from guide2kulchur.privateer.recruits import (
+    _AGENTS, 
+    _rand_headers, 
+    _check_soup, 
+    _get_similar_books, 
+    _query_books, 
+    _query_books_async, 
+    _parse_id, 
+    _get_similar_books_async, 
+    _get_script_el, 
+    _rm_double_space,
+)
 
 
 class Alexandria:
@@ -30,7 +46,8 @@ class Alexandria:
                               book_identifier: Optional[str] = None,
                               query_str: Optional[str] = None,
                               see_progress: bool = True) -> Optional['Alexandria']:
-        '''load GoodReads book data asynchronously.
+        '''
+        load GoodReads book data asynchronously.
 
         :param session:
          an aiohttp.ClientSession object
@@ -104,7 +121,8 @@ class Alexandria:
                   book_identifier: Optional[str] = None,
                   query_str: Optional[str] = None,
                   see_progress: bool = True) -> Optional['Alexandria']:
-        '''load GoodReads book data.
+        '''
+        load GoodReads book data.
 
         :param book_identifier:
          Unique Goodreads book ID, or URL to the book's page.
@@ -429,7 +447,8 @@ class Alexandria:
     def get_all_data(self,
                      exclude_attrs: Optional[List[str]] = None,
                      to_dict: bool = False) -> Union[Dict[str,Any],SimpleNamespace]:
-        '''returns collection of data from loaded Goodreads book.
+        '''
+        returns collection of data from loaded Goodreads book.
 
         :param exclude_attrs:
          list of book attributes to exclude. If None, collects all available attributes. See below for available book attributes.
@@ -498,7 +517,8 @@ class Alexandria:
                                  session: aiohttp.ClientSession,
                                  exclude_attrs: Optional[List[str]] = None,
                                  to_dict: bool = False) -> Union[Dict[str,Any],SimpleNamespace]:
-        '''returns collection of data from loaded Goodreads book asynchronously.
+        '''
+        returns collection of data from loaded Goodreads book asynchronously.
 
         :param session:
          an aiohttp.ClientSession object

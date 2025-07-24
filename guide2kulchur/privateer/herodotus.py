@@ -1,20 +1,33 @@
 import asyncio
 import re
-from typing import Optional, Dict, List, Tuple, Any
 import random
+from typing import (
+    Optional, 
+    Dict, 
+    List, 
+    Tuple, 
+    Any
+)
 
 import aiohttp
 from bs4 import BeautifulSoup
 
-from guide2kulchur.privateer.recruits import _AGENTS, _TIMEOUT, _rand_headers, _parse_id
 from guide2kulchur.privateer.alexandria import Alexandria
+from guide2kulchur.privateer.recruits import (
+    _AGENTS, 
+    _TIMEOUT, 
+    _rand_headers, 
+    _parse_id
+)
 
 _awards_url = 'https://www.goodreads.com/choiceawards/best-books-{year}'
 
 class Herodotus:
-    '''"For God tolerates pride in none but Himself. Haste is the mother of failure - 
-       and for failure we always pay a heavy price; it is in delay our profit lies - 
-       perhaps it may not immediately be apparent, but we shall find it, sure enough, as time goes on."'''
+    '''
+    "For God tolerates pride in none but Himself. Haste is the mother of failure - 
+    and for failure we always pay a heavy price; it is in delay our profit lies - 
+    perhaps it may not immediately be apparent, but we shall find it, sure enough, as time goes on."
+    '''
     def __init__(self, 
                  semaphore: int):
         '''Scrape PUBLICLY AVAILABLE Goodreads Annual Choice Awards book data asynchronously.
@@ -74,7 +87,8 @@ class Herodotus:
                                   year: int,
                                   category: str,
                                   bk_id: str) -> Optional[Alexandria]:
-        '''pulls data for a single book, using Alexandria
+        '''
+        pulls data for a single book, using Alexandria
         
         :session: an aiohttp ClientSession
         :year: award year
@@ -105,7 +119,8 @@ class Herodotus:
                             year: int,
                             category_desc: str,
                             category_url: str) -> List[Dict[str,Any]]:
-        '''pulls total book data from a given award category in a given year.
+        '''
+        pulls total book data from a given award category in a given year.
         
         :session: an aiohttp ClientSession
         :year: award year to pull data from
@@ -178,7 +193,8 @@ class Herodotus:
     async def pull_one_year(self,
                             session: aiohttp.ClientSession,
                             year: int) -> List[Dict[str,Any]]:
-        '''Pull one year of Goodreads Annual Choice Awards book data asynchronously.
+        '''
+        Pull one year of Goodreads Annual Choice Awards book data asynchronously.
         
         :session: an asyncio ClientSession
         :year: a given year to pull data from

@@ -3,7 +3,11 @@ import asyncio
 import json
 import time
 import re
-from typing import Optional, Dict, Any
+from typing import (
+    Optional, 
+    Dict, 
+    Any,
+)
 
 import aiohttp
 

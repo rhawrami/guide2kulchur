@@ -1,20 +1,31 @@
 import time
 import asyncio
-from typing import List, Dict, Any, Optional, Union, Tuple
 import re
 import json
+from typing import (
+    List, 
+    Dict, 
+    Any, 
+    Optional, 
+    Union, 
+    Tuple,
+)
 
 import aiohttp
 from bs4 import BeautifulSoup
 
-from guide2kulchur.privateer.recruits import _TIMEOUT, _rand_headers, _AGENTS
+from guide2kulchur.privateer.recruits import (
+    _TIMEOUT, 
+    _rand_headers, 
+    _AGENTS,
+)
+
 
 class Plato:
-    '''Plato: collect PUBLICLY AVAILABLE genre url data; meant to be start of pipeline.'''
+    '''Plato: collect PUBLICLY AVAILABLE genre urls; meant to be start of pipeline.'''
     def __init__(self):
-        '''Goodreads genre data collector.'''
-        self._genres: List[Dict[str,Any]]
-
+        '''Goodreads genre data url collector. One time use.'''
+        pass
     
     async def _load_one_genre_page(self,
                                    session: aiohttp.ClientSession,
@@ -22,7 +33,15 @@ class Plato:
                                    semaphore: asyncio.Semaphore,
                                    num_attempts: int = 3,
                                    see_progress: bool = True) -> Optional[Union[List[Dict], Tuple[int,List[Dict]]]]:
-        '''collect one page of genre urls'''
+        '''
+        Collect one Goodreads genre page full of URLs.
+
+        :param session: an aiohttp ClientSession
+        :param page_number: page number of genre list
+        :param semaphore: Semaphore object
+        :num_attempts: number of attempts to successfully request a genre list page
+        :see_progress: if True, prints progress statements, like success and retry messages
+        '''
         async with semaphore:
             page_url = f'https://www.goodreads.com/genres/list?page={page_number}'
             print(f'attempt genre page {page_number} :: {time.ctime()}') if see_progress else None
@@ -91,8 +110,16 @@ class Plato:
                              batch_delay: Optional[int] = 1,
                              batch_size: Optional[int] = 5,
                              see_progress: bool = True,
-                             write_json: Optional[str] = True) -> List[Dict[str,Any]]:
-        '''collects list of genres'''
+                             write_json: Optional[str] = None) -> List[Dict[str,Any]]:
+        '''Collect list of Goodreads genres and URLs.
+        
+        :param semaphore_count: number of "concurrent" genre page requests
+        :param num_attempts: number of attempts to request each page
+        :param batch_delay: sets delay between each batch of genre page request
+        :param batch_size: sets batch size
+        :param see_progress: if True, prints progress statements
+        :param write_json: if True, writes genre URLs to JSON file
+        '''
         sem = asyncio.Semaphore(semaphore_count)
         tot_dat = []
         ctr = 0
@@ -143,6 +170,7 @@ class Plato:
                 'successes': successes,
                 'failures': failures,
                 'success_rate': success_rate,
+                'number_genres': len(tot_dat),
                 'results': tot_dat
             }
             with open(write_json,'w') as json_file:

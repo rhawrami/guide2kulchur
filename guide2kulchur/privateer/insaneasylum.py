@@ -1,15 +1,24 @@
 import json
 import time
 import asyncio
-from typing import List, Optional, Dict, Union
 from types import SimpleNamespace
+from typing import (
+    List, 
+    Optional, 
+    Dict, 
+    Union,
+)
 
 import aiohttp
 
 from guide2kulchur.privateer.alexandria import Alexandria
 from guide2kulchur.privateer.falsedmitry import FalseDmitry
 from guide2kulchur.privateer.pound import Pound
-from guide2kulchur.privateer.recruits import _rand_headers, _TIMEOUT, _AGENTS
+from guide2kulchur.privateer.recruits import (
+    _rand_headers, 
+    _TIMEOUT, 
+    _AGENTS
+)
 
 # "All America is an insane asylum" - E.P.
 
@@ -20,7 +29,8 @@ async def _load_one_book_aio(session: aiohttp.ClientSession,
                              num_attempts: int = 1,
                              see_progress: bool = True,
                              to_dict: bool = False) -> Optional[Union[SimpleNamespace,Dict,str]]:
-            '''load one Goodreads book ASYNC
+            '''
+            load one Goodreads book ASYNC
             
             :session: an aiohttp.ClientSession
             :semaphore: an asyncio.Semaphore
@@ -65,7 +75,8 @@ async def _load_one_user_aio(session: aiohttp.ClientSession,
                              num_attempts: int = 1,
                              see_progress: bool = True,
                              to_dict: bool = False) -> Optional[Union[SimpleNamespace,Dict]]:
-            '''load one Goodreads user ASYNC
+            '''
+            load one Goodreads user ASYNC
             
             :session: an aiohttp.ClientSession
             :semaphore: an asyncio.Semaphore
@@ -105,7 +116,8 @@ async def _load_one_author_aio(session: aiohttp.ClientSession,
                                num_attempts: int = 1,
                                see_progress: bool = True,
                                to_dict: bool = False) -> Optional[Union[SimpleNamespace,Dict]]:
-            '''load one Goodreads author ASYNC
+            '''
+            load one Goodreads author ASYNC
             
             :session: an aiohttp.ClientSession
             :semaphore: an asyncio.Semaphore
@@ -147,7 +159,8 @@ async def bulk_load_aio(category: str,
                         to_dict: bool = False,
                         see_progress: bool = True,
                         write_json: Optional[str] = None):
-    '''Collect multiple PUBLICLY AVAILABLE Goodreads units asynchronously.
+    '''
+    Collect multiple PUBLICLY AVAILABLE Goodreads units asynchronously.
     
     :param category: category to pull from; options include ['book', 'user', 'author']
     :param identifiers: unique item identifiers, or unique URLs
@@ -244,7 +257,8 @@ async def bulk_books_aio(book_ids: List[str],
                          to_dict: bool = False,
                          see_progress: bool = True,
                          write_json: Optional[str] = None):
-    '''Collect data on multiple PUBLICLY AVAILABLE Goodreads books asynchronously.
+    '''
+    Collect data on multiple PUBLICLY AVAILABLE Goodreads books asynchronously.
     
     :param book_ids: unique book identifiers, or book URLs
     :param exclude_attrs: book attributes to exclude; see below for options
@@ -302,7 +316,8 @@ async def bulk_users_aio(user_ids: List[str],
                          to_dict: bool = False,
                          see_progress: bool = True,
                          write_json: Optional[str] = None):
-    '''Collect data on multiple PUBLICLY AVAILABLE Goodreads users asynchronously.
+    '''
+    Collect data on multiple PUBLICLY AVAILABLE Goodreads users asynchronously.
     
     :param book_ids: unique user identifiers, or user URLs
     :param exclude_attrs: user attributes to exclude; see below for options
@@ -356,7 +371,8 @@ async def bulk_authors_aio(author_ids: List[str],
                            to_dict: bool = False,
                            see_progress: bool = True,
                            write_json: Optional[str] = None):
-    '''Collect data on multiple PUBLICLY AVAILABLE Goodreads authors asynchronously.
+    '''
+    Collect data on multiple PUBLICLY AVAILABLE Goodreads authors asynchronously.
     
     :param author_ids: unique author identifiers, or author URLs
     :param exclude_attrs: author attributes to exclude; see below for options

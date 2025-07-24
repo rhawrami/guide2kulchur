@@ -12,6 +12,7 @@ from guide2kulchur.privateer.recruits import _TIMEOUT
 # Goodreads Annual Choice Awards book data
 # We'll be scraping years sequentially, but we'll be pulling
 # data within each year asynchronously
+
 async def main() -> None:
     '''collect multiple years of PUBLICLY AVAILABLE Goodreads book award data, write annual data to json'''
     MAIN_DIR = 'data'
