@@ -93,9 +93,9 @@ def update_sem_and_delay(current_sem_count: int,
 
     DELAY_DELTA = .1
 
-    scalar = 1 if timeouts_per_batch_ratio > 0.05 else -1
+    scalar = -1 if timeouts_per_batch_ratio > 0.05 else 1
     new_sem_count = (lambda x: sorted([MIN_SEM, current_sem_count + x, MAX_SEM])[1])(scalar)
-    new_delay_count = (lambda x: sorted([MIN_DELAY, current_sub_batch_delay + DELAY_DELTA * x, MAX_DELAY])[1])(scalar)
+    new_delay_count = (lambda x: sorted([MIN_DELAY, current_sub_batch_delay - DELAY_DELTA * x, MAX_DELAY])[1])(scalar)
     
     return new_sem_count, new_delay_count
 
