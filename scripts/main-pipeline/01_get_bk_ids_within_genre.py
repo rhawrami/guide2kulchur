@@ -1,3 +1,14 @@
+"""
+Following from the prior script, we'll now collect the book IDs from each genre URL that
+we pulled. Each genre has two sections:
+
+- Top Shelved Books
+- Most Read Books This Week
+
+We'll pull the maximum amount of books for each category, for each genre. The maximum is 50, though
+not all genres will have 50 books listed.
+"""
+
 import time
 import asyncio
 import os
@@ -55,7 +66,7 @@ async def main() -> None:
                                           genre_name=g) for g in genres_above_thresh]
         
         BATCH_SIZE = 10
-        BATCH_DELAY_SCALAR = 1.2    # somewhat cumbersome towards the end, but it's fine for one-time-run script like this
+        BATCH_DELAY_SCALAR = 1.15    # somewhat cumbersome towards the end, but it's fine for one-time-run script like this
 
         in_between_g_types = 60
 

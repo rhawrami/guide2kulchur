@@ -2,4 +2,5 @@ requests
 bs4
 lxml
 aiohttp
-asyncpg
+psycopg
+dotenv

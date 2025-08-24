@@ -1,68 +1,142 @@
--- guide2kulchur database setup:
-    -- postgres v17
--- top level schema:
-    -- relations
-        -- books: Goodreads book data; includes data like descriptions, ratings distributions, and publish date
-        -- users: Goodreads user data; includes data like favorite quotes, favorite genres, and list of friends
-        -- authors: Goodreads author data; includes data like birth date, list of influences, and top genres
-    -- notes:
-        -- 1. foreign keys won't be used here, as, for example, having the requirement that the author_id field in
-        --      the book relation correspond to an author tuple in authors would be untenable, unless I were to 
-        --      sequentially run author, then the author's books; no foreign keys simplifies the data-collection process
+/* 
+guide2kulchur database setup:
+    - ran on postgres v17
 
-CREATE TABLE IF NOT EXISTS books (
-    id VARCHAR(20) PRIMARY KEY,
-    url TEXT NOT NULL, 
-    entered TIMESTAMP,
-    title VARCHAR(100),
-    author_id VARCHAR(20),
-    author VARCHAR(100),
-    isbn VARCHAR(13),
-    language VARCHAR(20),
-    image_url VARCHAR(100),
-    description TEXT,
-    rating REAL,
-    rating_distribution JSONB,
-    rating_count INT,
-    review_count INT,
-    top_genres TEXT[],
-    currently_reading INT,
-    want_to_read INT, 
-    page_length INT,
-    first_published DATE
+    - used to collect PUBLIC Goodreads book, author, and user data
+
+    - data will first be collected from Goodreads site, then loaded into db in batches
+
+    - after initial data is pulled, a second run will occur, filling in the sim_books and sim_authors
+      attributes; the reason for this is that collecting the main book/author data AND the sim_books/sim_authors
+      data requires two requests, one to the main page and one to the similar books/authors page. In order to speed
+      up the initial collecting process as fast as possible, similar book/author data will be collected later. Thus,
+      on initial insertion, the similar_books/similar_authors attribute will be NULL.
+    
+    - given the nature of this data collection, foreign keys will not be enforced, as there's no guarantee in the 
+      collection process that, for example, a book's author will be in the author table at the time of insertion.
+
+    - further, indices will not be created until after the initial data collection, again to speed up the insertion process.
+*/
+
+-- domains
+CREATE DOMAIN object_rating AS real
+    CONSTRAINT val_in_five CHECK (VALUE >= 1 AND VALUE <= 5);
+
+
+CREATE DOMAIN pos_int AS int
+    CONSTRAINT int_is_positive CHECK (VALUE >= 0);
+
+
+-- functions
+CREATE FUNCTION lang_to_tsvector(txt TEXT DEFAULT NULL, lang TEXT DEFAULT 'english') RETURNS tsvector AS $$
+BEGIN
+    RETURN to_tsvector(
+        CASE
+            WHEN LOWER(lang) = ANY(ARRAY['english','spanish','french',
+                                         'german','italian','russian']) 
+            THEN LOWER(lang)::regconfig
+            ELSE 'simple'::regconfig
+        END,
+        COALESCE(txt,'')
+    );
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+
+CREATE FUNCTION updating_update_times() RETURNS TRIGGER as $$
+BEGIN
+    IF NEW IS NOT DISTINCT FROM OLD THEN
+        RETURN NEW;
+    END IF;
+    
+    NEW.updated_at := current_timestamp;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- tables
+CREATE TABLE alexandria (
+    book_id text PRIMARY KEY,
+    title text NOT NULL,
+    author text NOT NULL,
+    author_id text,
+    isbn text,
+    lang text,
+    descr text,
+    descr_vector tsvector GENERATED ALWAYS AS (lang_to_tsvector(descr, lang)) STORED,
+    img_url text,
+    rating object_rating,
+    rating_dist jsonb,
+    rating_count pos_int,
+    review_count pos_int,
+    top_genres text[], 
+    currently_reading pos_int,
+    want_to_read pos_int,
+    first_published date,
+    page_length pos_int,
+    sim_books_url_id text,
+    sim_books jsonb,    -- will be filled after initial genre pulls
+    entered_at timestamptz DEFAULT current_timestamp(2),
+    updated_at timestamptz DEFAULT current_timestamp(2)
 );
 
-CREATE TABLE IF NOT EXISTS users (
-    id VARCHAR(20) PRIMARY KEY,
-    url TEXT NOT NULL,
-    entered TIMESTAMP,
-    name VARCHAR(50),
-    rating REAL,
-    rating_count INT,
-    review_count INT,
-    favorite_genres TEXT[],
-    currently_reading_sample JSONB,
-    quotes_sample JSONB,
-    follower_count INT,
-    friend_count INT,
-    friends_sample JSONB,
-    followings_sample JSONB
+
+-- author / alias := 'pound'
+CREATE TABLE pound (
+    author_id text PRIMARY KEY,
+    author_name text NOT NULL,
+    descr text,
+    descr_vector tsvector GENERATED ALWAYS AS (to_tsvector('english',descr)) STORED, -- won't always be optimal, but mostly fine
+    img_url text,
+    birth_place text,
+    birth date,
+    death date,
+    top_genres text[],
+    influences jsonb,
+    book_sample jsonb,
+    quotes_sample text[],
+    rating object_rating,
+    rating_count pos_int,
+    review_count pos_int,
+    follower_count pos_int,
+    sim_author_url_id text,
+    sim_authors jsonb,  -- will be filled after initial genre pulls
+    entered_at timestamptz DEFAULT current_timestamp(2),
+    updated_at timestamptz DEFAULT current_timestamp(2)
 );
 
-CREATE TABLE IF NOT EXISTS authors (
-    id VARCHAR(20) PRIMARY KEY,
-    url TEXT NOT NULL,
-    entered TIMESTAMP,
-    name TEXT,
-    image_url TEXT,
-    birth_place TEXT,
-    birth DATE,
-    death DATE,
-    top_genres TEXT[],
-    rating REAL,
-    rating_count INT,
-    review_count INT,
-    follower_count INT,
-    influences JSONB,
-    sample_books JSONB
+
+-- user / alias := 'false_dmitry'
+CREATE TABLE false_dmitry (
+    user_id text PRIMARY KEY,
+    user_name text NOT NULL,
+    img_url text,
+    rating object_rating,
+    rating_count pos_int,
+    review_count pos_int,
+    favorite_genres text[],
+    currently_reading_sample jsonb,
+    follower_count pos_int,
+    friend_count pos_int,
+    friends_sample jsonb,
+    followings_sample jsonb,
+    entered_at timestamptz DEFAULT current_timestamp(2),
+    updated_at timestamptz DEFAULT current_timestamp(2)
 );
+
+
+-- triggers
+CREATE TRIGGER update_time_alx 
+BEFORE UPDATE ON alexandria
+    FOR EACH ROW EXECUTE FUNCTION updating_update_times();
+
+
+CREATE TRIGGER update_time_pnd 
+BEFORE UPDATE ON pound
+    FOR EACH ROW EXECUTE FUNCTION updating_update_times();
+
+
+CREATE TRIGGER update_time_dmtry 
+BEFORE UPDATE ON false_dmitry
+    FOR EACH ROW EXECUTE FUNCTION updating_update_times();

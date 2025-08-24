@@ -1,3 +1,18 @@
+"""
+In this script, we pull the URLs for each of Goodreads's book genres. This will act as a 
+starting point for pulling data, and then using the "similar books" field to essentially
+recursively pull more book data. 
+
+The data will be formatted as a JSON file, with each genre following the structure like 
+the following example:
+
+{
+    "url": "https://www.goodreads.com/genres/esoterica",
+    "name": "esoterica",
+    "size": 57466
+}
+"""
+
 import os
 import asyncio
 

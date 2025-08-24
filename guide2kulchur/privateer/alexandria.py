@@ -347,9 +347,10 @@ class Alexandria:
         g_l = self._info_main_metadat.find('ul',{'aria-label': 'Top genres for this book'})
         if g_l:
             top_genres = [
-                i.find('span', class_ = 'Button__labelItem').text.strip()
-                    for i in 
-                        g_l.find_all('span', class_ = 'BookPageMetadataSection__genreButton')
+                i.find('span', class_ = 'Button__labelItem').text.strip().lower()
+                    for i 
+                    in g_l.find_all('span', class_ = 'BookPageMetadataSection__genreButton')
+                if len(i.find('span', class_ = 'Button__labelItem').text.strip().lower())
             ]
         else:
             top_genres = None
@@ -411,7 +412,10 @@ class Alexandria:
         if f_p:
             first_pub = f_p.text.strip().lower()
             first_pub = re.sub(r'^.*published\s','',first_pub)
-            first_pub = datetime.strptime(first_pub,'%B %d, %Y').strftime('%m/%d/%Y')
+            try:
+                first_pub = datetime.strptime(first_pub,'%B %d, %Y').strftime('%m/%d/%Y')
+            except Exception:
+                first_pub = None
         else:
             first_pub = None
             return first_pub
