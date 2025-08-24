@@ -50,7 +50,7 @@ async def main() -> None:
         genres = json.load(g_url_p)
     genres = genres['results']
     
-    CUTOFF = 999    # arbitrary, but need something to filter out small genres
+    CUTOFF = 499    # arbitrary, but need something to filter out small genres
     genres_above_thresh = {i['name'] for i in genres if i['size'] > CUTOFF}    # i don't think there are duplicates, but just in case
 
     SEM_COUNT = 5

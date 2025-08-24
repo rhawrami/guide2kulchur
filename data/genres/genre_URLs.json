@@ -1,6 +1,6 @@
 {
-    "started_at": "Sat Aug 23 20:01:50 2025",
-    "ended_at": "Sat Aug 23 20:01:53 2025",
+    "started_at": "Sun Aug 24 01:14:07 2025",
+    "ended_at": "Sun Aug 24 01:14:10 2025",
     "attempts": 15,
     "successes": 15,
     "failures": 0,
@@ -508,6 +508,391 @@
             "size": 257520
         },
         {
+            "url": "https://www.goodreads.com/genres/victorian",
+            "name": "victorian",
+            "size": 428130
+        },
+        {
+            "url": "https://www.goodreads.com/genres/victorian-romance",
+            "name": "victorian-romance",
+            "size": 36555
+        },
+        {
+            "url": "https://www.goodreads.com/genres/video-games",
+            "name": "video-games",
+            "size": 62054
+        },
+        {
+            "url": "https://www.goodreads.com/genres/viking-romance",
+            "name": "viking-romance",
+            "size": 3357
+        },
+        {
+            "url": "https://www.goodreads.com/genres/virtual-reality",
+            "name": "virtual-reality",
+            "size": 12486
+        },
+        {
+            "url": "https://www.goodreads.com/genres/visual-art",
+            "name": "visual-art",
+            "size": 28921
+        },
+        {
+            "url": "https://www.goodreads.com/genres/vtol",
+            "name": "vtol",
+            "size": 440
+        },
+        {
+            "url": "https://www.goodreads.com/genres/walking",
+            "name": "walking",
+            "size": 37559
+        },
+        {
+            "url": "https://www.goodreads.com/genres/war",
+            "name": "war",
+            "size": 1393859
+        },
+        {
+            "url": "https://www.goodreads.com/genres/warcraft",
+            "name": "warcraft",
+            "size": 16377
+        },
+        {
+            "url": "https://www.goodreads.com/genres/web",
+            "name": "web",
+            "size": 59845
+        },
+        {
+            "url": "https://www.goodreads.com/genres/webcomic",
+            "name": "webcomic",
+            "size": 39071
+        },
+        {
+            "url": "https://www.goodreads.com/genres/website-design",
+            "name": "website-design",
+            "size": 989
+        },
+        {
+            "url": "https://www.goodreads.com/genres/weird-fiction",
+            "name": "weird-fiction",
+            "size": 199544
+        },
+        {
+            "url": "https://www.goodreads.com/genres/weird-west",
+            "name": "weird-west",
+            "size": 8767
+        },
+        {
+            "url": "https://www.goodreads.com/genres/werecats",
+            "name": "werecats",
+            "size": 7561
+        },
+        {
+            "url": "https://www.goodreads.com/genres/werewolves",
+            "name": "werewolves",
+            "size": 370004
+        },
+        {
+            "url": "https://www.goodreads.com/genres/western-africa",
+            "name": "western-africa",
+            "size": 1632
+        },
+        {
+            "url": "https://www.goodreads.com/genres/western-historical-romance",
+            "name": "western-historical-romance",
+            "size": 16642
+        },
+        {
+            "url": "https://www.goodreads.com/genres/western-romance",
+            "name": "western-romance",
+            "size": 73219
+        },
+        {
+            "url": "https://www.goodreads.com/genres/western-sahara",
+            "name": "western-sahara",
+            "size": 642
+        },
+        {
+            "url": "https://www.goodreads.com/genres/westerns",
+            "name": "westerns",
+            "size": 160898
+        },
+        {
+            "url": "https://www.goodreads.com/genres/whodunit",
+            "name": "whodunit",
+            "size": 168614
+        },
+        {
+            "url": "https://www.goodreads.com/genres/why-choose",
+            "name": "why-choose",
+            "size": 158631
+        },
+        {
+            "url": "https://www.goodreads.com/genres/wicca",
+            "name": "wicca",
+            "size": 56396
+        },
+        {
+            "url": "https://www.goodreads.com/genres/wilderness",
+            "name": "wilderness",
+            "size": 63629
+        },
+        {
+            "url": "https://www.goodreads.com/genres/wildlife",
+            "name": "wildlife",
+            "size": 39472
+        },
+        {
+            "url": "https://www.goodreads.com/genres/william-godwin",
+            "name": "william-godwin",
+            "size": 64
+        },
+        {
+            "url": "https://www.goodreads.com/genres/wine",
+            "name": "wine",
+            "size": 39953
+        },
+        {
+            "url": "https://www.goodreads.com/genres/witchcraft",
+            "name": "witchcraft",
+            "size": 228320
+        },
+        {
+            "url": "https://www.goodreads.com/genres/witches",
+            "name": "witches",
+            "size": 623371
+        },
+        {
+            "url": "https://www.goodreads.com/genres/wizards",
+            "name": "wizards",
+            "size": 105359
+        },
+        {
+            "url": "https://www.goodreads.com/genres/wolves",
+            "name": "wolves",
+            "size": 119085
+        },
+        {
+            "url": "https://www.goodreads.com/genres/women-and-gender-studies",
+            "name": "women-and-gender-studies",
+            "size": 12405
+        },
+        {
+            "url": "https://www.goodreads.com/genres/womens",
+            "name": "womens",
+            "size": 114288
+        },
+        {
+            "url": "https://www.goodreads.com/genres/womens-fiction",
+            "name": "womens-fiction",
+            "size": 351478
+        },
+        {
+            "url": "https://www.goodreads.com/genres/womens-rights",
+            "name": "womens-rights",
+            "size": 16962
+        },
+        {
+            "url": "https://www.goodreads.com/genres/womens-sports",
+            "name": "womens-sports",
+            "size": 614
+        },
+        {
+            "url": "https://www.goodreads.com/genres/womens-studies",
+            "name": "womens-studies",
+            "size": 90975
+        },
+        {
+            "url": "https://www.goodreads.com/genres/wonder-woman",
+            "name": "wonder-woman",
+            "size": 25250
+        },
+        {
+            "url": "https://www.goodreads.com/genres/woodwork",
+            "name": "woodwork",
+            "size": 2240
+        },
+        {
+            "url": "https://www.goodreads.com/genres/words",
+            "name": "words",
+            "size": 134579
+        },
+        {
+            "url": "https://www.goodreads.com/genres/workplace",
+            "name": "workplace",
+            "size": 122755
+        },
+        {
+            "url": "https://www.goodreads.com/genres/workplace-romance",
+            "name": "workplace-romance",
+            "size": 125717
+        },
+        {
+            "url": "https://www.goodreads.com/genres/world-history",
+            "name": "world-history",
+            "size": 355907
+        },
+        {
+            "url": "https://www.goodreads.com/genres/world-literature",
+            "name": "world-literature",
+            "size": 459615
+        },
+        {
+            "url": "https://www.goodreads.com/genres/world-of-darkness",
+            "name": "world-of-darkness",
+            "size": 8436
+        },
+        {
+            "url": "https://www.goodreads.com/genres/world-of-warcraft",
+            "name": "world-of-warcraft",
+            "size": 7707
+        },
+        {
+            "url": "https://www.goodreads.com/genres/world-war-i",
+            "name": "world-war-i",
+            "size": 66098
+        },
+        {
+            "url": "https://www.goodreads.com/genres/world-war-ii",
+            "name": "world-war-ii",
+            "size": 291788
+        },
+        {
+            "url": "https://www.goodreads.com/genres/writing",
+            "name": "writing",
+            "size": 884764
+        },
+        {
+            "url": "https://www.goodreads.com/genres/wwii-fiction",
+            "name": "wwii-fiction",
+            "size": 42824
+        },
+        {
+            "url": "https://www.goodreads.com/genres/wwii-related-fiction",
+            "name": "wwii-related-fiction",
+            "size": 1844
+        },
+        {
+            "url": "https://www.goodreads.com/genres/x-men",
+            "name": "x-men",
+            "size": 103961
+        },
+        {
+            "url": "https://www.goodreads.com/genres/ya-horror",
+            "name": "ya-horror",
+            "size": 54185
+        },
+        {
+            "url": "https://www.goodreads.com/genres/ya-romantasy",
+            "name": "ya-romantasy",
+            "size": 11291
+        },
+        {
+            "url": "https://www.goodreads.com/genres/yaoi",
+            "name": "yaoi",
+            "size": 153747
+        },
+        {
+            "url": "https://www.goodreads.com/genres/yeti",
+            "name": "yeti",
+            "size": 1334
+        },
+        {
+            "url": "https://www.goodreads.com/genres/young-adult",
+            "name": "young-adult",
+            "size": 11214043
+        },
+        {
+            "url": "https://www.goodreads.com/genres/young-adult-contemporary",
+            "name": "young-adult-contemporary",
+            "size": 89684
+        },
+        {
+            "url": "https://www.goodreads.com/genres/young-adult-epic-fantasy",
+            "name": "young-adult-epic-fantasy",
+            "size": 9359
+        },
+        {
+            "url": "https://www.goodreads.com/genres/young-adult-fantasy",
+            "name": "young-adult-fantasy",
+            "size": 308974
+        },
+        {
+            "url": "https://www.goodreads.com/genres/young-adult-historical-fiction",
+            "name": "young-adult-historical-fiction",
+            "size": 36345
+        },
+        {
+            "url": "https://www.goodreads.com/genres/young-adult-horror",
+            "name": "young-adult-horror",
+            "size": 14257
+        },
+        {
+            "url": "https://www.goodreads.com/genres/young-adult-mystery",
+            "name": "young-adult-mystery",
+            "size": 31621
+        },
+        {
+            "url": "https://www.goodreads.com/genres/young-adult-paranormal",
+            "name": "young-adult-paranormal",
+            "size": 61978
+        },
+        {
+            "url": "https://www.goodreads.com/genres/young-adult-romance",
+            "name": "young-adult-romance",
+            "size": 171921
+        },
+        {
+            "url": "https://www.goodreads.com/genres/young-adult-science-fiction",
+            "name": "young-adult-science-fiction",
+            "size": 37023
+        },
+        {
+            "url": "https://www.goodreads.com/genres/young-earth",
+            "name": "young-earth",
+            "size": 169
+        },
+        {
+            "url": "https://www.goodreads.com/genres/young-readers",
+            "name": "young-readers",
+            "size": 285063
+        },
+        {
+            "url": "https://www.goodreads.com/genres/yuri",
+            "name": "yuri",
+            "size": 27392
+        },
+        {
+            "url": "https://www.goodreads.com/genres/zambia",
+            "name": "zambia",
+            "size": 7827
+        },
+        {
+            "url": "https://www.goodreads.com/genres/zen",
+            "name": "zen",
+            "size": 78661
+        },
+        {
+            "url": "https://www.goodreads.com/genres/zimbabwe",
+            "name": "zimbabwe",
+            "size": 8753
+        },
+        {
+            "url": "https://www.goodreads.com/genres/zombies",
+            "name": "zombies",
+            "size": 334321
+        },
+        {
+            "url": "https://www.goodreads.com/genres/%E1%9B%8B%E1%9B%8B-books",
+            "name": "\u16cb\u16cb-books",
+            "size": 4
+        },
+        {
+            "url": "https://www.goodreads.com/genres/%E6%BC%AB%E7%94%BB",
+            "name": "\u6f2b\u753b",
+            "size": 84644
+        },
+        {
             "url": "https://www.goodreads.com/genres/serbian-literature",
             "name": "serbian-literature",
             "size": 5338
@@ -1006,391 +1391,6 @@
             "url": "https://www.goodreads.com/genres/supernatural-romance",
             "name": "supernatural-romance",
             "size": 95650
-        },
-        {
-            "url": "https://www.goodreads.com/genres/victorian",
-            "name": "victorian",
-            "size": 428130
-        },
-        {
-            "url": "https://www.goodreads.com/genres/victorian-romance",
-            "name": "victorian-romance",
-            "size": 36555
-        },
-        {
-            "url": "https://www.goodreads.com/genres/video-games",
-            "name": "video-games",
-            "size": 62054
-        },
-        {
-            "url": "https://www.goodreads.com/genres/viking-romance",
-            "name": "viking-romance",
-            "size": 3357
-        },
-        {
-            "url": "https://www.goodreads.com/genres/virtual-reality",
-            "name": "virtual-reality",
-            "size": 12486
-        },
-        {
-            "url": "https://www.goodreads.com/genres/visual-art",
-            "name": "visual-art",
-            "size": 28921
-        },
-        {
-            "url": "https://www.goodreads.com/genres/vtol",
-            "name": "vtol",
-            "size": 440
-        },
-        {
-            "url": "https://www.goodreads.com/genres/walking",
-            "name": "walking",
-            "size": 37559
-        },
-        {
-            "url": "https://www.goodreads.com/genres/war",
-            "name": "war",
-            "size": 1393859
-        },
-        {
-            "url": "https://www.goodreads.com/genres/warcraft",
-            "name": "warcraft",
-            "size": 16377
-        },
-        {
-            "url": "https://www.goodreads.com/genres/web",
-            "name": "web",
-            "size": 59845
-        },
-        {
-            "url": "https://www.goodreads.com/genres/webcomic",
-            "name": "webcomic",
-            "size": 39071
-        },
-        {
-            "url": "https://www.goodreads.com/genres/website-design",
-            "name": "website-design",
-            "size": 989
-        },
-        {
-            "url": "https://www.goodreads.com/genres/weird-fiction",
-            "name": "weird-fiction",
-            "size": 199544
-        },
-        {
-            "url": "https://www.goodreads.com/genres/weird-west",
-            "name": "weird-west",
-            "size": 8767
-        },
-        {
-            "url": "https://www.goodreads.com/genres/werecats",
-            "name": "werecats",
-            "size": 7561
-        },
-        {
-            "url": "https://www.goodreads.com/genres/werewolves",
-            "name": "werewolves",
-            "size": 370004
-        },
-        {
-            "url": "https://www.goodreads.com/genres/western-africa",
-            "name": "western-africa",
-            "size": 1632
-        },
-        {
-            "url": "https://www.goodreads.com/genres/western-historical-romance",
-            "name": "western-historical-romance",
-            "size": 16642
-        },
-        {
-            "url": "https://www.goodreads.com/genres/western-romance",
-            "name": "western-romance",
-            "size": 73219
-        },
-        {
-            "url": "https://www.goodreads.com/genres/western-sahara",
-            "name": "western-sahara",
-            "size": 642
-        },
-        {
-            "url": "https://www.goodreads.com/genres/westerns",
-            "name": "westerns",
-            "size": 160898
-        },
-        {
-            "url": "https://www.goodreads.com/genres/whodunit",
-            "name": "whodunit",
-            "size": 168614
-        },
-        {
-            "url": "https://www.goodreads.com/genres/why-choose",
-            "name": "why-choose",
-            "size": 158631
-        },
-        {
-            "url": "https://www.goodreads.com/genres/wicca",
-            "name": "wicca",
-            "size": 56396
-        },
-        {
-            "url": "https://www.goodreads.com/genres/wilderness",
-            "name": "wilderness",
-            "size": 63629
-        },
-        {
-            "url": "https://www.goodreads.com/genres/wildlife",
-            "name": "wildlife",
-            "size": 39472
-        },
-        {
-            "url": "https://www.goodreads.com/genres/william-godwin",
-            "name": "william-godwin",
-            "size": 64
-        },
-        {
-            "url": "https://www.goodreads.com/genres/wine",
-            "name": "wine",
-            "size": 39953
-        },
-        {
-            "url": "https://www.goodreads.com/genres/witchcraft",
-            "name": "witchcraft",
-            "size": 228320
-        },
-        {
-            "url": "https://www.goodreads.com/genres/witches",
-            "name": "witches",
-            "size": 623371
-        },
-        {
-            "url": "https://www.goodreads.com/genres/wizards",
-            "name": "wizards",
-            "size": 105359
-        },
-        {
-            "url": "https://www.goodreads.com/genres/wolves",
-            "name": "wolves",
-            "size": 119085
-        },
-        {
-            "url": "https://www.goodreads.com/genres/women-and-gender-studies",
-            "name": "women-and-gender-studies",
-            "size": 12405
-        },
-        {
-            "url": "https://www.goodreads.com/genres/womens",
-            "name": "womens",
-            "size": 114288
-        },
-        {
-            "url": "https://www.goodreads.com/genres/womens-fiction",
-            "name": "womens-fiction",
-            "size": 351478
-        },
-        {
-            "url": "https://www.goodreads.com/genres/womens-rights",
-            "name": "womens-rights",
-            "size": 16962
-        },
-        {
-            "url": "https://www.goodreads.com/genres/womens-sports",
-            "name": "womens-sports",
-            "size": 614
-        },
-        {
-            "url": "https://www.goodreads.com/genres/womens-studies",
-            "name": "womens-studies",
-            "size": 90975
-        },
-        {
-            "url": "https://www.goodreads.com/genres/wonder-woman",
-            "name": "wonder-woman",
-            "size": 25250
-        },
-        {
-            "url": "https://www.goodreads.com/genres/woodwork",
-            "name": "woodwork",
-            "size": 2240
-        },
-        {
-            "url": "https://www.goodreads.com/genres/words",
-            "name": "words",
-            "size": 134579
-        },
-        {
-            "url": "https://www.goodreads.com/genres/workplace",
-            "name": "workplace",
-            "size": 122755
-        },
-        {
-            "url": "https://www.goodreads.com/genres/workplace-romance",
-            "name": "workplace-romance",
-            "size": 125717
-        },
-        {
-            "url": "https://www.goodreads.com/genres/world-history",
-            "name": "world-history",
-            "size": 355907
-        },
-        {
-            "url": "https://www.goodreads.com/genres/world-literature",
-            "name": "world-literature",
-            "size": 459615
-        },
-        {
-            "url": "https://www.goodreads.com/genres/world-of-darkness",
-            "name": "world-of-darkness",
-            "size": 8436
-        },
-        {
-            "url": "https://www.goodreads.com/genres/world-of-warcraft",
-            "name": "world-of-warcraft",
-            "size": 7707
-        },
-        {
-            "url": "https://www.goodreads.com/genres/world-war-i",
-            "name": "world-war-i",
-            "size": 66098
-        },
-        {
-            "url": "https://www.goodreads.com/genres/world-war-ii",
-            "name": "world-war-ii",
-            "size": 291788
-        },
-        {
-            "url": "https://www.goodreads.com/genres/writing",
-            "name": "writing",
-            "size": 884764
-        },
-        {
-            "url": "https://www.goodreads.com/genres/wwii-fiction",
-            "name": "wwii-fiction",
-            "size": 42824
-        },
-        {
-            "url": "https://www.goodreads.com/genres/wwii-related-fiction",
-            "name": "wwii-related-fiction",
-            "size": 1844
-        },
-        {
-            "url": "https://www.goodreads.com/genres/x-men",
-            "name": "x-men",
-            "size": 103961
-        },
-        {
-            "url": "https://www.goodreads.com/genres/ya-horror",
-            "name": "ya-horror",
-            "size": 54185
-        },
-        {
-            "url": "https://www.goodreads.com/genres/ya-romantasy",
-            "name": "ya-romantasy",
-            "size": 11291
-        },
-        {
-            "url": "https://www.goodreads.com/genres/yaoi",
-            "name": "yaoi",
-            "size": 153747
-        },
-        {
-            "url": "https://www.goodreads.com/genres/yeti",
-            "name": "yeti",
-            "size": 1334
-        },
-        {
-            "url": "https://www.goodreads.com/genres/young-adult",
-            "name": "young-adult",
-            "size": 11214043
-        },
-        {
-            "url": "https://www.goodreads.com/genres/young-adult-contemporary",
-            "name": "young-adult-contemporary",
-            "size": 89684
-        },
-        {
-            "url": "https://www.goodreads.com/genres/young-adult-epic-fantasy",
-            "name": "young-adult-epic-fantasy",
-            "size": 9359
-        },
-        {
-            "url": "https://www.goodreads.com/genres/young-adult-fantasy",
-            "name": "young-adult-fantasy",
-            "size": 308974
-        },
-        {
-            "url": "https://www.goodreads.com/genres/young-adult-historical-fiction",
-            "name": "young-adult-historical-fiction",
-            "size": 36345
-        },
-        {
-            "url": "https://www.goodreads.com/genres/young-adult-horror",
-            "name": "young-adult-horror",
-            "size": 14257
-        },
-        {
-            "url": "https://www.goodreads.com/genres/young-adult-mystery",
-            "name": "young-adult-mystery",
-            "size": 31621
-        },
-        {
-            "url": "https://www.goodreads.com/genres/young-adult-paranormal",
-            "name": "young-adult-paranormal",
-            "size": 61978
-        },
-        {
-            "url": "https://www.goodreads.com/genres/young-adult-romance",
-            "name": "young-adult-romance",
-            "size": 171921
-        },
-        {
-            "url": "https://www.goodreads.com/genres/young-adult-science-fiction",
-            "name": "young-adult-science-fiction",
-            "size": 37023
-        },
-        {
-            "url": "https://www.goodreads.com/genres/young-earth",
-            "name": "young-earth",
-            "size": 169
-        },
-        {
-            "url": "https://www.goodreads.com/genres/young-readers",
-            "name": "young-readers",
-            "size": 285063
-        },
-        {
-            "url": "https://www.goodreads.com/genres/yuri",
-            "name": "yuri",
-            "size": 27392
-        },
-        {
-            "url": "https://www.goodreads.com/genres/zambia",
-            "name": "zambia",
-            "size": 7827
-        },
-        {
-            "url": "https://www.goodreads.com/genres/zen",
-            "name": "zen",
-            "size": 78661
-        },
-        {
-            "url": "https://www.goodreads.com/genres/zimbabwe",
-            "name": "zimbabwe",
-            "size": 8753
-        },
-        {
-            "url": "https://www.goodreads.com/genres/zombies",
-            "name": "zombies",
-            "size": 334321
-        },
-        {
-            "url": "https://www.goodreads.com/genres/%E1%9B%8B%E1%9B%8B-books",
-            "name": "\u16cb\u16cb-books",
-            "size": 4
-        },
-        {
-            "url": "https://www.goodreads.com/genres/%E6%BC%AB%E7%94%BB",
-            "name": "\u6f2b\u753b",
-            "size": 84644
         },
         {
             "url": "https://www.goodreads.com/genres/pulp-noir",
@@ -1893,506 +1893,6 @@
             "size": 263519
         },
         {
-            "url": "https://www.goodreads.com/genres/omegaverse",
-            "name": "omegaverse",
-            "size": 213685
-        },
-        {
-            "url": "https://www.goodreads.com/genres/oppositional-defiance-disorder",
-            "name": "oppositional-defiance-disorder",
-            "size": 18
-        },
-        {
-            "url": "https://www.goodreads.com/genres/oral-history",
-            "name": "oral-history",
-            "size": 13669
-        },
-        {
-            "url": "https://www.goodreads.com/genres/oral-surgery",
-            "name": "oral-surgery",
-            "size": 561
-        },
-        {
-            "url": "https://www.goodreads.com/genres/organizational-culture",
-            "name": "organizational-culture",
-            "size": 2250
-        },
-        {
-            "url": "https://www.goodreads.com/genres/origami",
-            "name": "origami",
-            "size": 8317
-        },
-        {
-            "url": "https://www.goodreads.com/genres/ornithology",
-            "name": "ornithology",
-            "size": 7941
-        },
-        {
-            "url": "https://www.goodreads.com/genres/outdoors",
-            "name": "outdoors",
-            "size": 115245
-        },
-        {
-            "url": "https://www.goodreads.com/genres/outlander",
-            "name": "outlander",
-            "size": 30118
-        },
-        {
-            "url": "https://www.goodreads.com/genres/outlander-series",
-            "name": "outlander-series",
-            "size": 8350
-        },
-        {
-            "url": "https://www.goodreads.com/genres/overland-campaign",
-            "name": "overland-campaign",
-            "size": 121
-        },
-        {
-            "url": "https://www.goodreads.com/genres/paganism",
-            "name": "paganism",
-            "size": 66229
-        },
-        {
-            "url": "https://www.goodreads.com/genres/pakistan",
-            "name": "pakistan",
-            "size": 40677
-        },
-        {
-            "url": "https://www.goodreads.com/genres/palaeontology",
-            "name": "palaeontology",
-            "size": 4780
-        },
-        {
-            "url": "https://www.goodreads.com/genres/palaeozoology",
-            "name": "palaeozoology",
-            "size": 442
-        },
-        {
-            "url": "https://www.goodreads.com/genres/palmistry",
-            "name": "palmistry",
-            "size": 946
-        },
-        {
-            "url": "https://www.goodreads.com/genres/paranormal",
-            "name": "paranormal",
-            "size": 4659801
-        },
-        {
-            "url": "https://www.goodreads.com/genres/paranormal-fiction",
-            "name": "paranormal-fiction",
-            "size": 173570
-        },
-        {
-            "url": "https://www.goodreads.com/genres/paranormal-mystery",
-            "name": "paranormal-mystery",
-            "size": 93879
-        },
-        {
-            "url": "https://www.goodreads.com/genres/paranormal-romance",
-            "name": "paranormal-romance",
-            "size": 1718054
-        },
-        {
-            "url": "https://www.goodreads.com/genres/paranormal-urban-fantasy",
-            "name": "paranormal-urban-fantasy",
-            "size": 181369
-        },
-        {
-            "url": "https://www.goodreads.com/genres/parenting",
-            "name": "parenting",
-            "size": 733859
-        },
-        {
-            "url": "https://www.goodreads.com/genres/pathological-demand-avoidance",
-            "name": "pathological-demand-avoidance",
-            "size": 442
-        },
-        {
-            "url": "https://www.goodreads.com/genres/patternmaking",
-            "name": "patternmaking",
-            "size": 716
-        },
-        {
-            "url": "https://www.goodreads.com/genres/peak-oil",
-            "name": "peak-oil",
-            "size": 2396
-        },
-        {
-            "url": "https://www.goodreads.com/genres/pediatricians",
-            "name": "pediatricians",
-            "size": 476
-        },
-        {
-            "url": "https://www.goodreads.com/genres/pediatrics",
-            "name": "pediatrics",
-            "size": 2737
-        },
-        {
-            "url": "https://www.goodreads.com/genres/peer-review",
-            "name": "peer-review",
-            "size": 1692
-        },
-        {
-            "url": "https://www.goodreads.com/genres/peninsula-campaign",
-            "name": "peninsula-campaign",
-            "size": 29
-        },
-        {
-            "url": "https://www.goodreads.com/genres/percy-bysshe-shelley",
-            "name": "percy-bysshe-shelley",
-            "size": 410
-        },
-        {
-            "url": "https://www.goodreads.com/genres/percy-jackson",
-            "name": "percy-jackson",
-            "size": 85798
-        },
-        {
-            "url": "https://www.goodreads.com/genres/personal-development",
-            "name": "personal-development",
-            "size": 645819
-        },
-        {
-            "url": "https://www.goodreads.com/genres/personal-finance",
-            "name": "personal-finance",
-            "size": 70296
-        },
-        {
-            "url": "https://www.goodreads.com/genres/petrograd",
-            "name": "petrograd",
-            "size": 482
-        },
-        {
-            "url": "https://www.goodreads.com/genres/philip-ii-of-spain",
-            "name": "philip-ii-of-spain",
-            "size": 9
-        },
-        {
-            "url": "https://www.goodreads.com/genres/philosophy",
-            "name": "philosophy",
-            "size": 3889947
-        },
-        {
-            "url": "https://www.goodreads.com/genres/photography",
-            "name": "photography",
-            "size": 284847
-        },
-        {
-            "url": "https://www.goodreads.com/genres/phrenology",
-            "name": "phrenology",
-            "size": 915
-        },
-        {
-            "url": "https://www.goodreads.com/genres/physical-therapy",
-            "name": "physical-therapy",
-            "size": 3755
-        },
-        {
-            "url": "https://www.goodreads.com/genres/physics",
-            "name": "physics",
-            "size": 254097
-        },
-        {
-            "url": "https://www.goodreads.com/genres/physiotherapy",
-            "name": "physiotherapy",
-            "size": 1990
-        },
-        {
-            "url": "https://www.goodreads.com/genres/picture-books",
-            "name": "picture-books",
-            "size": 3043908
-        },
-        {
-            "url": "https://www.goodreads.com/genres/picu",
-            "name": "picu",
-            "size": 130
-        },
-        {
-            "url": "https://www.goodreads.com/genres/pirates",
-            "name": "pirates",
-            "size": 171552
-        },
-        {
-            "url": "https://www.goodreads.com/genres/planetary-romance",
-            "name": "planetary-romance",
-            "size": 12765
-        },
-        {
-            "url": "https://www.goodreads.com/genres/planetary-science",
-            "name": "planetary-science",
-            "size": 4657
-        },
-        {
-            "url": "https://www.goodreads.com/genres/planets",
-            "name": "planets",
-            "size": 13675
-        },
-        {
-            "url": "https://www.goodreads.com/genres/plantagenet",
-            "name": "plantagenet",
-            "size": 11860
-        },
-        {
-            "url": "https://www.goodreads.com/genres/plants",
-            "name": "plants",
-            "size": 66838
-        },
-        {
-            "url": "https://www.goodreads.com/genres/plays",
-            "name": "plays",
-            "size": 953241
-        },
-        {
-            "url": "https://www.goodreads.com/genres/plus-size",
-            "name": "plus-size",
-            "size": 27858
-        },
-        {
-            "url": "https://www.goodreads.com/genres/poetry",
-            "name": "poetry",
-            "size": 4082532
-        },
-        {
-            "url": "https://www.goodreads.com/genres/poland",
-            "name": "poland",
-            "size": 88623
-        },
-        {
-            "url": "https://www.goodreads.com/genres/police",
-            "name": "police",
-            "size": 240732
-        },
-        {
-            "url": "https://www.goodreads.com/genres/police-romance",
-            "name": "police-romance",
-            "size": 5259
-        },
-        {
-            "url": "https://www.goodreads.com/genres/polish-literature",
-            "name": "polish-literature",
-            "size": 73371
-        },
-        {
-            "url": "https://www.goodreads.com/genres/political-development",
-            "name": "political-development",
-            "size": 1485
-        },
-        {
-            "url": "https://www.goodreads.com/genres/political-ethics",
-            "name": "political-ethics",
-            "size": 1625
-        },
-        {
-            "url": "https://www.goodreads.com/genres/political-science",
-            "name": "political-science",
-            "size": 292357
-        },
-        {
-            "url": "https://www.goodreads.com/genres/political-thriller",
-            "name": "political-thriller",
-            "size": 65227
-        },
-        {
-            "url": "https://www.goodreads.com/genres/politics",
-            "name": "politics",
-            "size": 2630333
-        },
-        {
-            "url": "https://www.goodreads.com/genres/polyamorous",
-            "name": "polyamorous",
-            "size": 33855
-        },
-        {
-            "url": "https://www.goodreads.com/genres/polyamory",
-            "name": "polyamory",
-            "size": 57171
-        },
-        {
-            "url": "https://www.goodreads.com/genres/polyandry",
-            "name": "polyandry",
-            "size": 2131
-        },
-        {
-            "url": "https://www.goodreads.com/genres/polygamy",
-            "name": "polygamy",
-            "size": 9040
-        },
-        {
-            "url": "https://www.goodreads.com/genres/polygyny",
-            "name": "polygyny",
-            "size": 64
-        },
-        {
-            "url": "https://www.goodreads.com/genres/pop-culture",
-            "name": "pop-culture",
-            "size": 273623
-        },
-        {
-            "url": "https://www.goodreads.com/genres/popular-science",
-            "name": "popular-science",
-            "size": 150093
-        },
-        {
-            "url": "https://www.goodreads.com/genres/pornography",
-            "name": "pornography",
-            "size": 7300
-        },
-        {
-            "url": "https://www.goodreads.com/genres/portugal",
-            "name": "portugal",
-            "size": 127112
-        },
-        {
-            "url": "https://www.goodreads.com/genres/portuguese-literature",
-            "name": "portuguese-literature",
-            "size": 32341
-        },
-        {
-            "url": "https://www.goodreads.com/genres/post-apocalyptic",
-            "name": "post-apocalyptic",
-            "size": 415644
-        },
-        {
-            "url": "https://www.goodreads.com/genres/poverty",
-            "name": "poverty",
-            "size": 160223
-        },
-        {
-            "url": "https://www.goodreads.com/genres/prayer",
-            "name": "prayer",
-            "size": 73572
-        },
-        {
-            "url": "https://www.goodreads.com/genres/pre-k",
-            "name": "pre-k",
-            "size": 55796
-        },
-        {
-            "url": "https://www.goodreads.com/genres/pre-raphaelite",
-            "name": "pre-raphaelite",
-            "size": 1957
-        },
-        {
-            "url": "https://www.goodreads.com/genres/prehistoric",
-            "name": "prehistoric",
-            "size": 17128
-        },
-        {
-            "url": "https://www.goodreads.com/genres/prehistory",
-            "name": "prehistory",
-            "size": 34615
-        },
-        {
-            "url": "https://www.goodreads.com/genres/preservation",
-            "name": "preservation",
-            "size": 5451
-        },
-        {
-            "url": "https://www.goodreads.com/genres/presidents",
-            "name": "presidents",
-            "size": 97001
-        },
-        {
-            "url": "https://www.goodreads.com/genres/pretoria",
-            "name": "pretoria",
-            "size": 538
-        },
-        {
-            "url": "https://www.goodreads.com/genres/princesses",
-            "name": "princesses",
-            "size": 62257
-        },
-        {
-            "url": "https://www.goodreads.com/genres/productivity",
-            "name": "productivity",
-            "size": 219566
-        },
-        {
-            "url": "https://www.goodreads.com/genres/professors",
-            "name": "professors",
-            "size": 8320
-        },
-        {
-            "url": "https://www.goodreads.com/genres/programming",
-            "name": "programming",
-            "size": 241223
-        },
-        {
-            "url": "https://www.goodreads.com/genres/programming-languages",
-            "name": "programming-languages",
-            "size": 5388
-        },
-        {
-            "url": "https://www.goodreads.com/genres/prostitution",
-            "name": "prostitution",
-            "size": 38457
-        },
-        {
-            "url": "https://www.goodreads.com/genres/pseudomedicine",
-            "name": "pseudomedicine",
-            "size": 142
-        },
-        {
-            "url": "https://www.goodreads.com/genres/pseudoscience",
-            "name": "pseudoscience",
-            "size": 25847
-        },
-        {
-            "url": "https://www.goodreads.com/genres/psychiatry",
-            "name": "psychiatry",
-            "size": 64144
-        },
-        {
-            "url": "https://www.goodreads.com/genres/psychoanalysis",
-            "name": "psychoanalysis",
-            "size": 81935
-        },
-        {
-            "url": "https://www.goodreads.com/genres/psychohistory",
-            "name": "psychohistory",
-            "size": 2374
-        },
-        {
-            "url": "https://www.goodreads.com/genres/psychological-drama",
-            "name": "psychological-drama",
-            "size": 69587
-        },
-        {
-            "url": "https://www.goodreads.com/genres/psychological-horror",
-            "name": "psychological-horror",
-            "size": 42721
-        },
-        {
-            "url": "https://www.goodreads.com/genres/psychological-suspense",
-            "name": "psychological-suspense",
-            "size": 100586
-        },
-        {
-            "url": "https://www.goodreads.com/genres/psychological-thriller",
-            "name": "psychological-thriller",
-            "size": 407217
-        },
-        {
-            "url": "https://www.goodreads.com/genres/psychology",
-            "name": "psychology",
-            "size": 2643150
-        },
-        {
-            "url": "https://www.goodreads.com/genres/public-transport",
-            "name": "public-transport",
-            "size": 12659
-        },
-        {
-            "url": "https://www.goodreads.com/genres/pulp",
-            "name": "pulp",
-            "size": 282445
-        },
-        {
-            "url": "https://www.goodreads.com/genres/pulp-adventure",
-            "name": "pulp-adventure",
-            "size": 11641
-        },
-        {
             "url": "https://www.goodreads.com/genres/superstition",
             "name": "superstition",
             "size": 9854
@@ -2891,6 +2391,506 @@
             "url": "https://www.goodreads.com/genres/victor-frankenstein",
             "name": "victor-frankenstein",
             "size": 465
+        },
+        {
+            "url": "https://www.goodreads.com/genres/omegaverse",
+            "name": "omegaverse",
+            "size": 213685
+        },
+        {
+            "url": "https://www.goodreads.com/genres/oppositional-defiance-disorder",
+            "name": "oppositional-defiance-disorder",
+            "size": 18
+        },
+        {
+            "url": "https://www.goodreads.com/genres/oral-history",
+            "name": "oral-history",
+            "size": 13669
+        },
+        {
+            "url": "https://www.goodreads.com/genres/oral-surgery",
+            "name": "oral-surgery",
+            "size": 561
+        },
+        {
+            "url": "https://www.goodreads.com/genres/organizational-culture",
+            "name": "organizational-culture",
+            "size": 2250
+        },
+        {
+            "url": "https://www.goodreads.com/genres/origami",
+            "name": "origami",
+            "size": 8317
+        },
+        {
+            "url": "https://www.goodreads.com/genres/ornithology",
+            "name": "ornithology",
+            "size": 7941
+        },
+        {
+            "url": "https://www.goodreads.com/genres/outdoors",
+            "name": "outdoors",
+            "size": 115245
+        },
+        {
+            "url": "https://www.goodreads.com/genres/outlander",
+            "name": "outlander",
+            "size": 30118
+        },
+        {
+            "url": "https://www.goodreads.com/genres/outlander-series",
+            "name": "outlander-series",
+            "size": 8350
+        },
+        {
+            "url": "https://www.goodreads.com/genres/overland-campaign",
+            "name": "overland-campaign",
+            "size": 121
+        },
+        {
+            "url": "https://www.goodreads.com/genres/paganism",
+            "name": "paganism",
+            "size": 66229
+        },
+        {
+            "url": "https://www.goodreads.com/genres/pakistan",
+            "name": "pakistan",
+            "size": 40677
+        },
+        {
+            "url": "https://www.goodreads.com/genres/palaeontology",
+            "name": "palaeontology",
+            "size": 4780
+        },
+        {
+            "url": "https://www.goodreads.com/genres/palaeozoology",
+            "name": "palaeozoology",
+            "size": 442
+        },
+        {
+            "url": "https://www.goodreads.com/genres/palmistry",
+            "name": "palmistry",
+            "size": 946
+        },
+        {
+            "url": "https://www.goodreads.com/genres/paranormal",
+            "name": "paranormal",
+            "size": 4659801
+        },
+        {
+            "url": "https://www.goodreads.com/genres/paranormal-fiction",
+            "name": "paranormal-fiction",
+            "size": 173570
+        },
+        {
+            "url": "https://www.goodreads.com/genres/paranormal-mystery",
+            "name": "paranormal-mystery",
+            "size": 93879
+        },
+        {
+            "url": "https://www.goodreads.com/genres/paranormal-romance",
+            "name": "paranormal-romance",
+            "size": 1718054
+        },
+        {
+            "url": "https://www.goodreads.com/genres/paranormal-urban-fantasy",
+            "name": "paranormal-urban-fantasy",
+            "size": 181369
+        },
+        {
+            "url": "https://www.goodreads.com/genres/parenting",
+            "name": "parenting",
+            "size": 733859
+        },
+        {
+            "url": "https://www.goodreads.com/genres/pathological-demand-avoidance",
+            "name": "pathological-demand-avoidance",
+            "size": 442
+        },
+        {
+            "url": "https://www.goodreads.com/genres/patternmaking",
+            "name": "patternmaking",
+            "size": 716
+        },
+        {
+            "url": "https://www.goodreads.com/genres/peak-oil",
+            "name": "peak-oil",
+            "size": 2396
+        },
+        {
+            "url": "https://www.goodreads.com/genres/pediatricians",
+            "name": "pediatricians",
+            "size": 476
+        },
+        {
+            "url": "https://www.goodreads.com/genres/pediatrics",
+            "name": "pediatrics",
+            "size": 2737
+        },
+        {
+            "url": "https://www.goodreads.com/genres/peer-review",
+            "name": "peer-review",
+            "size": 1692
+        },
+        {
+            "url": "https://www.goodreads.com/genres/peninsula-campaign",
+            "name": "peninsula-campaign",
+            "size": 29
+        },
+        {
+            "url": "https://www.goodreads.com/genres/percy-bysshe-shelley",
+            "name": "percy-bysshe-shelley",
+            "size": 410
+        },
+        {
+            "url": "https://www.goodreads.com/genres/percy-jackson",
+            "name": "percy-jackson",
+            "size": 85798
+        },
+        {
+            "url": "https://www.goodreads.com/genres/personal-development",
+            "name": "personal-development",
+            "size": 645819
+        },
+        {
+            "url": "https://www.goodreads.com/genres/personal-finance",
+            "name": "personal-finance",
+            "size": 70296
+        },
+        {
+            "url": "https://www.goodreads.com/genres/petrograd",
+            "name": "petrograd",
+            "size": 482
+        },
+        {
+            "url": "https://www.goodreads.com/genres/philip-ii-of-spain",
+            "name": "philip-ii-of-spain",
+            "size": 9
+        },
+        {
+            "url": "https://www.goodreads.com/genres/philosophy",
+            "name": "philosophy",
+            "size": 3889947
+        },
+        {
+            "url": "https://www.goodreads.com/genres/photography",
+            "name": "photography",
+            "size": 284847
+        },
+        {
+            "url": "https://www.goodreads.com/genres/phrenology",
+            "name": "phrenology",
+            "size": 915
+        },
+        {
+            "url": "https://www.goodreads.com/genres/physical-therapy",
+            "name": "physical-therapy",
+            "size": 3755
+        },
+        {
+            "url": "https://www.goodreads.com/genres/physics",
+            "name": "physics",
+            "size": 254097
+        },
+        {
+            "url": "https://www.goodreads.com/genres/physiotherapy",
+            "name": "physiotherapy",
+            "size": 1990
+        },
+        {
+            "url": "https://www.goodreads.com/genres/picture-books",
+            "name": "picture-books",
+            "size": 3043908
+        },
+        {
+            "url": "https://www.goodreads.com/genres/picu",
+            "name": "picu",
+            "size": 130
+        },
+        {
+            "url": "https://www.goodreads.com/genres/pirates",
+            "name": "pirates",
+            "size": 171552
+        },
+        {
+            "url": "https://www.goodreads.com/genres/planetary-romance",
+            "name": "planetary-romance",
+            "size": 12765
+        },
+        {
+            "url": "https://www.goodreads.com/genres/planetary-science",
+            "name": "planetary-science",
+            "size": 4657
+        },
+        {
+            "url": "https://www.goodreads.com/genres/planets",
+            "name": "planets",
+            "size": 13675
+        },
+        {
+            "url": "https://www.goodreads.com/genres/plantagenet",
+            "name": "plantagenet",
+            "size": 11860
+        },
+        {
+            "url": "https://www.goodreads.com/genres/plants",
+            "name": "plants",
+            "size": 66838
+        },
+        {
+            "url": "https://www.goodreads.com/genres/plays",
+            "name": "plays",
+            "size": 953241
+        },
+        {
+            "url": "https://www.goodreads.com/genres/plus-size",
+            "name": "plus-size",
+            "size": 27858
+        },
+        {
+            "url": "https://www.goodreads.com/genres/poetry",
+            "name": "poetry",
+            "size": 4082532
+        },
+        {
+            "url": "https://www.goodreads.com/genres/poland",
+            "name": "poland",
+            "size": 88623
+        },
+        {
+            "url": "https://www.goodreads.com/genres/police",
+            "name": "police",
+            "size": 240732
+        },
+        {
+            "url": "https://www.goodreads.com/genres/police-romance",
+            "name": "police-romance",
+            "size": 5259
+        },
+        {
+            "url": "https://www.goodreads.com/genres/polish-literature",
+            "name": "polish-literature",
+            "size": 73371
+        },
+        {
+            "url": "https://www.goodreads.com/genres/political-development",
+            "name": "political-development",
+            "size": 1485
+        },
+        {
+            "url": "https://www.goodreads.com/genres/political-ethics",
+            "name": "political-ethics",
+            "size": 1625
+        },
+        {
+            "url": "https://www.goodreads.com/genres/political-science",
+            "name": "political-science",
+            "size": 292357
+        },
+        {
+            "url": "https://www.goodreads.com/genres/political-thriller",
+            "name": "political-thriller",
+            "size": 65227
+        },
+        {
+            "url": "https://www.goodreads.com/genres/politics",
+            "name": "politics",
+            "size": 2630333
+        },
+        {
+            "url": "https://www.goodreads.com/genres/polyamorous",
+            "name": "polyamorous",
+            "size": 33855
+        },
+        {
+            "url": "https://www.goodreads.com/genres/polyamory",
+            "name": "polyamory",
+            "size": 57171
+        },
+        {
+            "url": "https://www.goodreads.com/genres/polyandry",
+            "name": "polyandry",
+            "size": 2131
+        },
+        {
+            "url": "https://www.goodreads.com/genres/polygamy",
+            "name": "polygamy",
+            "size": 9040
+        },
+        {
+            "url": "https://www.goodreads.com/genres/polygyny",
+            "name": "polygyny",
+            "size": 64
+        },
+        {
+            "url": "https://www.goodreads.com/genres/pop-culture",
+            "name": "pop-culture",
+            "size": 273623
+        },
+        {
+            "url": "https://www.goodreads.com/genres/popular-science",
+            "name": "popular-science",
+            "size": 150093
+        },
+        {
+            "url": "https://www.goodreads.com/genres/pornography",
+            "name": "pornography",
+            "size": 7300
+        },
+        {
+            "url": "https://www.goodreads.com/genres/portugal",
+            "name": "portugal",
+            "size": 127112
+        },
+        {
+            "url": "https://www.goodreads.com/genres/portuguese-literature",
+            "name": "portuguese-literature",
+            "size": 32341
+        },
+        {
+            "url": "https://www.goodreads.com/genres/post-apocalyptic",
+            "name": "post-apocalyptic",
+            "size": 415644
+        },
+        {
+            "url": "https://www.goodreads.com/genres/poverty",
+            "name": "poverty",
+            "size": 160223
+        },
+        {
+            "url": "https://www.goodreads.com/genres/prayer",
+            "name": "prayer",
+            "size": 73572
+        },
+        {
+            "url": "https://www.goodreads.com/genres/pre-k",
+            "name": "pre-k",
+            "size": 55796
+        },
+        {
+            "url": "https://www.goodreads.com/genres/pre-raphaelite",
+            "name": "pre-raphaelite",
+            "size": 1957
+        },
+        {
+            "url": "https://www.goodreads.com/genres/prehistoric",
+            "name": "prehistoric",
+            "size": 17128
+        },
+        {
+            "url": "https://www.goodreads.com/genres/prehistory",
+            "name": "prehistory",
+            "size": 34615
+        },
+        {
+            "url": "https://www.goodreads.com/genres/preservation",
+            "name": "preservation",
+            "size": 5451
+        },
+        {
+            "url": "https://www.goodreads.com/genres/presidents",
+            "name": "presidents",
+            "size": 97001
+        },
+        {
+            "url": "https://www.goodreads.com/genres/pretoria",
+            "name": "pretoria",
+            "size": 538
+        },
+        {
+            "url": "https://www.goodreads.com/genres/princesses",
+            "name": "princesses",
+            "size": 62257
+        },
+        {
+            "url": "https://www.goodreads.com/genres/productivity",
+            "name": "productivity",
+            "size": 219566
+        },
+        {
+            "url": "https://www.goodreads.com/genres/professors",
+            "name": "professors",
+            "size": 8320
+        },
+        {
+            "url": "https://www.goodreads.com/genres/programming",
+            "name": "programming",
+            "size": 241223
+        },
+        {
+            "url": "https://www.goodreads.com/genres/programming-languages",
+            "name": "programming-languages",
+            "size": 5388
+        },
+        {
+            "url": "https://www.goodreads.com/genres/prostitution",
+            "name": "prostitution",
+            "size": 38457
+        },
+        {
+            "url": "https://www.goodreads.com/genres/pseudomedicine",
+            "name": "pseudomedicine",
+            "size": 142
+        },
+        {
+            "url": "https://www.goodreads.com/genres/pseudoscience",
+            "name": "pseudoscience",
+            "size": 25847
+        },
+        {
+            "url": "https://www.goodreads.com/genres/psychiatry",
+            "name": "psychiatry",
+            "size": 64144
+        },
+        {
+            "url": "https://www.goodreads.com/genres/psychoanalysis",
+            "name": "psychoanalysis",
+            "size": 81935
+        },
+        {
+            "url": "https://www.goodreads.com/genres/psychohistory",
+            "name": "psychohistory",
+            "size": 2374
+        },
+        {
+            "url": "https://www.goodreads.com/genres/psychological-drama",
+            "name": "psychological-drama",
+            "size": 69587
+        },
+        {
+            "url": "https://www.goodreads.com/genres/psychological-horror",
+            "name": "psychological-horror",
+            "size": 42721
+        },
+        {
+            "url": "https://www.goodreads.com/genres/psychological-suspense",
+            "name": "psychological-suspense",
+            "size": 100586
+        },
+        {
+            "url": "https://www.goodreads.com/genres/psychological-thriller",
+            "name": "psychological-thriller",
+            "size": 407217
+        },
+        {
+            "url": "https://www.goodreads.com/genres/psychology",
+            "name": "psychology",
+            "size": 2643150
+        },
+        {
+            "url": "https://www.goodreads.com/genres/public-transport",
+            "name": "public-transport",
+            "size": 12659
+        },
+        {
+            "url": "https://www.goodreads.com/genres/pulp",
+            "name": "pulp",
+            "size": 282445
+        },
+        {
+            "url": "https://www.goodreads.com/genres/pulp-adventure",
+            "name": "pulp-adventure",
+            "size": 11641
         },
         {
             "url": "https://www.goodreads.com/genres/middle-english-literature",
@@ -3395,37 +3395,37 @@
         {
             "url": "https://www.goodreads.com/genres/lie",
             "name": "lie",
-            "size": 3206
+            "size": 3208
         },
         {
             "url": "https://www.goodreads.com/genres/light-novel",
             "name": "light-novel",
-            "size": 188294
+            "size": 188418
         },
         {
             "url": "https://www.goodreads.com/genres/linguistics",
             "name": "linguistics",
-            "size": 208687
+            "size": 208839
         },
         {
             "url": "https://www.goodreads.com/genres/literary-criticism",
             "name": "literary-criticism",
-            "size": 219032
+            "size": 219091
         },
         {
             "url": "https://www.goodreads.com/genres/literary-fiction",
             "name": "literary-fiction",
-            "size": 1907589
+            "size": 1908225
         },
         {
             "url": "https://www.goodreads.com/genres/literary-horror",
             "name": "literary-horror",
-            "size": 17604
+            "size": 17609
         },
         {
             "url": "https://www.goodreads.com/genres/literature",
             "name": "literature",
-            "size": 3000004
+            "size": 3000737
         },
         {
             "url": "https://www.goodreads.com/genres/live-action-roleplaying",
@@ -3445,7 +3445,7 @@
         {
             "url": "https://www.goodreads.com/genres/logic",
             "name": "logic",
-            "size": 69742
+            "size": 69773
         },
         {
             "url": "https://www.goodreads.com/genres/london-underground",
@@ -3455,12 +3455,12 @@
         {
             "url": "https://www.goodreads.com/genres/lost-love",
             "name": "lost-love",
-            "size": 22894
+            "size": 22898
         },
         {
             "url": "https://www.goodreads.com/genres/love",
             "name": "love",
-            "size": 1523856
+            "size": 1524268
         },
         {
             "url": "https://www.goodreads.com/genres/love-inspired",
@@ -3480,12 +3480,12 @@
         {
             "url": "https://www.goodreads.com/genres/love-story",
             "name": "love-story",
-            "size": 586720
+            "size": 586883
         },
         {
             "url": "https://www.goodreads.com/genres/lovecraftian",
             "name": "lovecraftian",
-            "size": 51209
+            "size": 51214
         },
         {
             "url": "https://www.goodreads.com/genres/loveswept",
@@ -3495,7 +3495,7 @@
         {
             "url": "https://www.goodreads.com/genres/low-fantasy",
             "name": "low-fantasy",
-            "size": 255577
+            "size": 255635
         },
         {
             "url": "https://www.goodreads.com/genres/lusaka",
@@ -3515,12 +3515,12 @@
         {
             "url": "https://www.goodreads.com/genres/m-f-m",
             "name": "m-f-m",
-            "size": 38264
+            "size": 38266
         },
         {
             "url": "https://www.goodreads.com/genres/m-f-romance",
             "name": "m-f-romance",
-            "size": 177959
+            "size": 177995
         },
         {
             "url": "https://www.goodreads.com/genres/m-m-aliens",
@@ -3535,12 +3535,12 @@
         {
             "url": "https://www.goodreads.com/genres/m-m-f",
             "name": "m-m-f",
-            "size": 29095
+            "size": 29097
         },
         {
             "url": "https://www.goodreads.com/genres/m-m-fantasy",
             "name": "m-m-fantasy",
-            "size": 21377
+            "size": 21379
         },
         {
             "url": "https://www.goodreads.com/genres/m-m-futuristic",
@@ -3560,7 +3560,7 @@
         {
             "url": "https://www.goodreads.com/genres/m-m-m",
             "name": "m-m-m",
-            "size": 33185
+            "size": 33190
         },
         {
             "url": "https://www.goodreads.com/genres/m-m-m-f",
@@ -3590,12 +3590,12 @@
         {
             "url": "https://www.goodreads.com/genres/m-m-paranormal",
             "name": "m-m-paranormal",
-            "size": 51821
+            "size": 51825
         },
         {
             "url": "https://www.goodreads.com/genres/m-m-romance",
             "name": "m-m-romance",
-            "size": 579546
+            "size": 579620
         },
         {
             "url": "https://www.goodreads.com/genres/m-m-romantic-suspense",
@@ -3610,7 +3610,7 @@
         {
             "url": "https://www.goodreads.com/genres/m-m-shapeshifters",
             "name": "m-m-shapeshifters",
-            "size": 1385
+            "size": 1387
         },
         {
             "url": "https://www.goodreads.com/genres/m-m-sports-romance",
@@ -3640,27 +3640,27 @@
         {
             "url": "https://www.goodreads.com/genres/mafia-romance",
             "name": "mafia-romance",
-            "size": 191422
+            "size": 191547
         },
         {
             "url": "https://www.goodreads.com/genres/magic",
             "name": "magic",
-            "size": 2312622
+            "size": 2313363
         },
         {
             "url": "https://www.goodreads.com/genres/magical-realism",
             "name": "magical-realism",
-            "size": 959492
+            "size": 959775
         },
         {
             "url": "https://www.goodreads.com/genres/magick",
             "name": "magick",
-            "size": 125207
+            "size": 125227
         },
         {
             "url": "https://www.goodreads.com/genres/mail-order-brides",
             "name": "mail-order-brides",
-            "size": 10619
+            "size": 10621
         },
         {
             "url": "https://www.goodreads.com/genres/malabo",
@@ -3680,7 +3680,7 @@
         {
             "url": "https://www.goodreads.com/genres/management",
             "name": "management",
-            "size": 233797
+            "size": 233866
         },
         {
             "url": "https://www.goodreads.com/genres/managers",
@@ -3690,42 +3690,42 @@
         {
             "url": "https://www.goodreads.com/genres/manga",
             "name": "manga",
-            "size": 9593203
+            "size": 9596431
         },
         {
             "url": "https://www.goodreads.com/genres/manga-romance",
             "name": "manga-romance",
-            "size": 53284
+            "size": 53326
         },
         {
             "url": "https://www.goodreads.com/genres/manhwa",
             "name": "manhwa",
-            "size": 145895
+            "size": 146009
         },
         {
             "url": "https://www.goodreads.com/genres/mannerpunk",
             "name": "mannerpunk",
-            "size": 5853
+            "size": 5855
         },
         {
             "url": "https://www.goodreads.com/genres/maps",
             "name": "maps",
-            "size": 47235
+            "size": 47240
         },
         {
             "url": "https://www.goodreads.com/genres/marathi",
             "name": "marathi",
-            "size": 28497
+            "size": 28505
         },
         {
             "url": "https://www.goodreads.com/genres/maritime",
             "name": "maritime",
-            "size": 58851
+            "size": 58857
         },
         {
             "url": "https://www.goodreads.com/genres/marriage",
             "name": "marriage",
-            "size": 444693
+            "size": 444839
         },
         {
             "url": "https://www.goodreads.com/genres/martial-artist",
@@ -3735,7 +3735,7 @@
         {
             "url": "https://www.goodreads.com/genres/martial-arts",
             "name": "martial-arts",
-            "size": 83974
+            "size": 83996
         },
         {
             "url": "https://www.goodreads.com/genres/martyr",
@@ -3750,7 +3750,7 @@
         {
             "url": "https://www.goodreads.com/genres/marvel",
             "name": "marvel",
-            "size": 528700
+            "size": 529225
         },
         {
             "url": "https://www.goodreads.com/genres/mary-i",
@@ -3775,7 +3775,7 @@
         {
             "url": "https://www.goodreads.com/genres/mathematics",
             "name": "mathematics",
-            "size": 221511
+            "size": 221568
         },
         {
             "url": "https://www.goodreads.com/genres/mauritania",
@@ -3785,7 +3785,7 @@
         {
             "url": "https://www.goodreads.com/genres/mauritius",
             "name": "mauritius",
-            "size": 3318
+            "size": 3320
         },
         {
             "url": "https://www.goodreads.com/genres/maxillofacial-surgery",
@@ -3795,17 +3795,17 @@
         {
             "url": "https://www.goodreads.com/genres/media-tie-in",
             "name": "media-tie-in",
-            "size": 195051
+            "size": 195108
         },
         {
             "url": "https://www.goodreads.com/genres/medical",
             "name": "medical",
-            "size": 406462
+            "size": 406608
         },
         {
             "url": "https://www.goodreads.com/genres/medical-ethics",
             "name": "medical-ethics",
-            "size": 12643
+            "size": 12653
         },
         {
             "url": "https://www.goodreads.com/genres/medical-profession",
@@ -3815,22 +3815,22 @@
         {
             "url": "https://www.goodreads.com/genres/medicine",
             "name": "medicine",
-            "size": 327761
+            "size": 327857
         },
         {
             "url": "https://www.goodreads.com/genres/medieval",
             "name": "medieval",
-            "size": 462592
+            "size": 462721
         },
         {
             "url": "https://www.goodreads.com/genres/medieval-history",
             "name": "medieval-history",
-            "size": 83654
+            "size": 83667
         },
         {
             "url": "https://www.goodreads.com/genres/medieval-romance",
             "name": "medieval-romance",
-            "size": 32622
+            "size": 32636
         },
         {
             "url": "https://www.goodreads.com/genres/medievalesque",
@@ -3845,32 +3845,32 @@
         {
             "url": "https://www.goodreads.com/genres/meditation",
             "name": "meditation",
-            "size": 106263
+            "size": 106296
         },
         {
             "url": "https://www.goodreads.com/genres/memoir",
             "name": "memoir",
-            "size": 2463152
+            "size": 2463942
         },
         {
             "url": "https://www.goodreads.com/genres/menage",
             "name": "menage",
-            "size": 303099
+            "size": 303119
         },
         {
             "url": "https://www.goodreads.com/genres/mental-health",
             "name": "mental-health",
-            "size": 1057783
+            "size": 1058283
         },
         {
             "url": "https://www.goodreads.com/genres/mental-illness",
             "name": "mental-illness",
-            "size": 456620
+            "size": 456755
         },
         {
             "url": "https://www.goodreads.com/genres/mermaids",
             "name": "mermaids",
-            "size": 92326
+            "size": 92434
         },
         {
             "url": "https://www.goodreads.com/genres/metallurgy",
@@ -3880,17 +3880,17 @@
         {
             "url": "https://www.goodreads.com/genres/metaphysics",
             "name": "metaphysics",
-            "size": 137278
+            "size": 137287
         },
         {
             "url": "https://www.goodreads.com/genres/microhistory",
             "name": "microhistory",
-            "size": 63843
+            "size": 63854
         },
         {
             "url": "https://www.goodreads.com/genres/middle-east",
             "name": "middle-east",
-            "size": 300275
+            "size": 300351
         },
         {
             "url": "https://www.goodreads.com/genres/hungarian-literature",
@@ -4393,6 +4393,506 @@
             "size": 6875
         },
         {
+            "url": "https://www.goodreads.com/genres/graffiti",
+            "name": "graffiti",
+            "size": 8021
+        },
+        {
+            "url": "https://www.goodreads.com/genres/graphic-literature",
+            "name": "graphic-literature",
+            "size": 19473
+        },
+        {
+            "url": "https://www.goodreads.com/genres/graphic-non-fiction",
+            "name": "graphic-non-fiction",
+            "size": 8925
+        },
+        {
+            "url": "https://www.goodreads.com/genres/graphic-novels",
+            "name": "graphic-novels",
+            "size": 4378410
+        },
+        {
+            "url": "https://www.goodreads.com/genres/graphic-novels-comics",
+            "name": "graphic-novels-comics",
+            "size": 528131
+        },
+        {
+            "url": "https://www.goodreads.com/genres/graphic-novels-comics-manga",
+            "name": "graphic-novels-comics-manga",
+            "size": 110346
+        },
+        {
+            "url": "https://www.goodreads.com/genres/graphic-novels-manga",
+            "name": "graphic-novels-manga",
+            "size": 232022
+        },
+        {
+            "url": "https://www.goodreads.com/genres/graphica",
+            "name": "graphica",
+            "size": 20699
+        },
+        {
+            "url": "https://www.goodreads.com/genres/greece",
+            "name": "greece",
+            "size": 174856
+        },
+        {
+            "url": "https://www.goodreads.com/genres/greek-mythology",
+            "name": "greek-mythology",
+            "size": 209466
+        },
+        {
+            "url": "https://www.goodreads.com/genres/green",
+            "name": "green",
+            "size": 223907
+        },
+        {
+            "url": "https://www.goodreads.com/genres/grief",
+            "name": "grief",
+            "size": 490474
+        },
+        {
+            "url": "https://www.goodreads.com/genres/grimm",
+            "name": "grimm",
+            "size": 13524
+        },
+        {
+            "url": "https://www.goodreads.com/genres/gritty",
+            "name": "gritty",
+            "size": 178310
+        },
+        {
+            "url": "https://www.goodreads.com/genres/growth-mindset",
+            "name": "growth-mindset",
+            "size": 32839
+        },
+        {
+            "url": "https://www.goodreads.com/genres/guidebook",
+            "name": "guidebook",
+            "size": 11409
+        },
+        {
+            "url": "https://www.goodreads.com/genres/guides",
+            "name": "guides",
+            "size": 69908
+        },
+        {
+            "url": "https://www.goodreads.com/genres/guinea",
+            "name": "guinea",
+            "size": 2350
+        },
+        {
+            "url": "https://www.goodreads.com/genres/guinea-bissau",
+            "name": "guinea-bissau",
+            "size": 6233
+        },
+        {
+            "url": "https://www.goodreads.com/genres/gynaecology",
+            "name": "gynaecology",
+            "size": 59
+        },
+        {
+            "url": "https://www.goodreads.com/genres/habsburg-empire",
+            "name": "habsburg-empire",
+            "size": 1204
+        },
+        {
+            "url": "https://www.goodreads.com/genres/habsburg-spain",
+            "name": "habsburg-spain",
+            "size": 6025
+        },
+        {
+            "url": "https://www.goodreads.com/genres/hackers",
+            "name": "hackers",
+            "size": 10397
+        },
+        {
+            "url": "https://www.goodreads.com/genres/halloween",
+            "name": "halloween",
+            "size": 392823
+        },
+        {
+            "url": "https://www.goodreads.com/genres/harare",
+            "name": "harare",
+            "size": 453
+        },
+        {
+            "url": "https://www.goodreads.com/genres/hard-boiled",
+            "name": "hard-boiled",
+            "size": 61998
+        },
+        {
+            "url": "https://www.goodreads.com/genres/hard-science-fiction",
+            "name": "hard-science-fiction",
+            "size": 36103
+        },
+        {
+            "url": "https://www.goodreads.com/genres/harem",
+            "name": "harem",
+            "size": 80548
+        },
+        {
+            "url": "https://www.goodreads.com/genres/harlequin",
+            "name": "harlequin",
+            "size": 350932
+        },
+        {
+            "url": "https://www.goodreads.com/genres/harlequin-blaze",
+            "name": "harlequin-blaze",
+            "size": 15162
+        },
+        {
+            "url": "https://www.goodreads.com/genres/harlequin-category-romance",
+            "name": "harlequin-category-romance",
+            "size": 5130
+        },
+        {
+            "url": "https://www.goodreads.com/genres/harlequin-desire",
+            "name": "harlequin-desire",
+            "size": 20562
+        },
+        {
+            "url": "https://www.goodreads.com/genres/harlequin-heartwarming",
+            "name": "harlequin-heartwarming",
+            "size": 2633
+        },
+        {
+            "url": "https://www.goodreads.com/genres/harlequin-historical",
+            "name": "harlequin-historical",
+            "size": 16194
+        },
+        {
+            "url": "https://www.goodreads.com/genres/harlequin-kimani-romance",
+            "name": "harlequin-kimani-romance",
+            "size": 580
+        },
+        {
+            "url": "https://www.goodreads.com/genres/harlequin-medical-romance",
+            "name": "harlequin-medical-romance",
+            "size": 1165
+        },
+        {
+            "url": "https://www.goodreads.com/genres/harlequin-nocturne",
+            "name": "harlequin-nocturne",
+            "size": 6014
+        },
+        {
+            "url": "https://www.goodreads.com/genres/harlequin-presents",
+            "name": "harlequin-presents",
+            "size": 80416
+        },
+        {
+            "url": "https://www.goodreads.com/genres/harlequin-romance",
+            "name": "harlequin-romance",
+            "size": 80002
+        },
+        {
+            "url": "https://www.goodreads.com/genres/harlequin-romantic-suspense",
+            "name": "harlequin-romantic-suspense",
+            "size": 3659
+        },
+        {
+            "url": "https://www.goodreads.com/genres/harlequin-teen",
+            "name": "harlequin-teen",
+            "size": 5664
+        },
+        {
+            "url": "https://www.goodreads.com/genres/he-falls-first",
+            "name": "he-falls-first",
+            "size": 87590
+        },
+        {
+            "url": "https://www.goodreads.com/genres/heads",
+            "name": "heads",
+            "size": 4799
+        },
+        {
+            "url": "https://www.goodreads.com/genres/health",
+            "name": "health",
+            "size": 883572
+        },
+        {
+            "url": "https://www.goodreads.com/genres/health-care",
+            "name": "health-care",
+            "size": 16765
+        },
+        {
+            "url": "https://www.goodreads.com/genres/helicopters",
+            "name": "helicopters",
+            "size": 1647
+        },
+        {
+            "url": "https://www.goodreads.com/genres/herbs",
+            "name": "herbs",
+            "size": 17491
+        },
+        {
+            "url": "https://www.goodreads.com/genres/heritage-preservation",
+            "name": "heritage-preservation",
+            "size": 6
+        },
+        {
+            "url": "https://www.goodreads.com/genres/hero-romance",
+            "name": "hero-romance",
+            "size": 1549
+        },
+        {
+            "url": "https://www.goodreads.com/genres/heroic-fantasy",
+            "name": "heroic-fantasy",
+            "size": 82190
+        },
+        {
+            "url": "https://www.goodreads.com/genres/hierarchy",
+            "name": "hierarchy",
+            "size": 10227
+        },
+        {
+            "url": "https://www.goodreads.com/genres/high-fantasy",
+            "name": "high-fantasy",
+            "size": 835637
+        },
+        {
+            "url": "https://www.goodreads.com/genres/high-school",
+            "name": "high-school",
+            "size": 1050329
+        },
+        {
+            "url": "https://www.goodreads.com/genres/hinduism",
+            "name": "hinduism",
+            "size": 38003
+        },
+        {
+            "url": "https://www.goodreads.com/genres/hip-hop",
+            "name": "hip-hop",
+            "size": 7354
+        },
+        {
+            "url": "https://www.goodreads.com/genres/hispanic",
+            "name": "hispanic",
+            "size": 48534
+        },
+        {
+            "url": "https://www.goodreads.com/genres/historical",
+            "name": "historical",
+            "size": 4794885
+        },
+        {
+            "url": "https://www.goodreads.com/genres/historical-costume",
+            "name": "historical-costume",
+            "size": 1050
+        },
+        {
+            "url": "https://www.goodreads.com/genres/historical-fantasy",
+            "name": "historical-fantasy",
+            "size": 349602
+        },
+        {
+            "url": "https://www.goodreads.com/genres/historical-fiction",
+            "name": "historical-fiction",
+            "size": 9199082
+        },
+        {
+            "url": "https://www.goodreads.com/genres/historical-literary-fiction",
+            "name": "historical-literary-fiction",
+            "size": 18178
+        },
+        {
+            "url": "https://www.goodreads.com/genres/historical-mystery",
+            "name": "historical-mystery",
+            "size": 367273
+        },
+        {
+            "url": "https://www.goodreads.com/genres/historical-romance",
+            "name": "historical-romance",
+            "size": 2132379
+        },
+        {
+            "url": "https://www.goodreads.com/genres/historical-romance-clean",
+            "name": "historical-romance-clean",
+            "size": 2124
+        },
+        {
+            "url": "https://www.goodreads.com/genres/historical-sewing",
+            "name": "historical-sewing",
+            "size": 374
+        },
+        {
+            "url": "https://www.goodreads.com/genres/historical-thriller",
+            "name": "historical-thriller",
+            "size": 39124
+        },
+        {
+            "url": "https://www.goodreads.com/genres/history",
+            "name": "history",
+            "size": 8884418
+        },
+        {
+            "url": "https://www.goodreads.com/genres/history-and-politics",
+            "name": "history-and-politics",
+            "size": 115372
+        },
+        {
+            "url": "https://www.goodreads.com/genres/history-civil-war-eastern-theater",
+            "name": "history-civil-war-eastern-theater",
+            "size": 484
+        },
+        {
+            "url": "https://www.goodreads.com/genres/history-of-medicine",
+            "name": "history-of-medicine",
+            "size": 12227
+        },
+        {
+            "url": "https://www.goodreads.com/genres/history-of-science",
+            "name": "history-of-science",
+            "size": 67489
+        },
+        {
+            "url": "https://www.goodreads.com/genres/hoaxes",
+            "name": "hoaxes",
+            "size": 1746
+        },
+        {
+            "url": "https://www.goodreads.com/genres/hockey",
+            "name": "hockey",
+            "size": 222511
+        },
+        {
+            "url": "https://www.goodreads.com/genres/hockey-romance",
+            "name": "hockey-romance",
+            "size": 106616
+        },
+        {
+            "url": "https://www.goodreads.com/genres/holiday",
+            "name": "holiday",
+            "size": 566558
+        },
+        {
+            "url": "https://www.goodreads.com/genres/holland",
+            "name": "holland",
+            "size": 16732
+        },
+        {
+            "url": "https://www.goodreads.com/genres/holocaust",
+            "name": "holocaust",
+            "size": 217896
+        },
+        {
+            "url": "https://www.goodreads.com/genres/holocaust-denial",
+            "name": "holocaust-denial",
+            "size": 736
+        },
+        {
+            "url": "https://www.goodreads.com/genres/holohoax",
+            "name": "holohoax",
+            "size": 856
+        },
+        {
+            "url": "https://www.goodreads.com/genres/home-economics",
+            "name": "home-economics",
+            "size": 5717
+        },
+        {
+            "url": "https://www.goodreads.com/genres/homeopathy",
+            "name": "homeopathy",
+            "size": 3666
+        },
+        {
+            "url": "https://www.goodreads.com/genres/horoscopes",
+            "name": "horoscopes",
+            "size": 781
+        },
+        {
+            "url": "https://www.goodreads.com/genres/horror",
+            "name": "horror",
+            "size": 5894776
+        },
+        {
+            "url": "https://www.goodreads.com/genres/horror-thriller",
+            "name": "horror-thriller",
+            "size": 447846
+        },
+        {
+            "url": "https://www.goodreads.com/genres/horse-racing",
+            "name": "horse-racing",
+            "size": 7659
+        },
+        {
+            "url": "https://www.goodreads.com/genres/horses",
+            "name": "horses",
+            "size": 126543
+        },
+        {
+            "url": "https://www.goodreads.com/genres/horticulture",
+            "name": "horticulture",
+            "size": 13902
+        },
+        {
+            "url": "https://www.goodreads.com/genres/hot-air-balloons",
+            "name": "hot-air-balloons",
+            "size": 7103
+        },
+        {
+            "url": "https://www.goodreads.com/genres/house-building",
+            "name": "house-building",
+            "size": 955
+        },
+        {
+            "url": "https://www.goodreads.com/genres/how-to",
+            "name": "how-to",
+            "size": 236257
+        },
+        {
+            "url": "https://www.goodreads.com/genres/hqn",
+            "name": "hqn",
+            "size": 58007
+        },
+        {
+            "url": "https://www.goodreads.com/genres/hugo-awards",
+            "name": "hugo-awards",
+            "size": 27262
+        },
+        {
+            "url": "https://www.goodreads.com/genres/huguenots",
+            "name": "huguenots",
+            "size": 6524
+        },
+        {
+            "url": "https://www.goodreads.com/genres/human-capital",
+            "name": "human-capital",
+            "size": 7209
+        },
+        {
+            "url": "https://www.goodreads.com/genres/human-development",
+            "name": "human-development",
+            "size": 36100
+        },
+        {
+            "url": "https://www.goodreads.com/genres/human-ecology",
+            "name": "human-ecology",
+            "size": 4328
+        },
+        {
+            "url": "https://www.goodreads.com/genres/human-resources",
+            "name": "human-resources",
+            "size": 13016
+        },
+        {
+            "url": "https://www.goodreads.com/genres/humanities",
+            "name": "humanities",
+            "size": 253567
+        },
+        {
+            "url": "https://www.goodreads.com/genres/humor",
+            "name": "humor",
+            "size": 2804695
+        },
+        {
+            "url": "https://www.goodreads.com/genres/humorism",
+            "name": "humorism",
+            "size": 7371
+        },
+        {
             "url": "https://www.goodreads.com/genres/figure-skating",
             "name": "figure-skating",
             "size": 3940
@@ -4891,506 +5391,6 @@
             "url": "https://www.goodreads.com/genres/grad-school",
             "name": "grad-school",
             "size": 442125
-        },
-        {
-            "url": "https://www.goodreads.com/genres/graffiti",
-            "name": "graffiti",
-            "size": 8015
-        },
-        {
-            "url": "https://www.goodreads.com/genres/graphic-literature",
-            "name": "graphic-literature",
-            "size": 19469
-        },
-        {
-            "url": "https://www.goodreads.com/genres/graphic-non-fiction",
-            "name": "graphic-non-fiction",
-            "size": 8924
-        },
-        {
-            "url": "https://www.goodreads.com/genres/graphic-novels",
-            "name": "graphic-novels",
-            "size": 4375745
-        },
-        {
-            "url": "https://www.goodreads.com/genres/graphic-novels-comics",
-            "name": "graphic-novels-comics",
-            "size": 528047
-        },
-        {
-            "url": "https://www.goodreads.com/genres/graphic-novels-comics-manga",
-            "name": "graphic-novels-comics-manga",
-            "size": 110329
-        },
-        {
-            "url": "https://www.goodreads.com/genres/graphic-novels-manga",
-            "name": "graphic-novels-manga",
-            "size": 231945
-        },
-        {
-            "url": "https://www.goodreads.com/genres/graphica",
-            "name": "graphica",
-            "size": 20699
-        },
-        {
-            "url": "https://www.goodreads.com/genres/greece",
-            "name": "greece",
-            "size": 174813
-        },
-        {
-            "url": "https://www.goodreads.com/genres/greek-mythology",
-            "name": "greek-mythology",
-            "size": 209361
-        },
-        {
-            "url": "https://www.goodreads.com/genres/green",
-            "name": "green",
-            "size": 223871
-        },
-        {
-            "url": "https://www.goodreads.com/genres/grief",
-            "name": "grief",
-            "size": 490282
-        },
-        {
-            "url": "https://www.goodreads.com/genres/grimm",
-            "name": "grimm",
-            "size": 13520
-        },
-        {
-            "url": "https://www.goodreads.com/genres/gritty",
-            "name": "gritty",
-            "size": 178249
-        },
-        {
-            "url": "https://www.goodreads.com/genres/growth-mindset",
-            "name": "growth-mindset",
-            "size": 32836
-        },
-        {
-            "url": "https://www.goodreads.com/genres/guidebook",
-            "name": "guidebook",
-            "size": 11409
-        },
-        {
-            "url": "https://www.goodreads.com/genres/guides",
-            "name": "guides",
-            "size": 69902
-        },
-        {
-            "url": "https://www.goodreads.com/genres/guinea",
-            "name": "guinea",
-            "size": 2350
-        },
-        {
-            "url": "https://www.goodreads.com/genres/guinea-bissau",
-            "name": "guinea-bissau",
-            "size": 6233
-        },
-        {
-            "url": "https://www.goodreads.com/genres/gynaecology",
-            "name": "gynaecology",
-            "size": 59
-        },
-        {
-            "url": "https://www.goodreads.com/genres/habsburg-empire",
-            "name": "habsburg-empire",
-            "size": 1204
-        },
-        {
-            "url": "https://www.goodreads.com/genres/habsburg-spain",
-            "name": "habsburg-spain",
-            "size": 6025
-        },
-        {
-            "url": "https://www.goodreads.com/genres/hackers",
-            "name": "hackers",
-            "size": 10395
-        },
-        {
-            "url": "https://www.goodreads.com/genres/halloween",
-            "name": "halloween",
-            "size": 392599
-        },
-        {
-            "url": "https://www.goodreads.com/genres/harare",
-            "name": "harare",
-            "size": 453
-        },
-        {
-            "url": "https://www.goodreads.com/genres/hard-boiled",
-            "name": "hard-boiled",
-            "size": 61955
-        },
-        {
-            "url": "https://www.goodreads.com/genres/hard-science-fiction",
-            "name": "hard-science-fiction",
-            "size": 36095
-        },
-        {
-            "url": "https://www.goodreads.com/genres/harem",
-            "name": "harem",
-            "size": 80540
-        },
-        {
-            "url": "https://www.goodreads.com/genres/harlequin",
-            "name": "harlequin",
-            "size": 350923
-        },
-        {
-            "url": "https://www.goodreads.com/genres/harlequin-blaze",
-            "name": "harlequin-blaze",
-            "size": 15162
-        },
-        {
-            "url": "https://www.goodreads.com/genres/harlequin-category-romance",
-            "name": "harlequin-category-romance",
-            "size": 5128
-        },
-        {
-            "url": "https://www.goodreads.com/genres/harlequin-desire",
-            "name": "harlequin-desire",
-            "size": 20560
-        },
-        {
-            "url": "https://www.goodreads.com/genres/harlequin-heartwarming",
-            "name": "harlequin-heartwarming",
-            "size": 2633
-        },
-        {
-            "url": "https://www.goodreads.com/genres/harlequin-historical",
-            "name": "harlequin-historical",
-            "size": 16194
-        },
-        {
-            "url": "https://www.goodreads.com/genres/harlequin-kimani-romance",
-            "name": "harlequin-kimani-romance",
-            "size": 580
-        },
-        {
-            "url": "https://www.goodreads.com/genres/harlequin-medical-romance",
-            "name": "harlequin-medical-romance",
-            "size": 1165
-        },
-        {
-            "url": "https://www.goodreads.com/genres/harlequin-nocturne",
-            "name": "harlequin-nocturne",
-            "size": 6014
-        },
-        {
-            "url": "https://www.goodreads.com/genres/harlequin-presents",
-            "name": "harlequin-presents",
-            "size": 80413
-        },
-        {
-            "url": "https://www.goodreads.com/genres/harlequin-romance",
-            "name": "harlequin-romance",
-            "size": 79995
-        },
-        {
-            "url": "https://www.goodreads.com/genres/harlequin-romantic-suspense",
-            "name": "harlequin-romantic-suspense",
-            "size": 3659
-        },
-        {
-            "url": "https://www.goodreads.com/genres/harlequin-teen",
-            "name": "harlequin-teen",
-            "size": 5664
-        },
-        {
-            "url": "https://www.goodreads.com/genres/he-falls-first",
-            "name": "he-falls-first",
-            "size": 87502
-        },
-        {
-            "url": "https://www.goodreads.com/genres/heads",
-            "name": "heads",
-            "size": 4799
-        },
-        {
-            "url": "https://www.goodreads.com/genres/health",
-            "name": "health",
-            "size": 883279
-        },
-        {
-            "url": "https://www.goodreads.com/genres/health-care",
-            "name": "health-care",
-            "size": 16759
-        },
-        {
-            "url": "https://www.goodreads.com/genres/helicopters",
-            "name": "helicopters",
-            "size": 1647
-        },
-        {
-            "url": "https://www.goodreads.com/genres/herbs",
-            "name": "herbs",
-            "size": 17489
-        },
-        {
-            "url": "https://www.goodreads.com/genres/heritage-preservation",
-            "name": "heritage-preservation",
-            "size": 6
-        },
-        {
-            "url": "https://www.goodreads.com/genres/hero-romance",
-            "name": "hero-romance",
-            "size": 1549
-        },
-        {
-            "url": "https://www.goodreads.com/genres/heroic-fantasy",
-            "name": "heroic-fantasy",
-            "size": 82184
-        },
-        {
-            "url": "https://www.goodreads.com/genres/hierarchy",
-            "name": "hierarchy",
-            "size": 10225
-        },
-        {
-            "url": "https://www.goodreads.com/genres/high-fantasy",
-            "name": "high-fantasy",
-            "size": 835381
-        },
-        {
-            "url": "https://www.goodreads.com/genres/high-school",
-            "name": "high-school",
-            "size": 1050145
-        },
-        {
-            "url": "https://www.goodreads.com/genres/hinduism",
-            "name": "hinduism",
-            "size": 37994
-        },
-        {
-            "url": "https://www.goodreads.com/genres/hip-hop",
-            "name": "hip-hop",
-            "size": 7352
-        },
-        {
-            "url": "https://www.goodreads.com/genres/hispanic",
-            "name": "hispanic",
-            "size": 48519
-        },
-        {
-            "url": "https://www.goodreads.com/genres/historical",
-            "name": "historical",
-            "size": 4793313
-        },
-        {
-            "url": "https://www.goodreads.com/genres/historical-costume",
-            "name": "historical-costume",
-            "size": 1050
-        },
-        {
-            "url": "https://www.goodreads.com/genres/historical-fantasy",
-            "name": "historical-fantasy",
-            "size": 349468
-        },
-        {
-            "url": "https://www.goodreads.com/genres/historical-fiction",
-            "name": "historical-fiction",
-            "size": 9196553
-        },
-        {
-            "url": "https://www.goodreads.com/genres/historical-literary-fiction",
-            "name": "historical-literary-fiction",
-            "size": 18174
-        },
-        {
-            "url": "https://www.goodreads.com/genres/historical-mystery",
-            "name": "historical-mystery",
-            "size": 367201
-        },
-        {
-            "url": "https://www.goodreads.com/genres/historical-romance",
-            "name": "historical-romance",
-            "size": 2131971
-        },
-        {
-            "url": "https://www.goodreads.com/genres/historical-romance-clean",
-            "name": "historical-romance-clean",
-            "size": 2122
-        },
-        {
-            "url": "https://www.goodreads.com/genres/historical-sewing",
-            "name": "historical-sewing",
-            "size": 374
-        },
-        {
-            "url": "https://www.goodreads.com/genres/historical-thriller",
-            "name": "historical-thriller",
-            "size": 39110
-        },
-        {
-            "url": "https://www.goodreads.com/genres/history",
-            "name": "history",
-            "size": 8881584
-        },
-        {
-            "url": "https://www.goodreads.com/genres/history-and-politics",
-            "name": "history-and-politics",
-            "size": 115340
-        },
-        {
-            "url": "https://www.goodreads.com/genres/history-civil-war-eastern-theater",
-            "name": "history-civil-war-eastern-theater",
-            "size": 484
-        },
-        {
-            "url": "https://www.goodreads.com/genres/history-of-medicine",
-            "name": "history-of-medicine",
-            "size": 12227
-        },
-        {
-            "url": "https://www.goodreads.com/genres/history-of-science",
-            "name": "history-of-science",
-            "size": 67475
-        },
-        {
-            "url": "https://www.goodreads.com/genres/hoaxes",
-            "name": "hoaxes",
-            "size": 1745
-        },
-        {
-            "url": "https://www.goodreads.com/genres/hockey",
-            "name": "hockey",
-            "size": 222376
-        },
-        {
-            "url": "https://www.goodreads.com/genres/hockey-romance",
-            "name": "hockey-romance",
-            "size": 106549
-        },
-        {
-            "url": "https://www.goodreads.com/genres/holiday",
-            "name": "holiday",
-            "size": 566406
-        },
-        {
-            "url": "https://www.goodreads.com/genres/holland",
-            "name": "holland",
-            "size": 16732
-        },
-        {
-            "url": "https://www.goodreads.com/genres/holocaust",
-            "name": "holocaust",
-            "size": 217816
-        },
-        {
-            "url": "https://www.goodreads.com/genres/holocaust-denial",
-            "name": "holocaust-denial",
-            "size": 736
-        },
-        {
-            "url": "https://www.goodreads.com/genres/holohoax",
-            "name": "holohoax",
-            "size": 856
-        },
-        {
-            "url": "https://www.goodreads.com/genres/home-economics",
-            "name": "home-economics",
-            "size": 5645
-        },
-        {
-            "url": "https://www.goodreads.com/genres/homeopathy",
-            "name": "homeopathy",
-            "size": 3666
-        },
-        {
-            "url": "https://www.goodreads.com/genres/horoscopes",
-            "name": "horoscopes",
-            "size": 781
-        },
-        {
-            "url": "https://www.goodreads.com/genres/horror",
-            "name": "horror",
-            "size": 5892250
-        },
-        {
-            "url": "https://www.goodreads.com/genres/horror-thriller",
-            "name": "horror-thriller",
-            "size": 447650
-        },
-        {
-            "url": "https://www.goodreads.com/genres/horse-racing",
-            "name": "horse-racing",
-            "size": 7657
-        },
-        {
-            "url": "https://www.goodreads.com/genres/horses",
-            "name": "horses",
-            "size": 126515
-        },
-        {
-            "url": "https://www.goodreads.com/genres/horticulture",
-            "name": "horticulture",
-            "size": 13901
-        },
-        {
-            "url": "https://www.goodreads.com/genres/hot-air-balloons",
-            "name": "hot-air-balloons",
-            "size": 7099
-        },
-        {
-            "url": "https://www.goodreads.com/genres/house-building",
-            "name": "house-building",
-            "size": 955
-        },
-        {
-            "url": "https://www.goodreads.com/genres/how-to",
-            "name": "how-to",
-            "size": 236229
-        },
-        {
-            "url": "https://www.goodreads.com/genres/hqn",
-            "name": "hqn",
-            "size": 58005
-        },
-        {
-            "url": "https://www.goodreads.com/genres/hugo-awards",
-            "name": "hugo-awards",
-            "size": 27253
-        },
-        {
-            "url": "https://www.goodreads.com/genres/huguenots",
-            "name": "huguenots",
-            "size": 6524
-        },
-        {
-            "url": "https://www.goodreads.com/genres/human-capital",
-            "name": "human-capital",
-            "size": 7205
-        },
-        {
-            "url": "https://www.goodreads.com/genres/human-development",
-            "name": "human-development",
-            "size": 36092
-        },
-        {
-            "url": "https://www.goodreads.com/genres/human-ecology",
-            "name": "human-ecology",
-            "size": 4328
-        },
-        {
-            "url": "https://www.goodreads.com/genres/human-resources",
-            "name": "human-resources",
-            "size": 13016
-        },
-        {
-            "url": "https://www.goodreads.com/genres/humanities",
-            "name": "humanities",
-            "size": 253535
-        },
-        {
-            "url": "https://www.goodreads.com/genres/humor",
-            "name": "humor",
-            "size": 2804239
-        },
-        {
-            "url": "https://www.goodreads.com/genres/humorism",
-            "name": "humorism",
-            "size": 7371
         },
         {
             "url": "https://www.goodreads.com/genres/dragons",
