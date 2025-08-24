@@ -88,12 +88,12 @@ def update_sem_and_delay(current_sem_count: int,
                          current_sub_batch_delay: int,
                          timeouts_per_batch_ratio: float) -> Tuple[int,int]:
     '''takes in batch metadata, returns new SEMAPHORE COUNT & SUB_BATCH_DELAY'''
-    MIN_SEM, MAX_SEM = 2, 6
-    MIN_DELAY, MAX_DELAY = .5, 5
+    MIN_SEM, MAX_SEM = 2, 9
+    MIN_DELAY, MAX_DELAY = .25, 5
 
     DELAY_DELTA = .1
 
-    scalar = -1 if timeouts_per_batch_ratio > 0.05 else 1
+    scalar = 1 if timeouts_per_batch_ratio > 0.05 else -1
     new_sem_count = (lambda x: sorted([MIN_SEM, current_sem_count + x, MAX_SEM])[1])(scalar)
     new_delay_count = (lambda x: sorted([MIN_DELAY, current_sub_batch_delay + DELAY_DELTA * x, MAX_DELAY])[1])(scalar)
     
