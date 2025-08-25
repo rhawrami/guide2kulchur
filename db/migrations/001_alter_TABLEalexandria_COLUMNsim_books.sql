@@ -7,4 +7,7 @@
     -- I can just have array of ID strings, and merge for other data if needed
 
 ALTER TABLE alexandria
-    ALTER COLUMN sim_books TYPE text[] USING sim_books::text[];
+    DROP COLUMN sim_books;
+
+ALTER TABLE alexandria
+    ADD COLUMN sim_books text[];
