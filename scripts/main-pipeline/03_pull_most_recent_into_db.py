@@ -1,14 +1,11 @@
 """
-This script will be the beginning of our data collection. Here, we'll use the book IDs we already
-pulled in the past two scripts, and collect data on each book. We'll then store the data in a database
-using Postgres. The process will be as follows:
+In this script, we'll do essentially the same exact thing as in the last script, except now with
+the most-read-this-week IDs.
 
-1. load up top-shelved-books data, and aggregate the book IDs; filter out duplicates.
+1. load up most-read-this-week data, and aggregate the book IDs; filter out duplicates AND duplicates of the top_shelved.
 2. transform the aggregate ID set into batches.
 3. collect data in batches, with dynamic delaying and semaphoring.
 4. load the data into our database.
-
-Throughout this process, we'll also log all our progress and errors we encounter along the way.
 """
 
 import asyncio
@@ -38,10 +35,10 @@ def gen_logger() -> logging.Logger:
 
     # make dirs
     os.makedirs('logs', exist_ok=True)
-    os.makedirs(os.path.join('logs','top_shelved'), exist_ok=True)
+    os.makedirs(os.path.join('logs','most_read_this_week'), exist_ok=True)
 
     # progress statements; e.g., time-to-complete batch #5
-    PROG_PATH = os.path.join('logs', 'top_shelved', 'ts_prog.log')
+    PROG_PATH = os.path.join('logs', 'most_read_this_week', 'mrtw_prog.log')
     prog_handler = RotatingFileHandler(filename=PROG_PATH,
                                        maxBytes=50000,
                                        backupCount=10)
@@ -58,7 +55,7 @@ def gen_logger() -> logging.Logger:
     stream_handler.setFormatter(stream_fmt)
 
     # error statements; e.g., book ID 7777777 failed
-    ERR_PATH = os.path.join('logs', 'top_shelved', 'ts_err.log')
+    ERR_PATH = os.path.join('logs', 'most_read_this_week', 'mrtw_err.log')
     err_handler = RotatingFileHandler(filename=ERR_PATH,
                                       maxBytes=20000,
                                       backupCount=10)
@@ -73,15 +70,24 @@ def gen_logger() -> logging.Logger:
     return logger
 
 
-def get_top_shelved_ids(path: str) -> Set[str]:
+def get_most_read_this_week(path: str,
+                            top_shelved_path: str) -> Set[str]:
     '''returns set of Goodreads top-shelved book IDs'''
-    with open(path,'r') as ts_f:
+    with open(top_shelved_path,'r') as ts_f:
         ts = json.load(ts_f)
-
-    uniq_ids = set()    # this will remove all duplicate IDs
+    
+    with open(path,'r') as mrtw_f:
+        mrtw = json.load(mrtw_f)
+    
+    ts_uniq_ids = set()    
     for id_block in ts['results'].values():
-        uniq_ids.update(id_block)
-    return list(uniq_ids)
+        ts_uniq_ids.update(id_block)
+    
+    mrtw_uniq_ids = set()    
+    for id_block in mrtw['results'].values():
+        mrtw_uniq_ids.update(id_block)
+    
+    return list(mrtw_uniq_ids - ts_uniq_ids)    # get IDs that weren't already pulled in last script
     
 
 def update_sem_and_delay(current_sem_count: int,
@@ -103,8 +109,9 @@ def update_sem_and_delay(current_sem_count: int,
 async def main():
     # get top-shelved ids
     TS_IDS_PATH = os.path.join('data','genres','top_shelved_ids.json')
-    ts_ids = get_top_shelved_ids(TS_IDS_PATH)
-    batches = [ts_ids[i:i+100] for i in range(0, len(ts_ids), 100)]   # batch size of 100
+    MRTW_PATH = os.path.join('data','genres','most_read_ids.json')
+    mrtw_ids = get_most_read_this_week(path=MRTW_PATH, top_shelved_path=TS_IDS_PATH)
+    batches = [mrtw_ids[i:i+100] for i in range(0, len(mrtw_ids), 100)]   # batch size of 100
     # get logger
     os.makedirs('logs', exist_ok=True)
     logger = gen_logger()
