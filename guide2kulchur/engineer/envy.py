@@ -46,7 +46,14 @@ class Envy:
                  sim_book_ids: Iterable[str],
                  semaphore_count: int,
                  logger: logging.Logger):
-        '''pull similar books'''
+        '''pull similar-books for a given book, store in a db
+        
+        :param batch_id: a semi-unique batch identifier
+        :param cursor: a psycopg Cursor obj
+        :sim_book_ids: iterable of similar book IDs
+        :semaphore_count: max number of concurrent coroutines
+        :logger: a logger object
+        '''
         self.batch_id = batch_id
         self.cursor = cursor
         self.sim_book_ids = sim_book_ids
@@ -68,12 +75,15 @@ class Envy:
                                  semaphore: asyncio.Semaphore,
                                  identifier: str,
                                  num_attempts: int) -> Dict[str,Any]:
-        '''pull and return a book's similar books
-        FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX
-        FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX
+        '''pull and return a main book's similar books
+
+        :param batch_id: a semi-unique batch identifier
         :param session: an aiohttp.ClientSession
-        :param semaphore: an asyncio.Semaphore
+        :param semaphore: an asyncio.Semaphore object
         :param identifer: a book's unique "similar books" ID; this is different from the book's unique ID
+        :param num_attempts: max number of attempts, in case of timeouts
+
+        returns dict of form: {'sim_id': IDENTIFIER, 'results': Union[SET_OF_RESULTS, IDENTIFIER_IN_CASE_OF_NA]}
         '''
         sim_books_url = f'https://www.goodreads.com/book/similar/{identifier}'
 
@@ -88,17 +98,21 @@ class Envy:
                                         headers=_rand_headers()) as resp:
                         txt = await resp.text()
                     res = _parse_sim_books_page(txt=txt, identifier=identifier)
+                    break
                 
                 except asyncio.TimeoutError:
                     self.metadat['timeouts'] += 1
+                    if (attempt + 1) == num_attempts:
+                        res = None  # return None if out of retries
+                        break
                     SLEEP_SCALAR = 1.5
                     sleep_time = (attempt + 1) ** SLEEP_SCALAR
                     await asyncio.sleep(sleep_time)
-                    self.logger.info('batch %s RETRY sim_id %s', batch_id, identifier)
+                    self.logger.info('batch %s RETRY ATTEMPT %s sim_id %s', batch_id, attempt + 2, identifier)
                 
                 except Exception as er:
                     self.logger.error('batch %s ERR sim_id %s: %s', batch_id, identifier, er)
-                    return res
+                    break
             
         t_end = time.time()
         t_elapsed = round(t_end - t_start, 3)
@@ -114,7 +128,14 @@ class Envy:
                                   sub_batch_size: int,
                                   sub_batch_delay: int,
                                   num_attempts: int) -> None:
-        '''Pull a batch of similar books, format for db insert'''
+        '''Pull a batch of similar books, format for db insert
+        
+        :param batch_id: a semi-unique batch identifier
+        :param session: an aiohttp.ClientSession
+        :param sub_batch_size: batch size to process batches, insert delays in between batches
+        :param sub_batch_delay: time sleep delay in between sub batches
+        :param num_attempts: max number of attempts in case of timeouts
+        '''
         tasks = [self._get_similar_books(batch_id=batch_id,
                                         semaphore=self.semaphore,
                                         session=session,
@@ -136,9 +157,11 @@ class Envy:
                 self.na.append(res['sim_id'])
                 res_4_db = (res['sim_id'], [])  # empty list if not applicable
                 self.tot_res.append(res_4_db)
-
+            
+            elif isinstance(res['results'], type(None)):  # this will trigger in case of max retries
+                self.logger.error('batch %s OUT OF RETRIES sim_id %s', batch_id, res['sim_id']) 
             else:
-                self.logger.error('batch %s ERR sim_id %s: %s', batch_id, res['sim_id'], res['results'])
+                self.logger.error('batch %s ERR sim_id %s: %s', batch_id, res['sim_id'], res['results']) 
             
             completed += 1
                 
@@ -148,13 +171,20 @@ class Envy:
 
         success_rate = round(len(self.tot_res) / completed, 3)
         self.logger.info('SUCCESS RATE batch %s: %s', self.batch_id, success_rate)
+        
+        self.metadat['timeouts_per_batch_ratio'] = round(self.metadat['timeouts'] / completed, 3)
+        self.logger.info('TIMEOUTS PER BATCH RATIO batch %s: %s', self.batch_id, self.metadat['timeouts_per_batch_ratio'])
+        
         self.logger.info('batch %s NA sim_ids: %s', self.batch_id, self.na)
 
-        self.metadat['timeouts_per_batch_ratio'] = round(self.metadat['timeouts'] / completed, 3)
-    
 
     def update_and_insert_db(self):
-        '''update sim_books column'''
+        '''update sim_books column
+        
+        1. create table (if not exists) to insert the sim_id, and text array of similar book IDs
+        2. insert tuples. In case of NA values, an empty array is inserted
+        3. update main alexandria table and set sim_books column, join the newly created table and alexandria on sim_id
+        '''
         create_table_query = '''
                             CREATE TABLE IF NOT EXISTS sim_books
                             (

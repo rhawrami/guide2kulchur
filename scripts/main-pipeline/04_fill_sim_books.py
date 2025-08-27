@@ -2,6 +2,9 @@
 Now that we have our initial set of books (~60k), we're going to pull each book's 
 set of "similar books," as defined by Goodreads. With this attribute added to our 
 database, we'll be able to continue pulling more books in an almost recursive fashion.
+
+The nice thing is that, in the future when more books are added, I can just rerun this script
+however many times I need to.
 """
 
 import asyncio
@@ -19,8 +22,8 @@ from guide2kulchur.engineer.recruits import gen_logger, update_sem_and_delay
 
 async def main():
     # update sim_books in alexandria
-    NAME = 'sim_books_first'
-    NAME_ABBR = 'sb_f'
+    NAME = 'sim_books'
+    NAME_ABBR = 'sb'
     max_b = 20000
     max_backups = 5
 
@@ -32,7 +35,7 @@ async def main():
     pg_string = os.getenv('PG_STRING')
 
     # config timeout and connector
-    timeout = aiohttp.ClientTimeout(total=15,
+    timeout = aiohttp.ClientTimeout(total=12,
                                     connect=10)
     connector = aiohttp.TCPConnector(limit=20,
                                      limit_per_host=20,
@@ -48,10 +51,11 @@ async def main():
                 sem_count = 3   
                 sub_batch_delay = 2  
                 SUB_BATCH_SIZE = 10  
-                NUM_ATTEMPTS = 3    
+                NUM_ATTEMPTS = 3
                 INTER_3BATCH_SLEEP = 10  
 
-                NUM_ITER = 2000  # I'll run this batch processing 2000 times (e.g., 20k books pulled), and just rerun the script until all obs are updated
+                NUM_ITER = 200  # this can always be changed, but for now, do 200 iterations
+                BATCH_SIZE = (100,)    # 100 rows per batch, make tuple so we can pass to query
 
                 for batch_id in range(NUM_ITER):
                     if batch_id % 3 == 0:
@@ -64,15 +68,15 @@ async def main():
                                                 SELECT sim_books_url_id
                                                 FROM alexandria
                                                 WHERE sim_books IS NULL
-                                                LIMIT 100                   -- batch size == 100
+                                                LIMIT %s
                                                '''
-                    cur.execute(fetch_some_sim_ids_query)
+                    cur.execute(fetch_some_sim_ids_query, BATCH_SIZE)
                     sim_ids = {r[0] for r in cur.fetchall()}
                     
                     if not len(sim_ids):
-                        logger.info('batch %s NO TUPLES LEFT', batch_id)
-                        break
-
+                        logger.info('batch %s NO TUPLES LEFT', batch_id)    # means that all values in sim_books col are filled :)
+                        return None
+                        
                     olesha = Envy(batch_id=batch_id, 
                                   cursor=cur,
                                   sim_book_ids=sim_ids,
@@ -96,7 +100,7 @@ async def main():
                         continue
                     
                     CFG = {
-                        'MIN_SEM': 3, 'MAX_SEM': 6,
+                        'MIN_SEM': 3, 'MAX_SEM': 9,
                         'MIN_DELAY': .25, 'MAX_DELAY': 5,
                         'RATIO_THRESHOLD': .1, 'DELAY_DELTA': .5
                     }
@@ -106,10 +110,8 @@ async def main():
                                                                       cfg=CFG)
             
             rm_sim_books_table_query = '''DROP TABLE IF EXISTS sim_books'''
-            cur.execute(rm_sim_books_table_query)
+            cur.execute(rm_sim_books_table_query)                    
                     
-                    
-
 
 if __name__ == '__main__':
     asyncio.run(main())
