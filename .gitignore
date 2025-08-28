@@ -6,3 +6,4 @@ build/
 .env
 TODO.txt
 logs
+backups
