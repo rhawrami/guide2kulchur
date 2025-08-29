@@ -70,7 +70,7 @@ async def main():
                     
                     logger.info('batch %s CFG: SEM-COUNT: %s & SUB-BATCH-DELAY: %s',
                                 batch_id, sem_count, sub_batch_delay)
-
+                    starting_point_query_s = time.time()
                     pull_unentered_ids_query = '''
                                                 WITH simz (s_id) AS 
                                                 (SELECT 
@@ -98,6 +98,9 @@ async def main():
                                                 LIMIT %s;
                                             '''
                     cur.execute(pull_unentered_ids_query, BATCH_SIZE)
+                    starting_point_query_e = time.time()
+                    logger.info('batch %s STARTING QUERY: %s sec.', batch_id, round(starting_point_query_e - starting_point_query_s, 3))
+                    
                     ids = [r[0] for r in cur.fetchall()]
                     
                     if not len(ids):
