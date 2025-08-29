@@ -58,7 +58,7 @@ def gen_logger(name: str,
 def update_sem_and_delay(current_sem_count: int,
                          current_sub_batch_delay: int,
                          timeouts_per_batch_ratio: float,
-                         cfg: Optional[Dict[str,int]]) -> Tuple[int,int]:
+                         cfg: Optional[Dict[str,int]] = None) -> Tuple[int,int]:
     '''takes in batch metadata, returns new SEMAPHORE COUNT & SUB_BATCH_DELAY
     
     :param current_sem_count: current semaphore count

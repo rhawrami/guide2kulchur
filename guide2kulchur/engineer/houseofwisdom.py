@@ -96,6 +96,7 @@ class BatchBookPuller:
 
           self.successes = []
           self.fails = []
+          self.timeouts = []
           
           self.metadat = {
               'timeouts': 0,
@@ -139,13 +140,18 @@ class BatchBookPuller:
                         
                         except asyncio.TimeoutError:
                             self.metadat['timeouts'] += 1
+                            if (attempt + 1) == num_attempts:
+                                self.logger.error('batch %s OUT OF RETRIES %s', self.batch_id, identifer) 
+                                res = (identifer,)  # will pull again in the future
+                                break
                             SLEEP_SCALAR = 1.5
                             sleep_time = (attempt + 1) ** SLEEP_SCALAR
                             await asyncio.sleep(sleep_time)
                             self.stat_log.info('batch %s RETRY book %s', self.batch_id, identifer)  
 
                         except Exception as er:
-                            self.stat_log.error('batch %s ERR. book %s: %s', self.batch_id, identifer, er)   
+                            self.stat_log.error('batch %s ERR. book %s: %s', self.batch_id, identifer, er)
+                            break   
                 
                 t_finished = time.time()
                 t_elapsed = round(t_finished - t_start,3)
@@ -177,9 +183,13 @@ class BatchBookPuller:
             
             result = await task
             if isinstance(result,dict):
-                self.successes.append(result)
+                self.successes.append(result)   # successful pulls
+
+            elif isinstance(result, str):
+                self.fails.append(result)   # error IDs
+
             else:
-                self.fails.append(result)
+                self.timeouts.append(result[0]) # in the case of a timeout-tuple
             completed += 1
         
         batch_end = time.time()
@@ -189,6 +199,7 @@ class BatchBookPuller:
         self.stat_log.info('T.E. batch %s: %s sec.', self.batch_id, batch_elapsed) 
         self.stat_log.info('SUCCESS RATE batch %s: %s', self.batch_id, success_rate)
         self.stat_log.info('batch %s FAILED books: %s', self.batch_id, self.fails)
+        self.stat_log.info('batch %s TIMED-OUT books: %s', self.batch_id, self.timeouts)
 
         err_rate = 1 - success_rate
         succ_pull_per_sec = round(len(self.successes) / batch_elapsed, 3)
@@ -197,6 +208,21 @@ class BatchBookPuller:
 
         self.metadat['timeouts_per_batch_ratio'] = round(self.metadat['timeouts'] / completed, 3)
 
+
+    def insert_failed_ids_into_db(self):
+        '''inserts failed book IDs into error_id table for future reference'''
+        if not self.fails:
+            return None
+        
+        failed_ids_statement = '''
+                                INSERT INTO error_id 
+                                    (item_id, item_type)
+                                VALUES (%s, %s)
+                                ON CONFLICT DO NOTHING
+                               '''
+        fails_to_insert = [(fail_id, 'book') for fail_id in self.fails]
+        self.cursor.executemany(failed_ids_statement, fails_to_insert)
+        
 
     def insert_batch_into_db(self) -> None:
         '''insert results into DB'''
@@ -257,7 +283,11 @@ class BatchBookPuller:
                                  %s, %s, %s, %s, %s, %s)
                             ON CONFLICT DO NOTHING
                         '''
-        
+        t_start = time.time()
         self.cursor.executemany(insert_query, dat_to_insert)
+        t_end = time.time()
+        t_e = round(t_end - t_start, 3)
+        self.stat_log.info('batch %s DB INSERT %s tuples: %s sec', self.batch_id, len(dat_to_insert), t_e)
+
 
                  
