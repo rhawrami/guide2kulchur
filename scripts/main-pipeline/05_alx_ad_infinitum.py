@@ -60,8 +60,51 @@ async def main():
         with conn.cursor() as cur:
             async with aiohttp.ClientSession(timeout=timeout,
                                              connector=connector) as sesh:
+                create_alxadinfinitum_table = '''
+                                                CREATE TABLE IF NOT EXISTS alx_ad_infinitum (
+                                                    bk_id text UNIQUE
+                                                )
+                                              '''
+                cur.execute(create_alxadinfinitum_table)    # we'll need this for the start of our script
+
+                truncate_alxadinfinitum = '''TRUNCATE TABLE alx_ad_infinitum'''
+                cur.execute(truncate_alxadinfinitum)    # clean workspace
+
+                fill_alxadinfinitum = '''
+                                        WITH simz (s_id) AS 
+                                        (SELECT 
+                                            DISTINCT UNNEST(sim_books) AS s_id 
+                                        FROM 
+                                            alexandria 
+                                        WHERE 
+                                            sim_books[1] IS NOT NULL)  -- no similar book IDs (don't have to worry about NULLs in the arr)
+                                        
+                                        INSERT INTO 
+                                            alx_ad_infinitum (bk_id)
+                                        
+                                        SELECT 
+                                            simz.s_id
+                                        FROM simz 
+                                        LEFT JOIN alexandria 
+                                            ON simz.s_id = alexandria.book_id
+                                        WHERE book_id IS NULL
+                                        AND NOT EXISTS (SELECT
+                                                            1
+                                                        FROM error_id
+                                                        WHERE
+                                                            simz.s_id = item_id 
+                                                        AND 
+                                                            item_type = 'book' -- so we don't pull book IDs we know aren't valid
+                                        )
+
+                                        ON CONFLICT DO NOTHING  -- redundant, but just in case
+                                      '''
+                start_main_query = time.time()
+                cur.execute(fill_alxadinfinitum)
+                end_main_query = time.time()
+                logger.info('MAIN STARTING QUERY: %s sec.', round(end_main_query - start_main_query, 3))
+
                 for batch_id in range(ITER_COUNT):
-                    print('---------------------------------------------------------------------------------')    # just to more clearly sep batches
                     if batch_id > 0 and batch_id % 4 == 0:
                             if batch_id % 10:
                                 time.sleep(INTER_4BATCH_SLEEP * 2)  
@@ -71,33 +114,18 @@ async def main():
                     logger.info('batch %s CFG: SEM-COUNT: %s & SUB-BATCH-DELAY: %s',
                                 batch_id, sem_count, sub_batch_delay)
                     starting_point_query_s = time.time()
-                    pull_unentered_ids_query = '''
-                                                WITH simz (s_id) AS 
-                                                (SELECT 
-                                                    DISTINCT UNNEST(sim_books) AS s_id 
-                                                FROM 
-                                                    alexandria 
-                                                WHERE 
-                                                    sim_books IS NOT NULL
-                                                AND
-                                                    sim_books != '{}')  -- no similar book IDs
+                    
+                    pull_unentered_ids = '''
+                                          DELETE FROM 
+                                            alx_ad_infinitum
+                                          WHERE 
+                                            bk_id = ANY(array(SELECT bk_id FROM alx_ad_infinitum LIMIT %s))
+                                          RETURNING bk_id
+                                         '''
+                    cur.execute(pull_unentered_ids, BATCH_SIZE)
+                    # note that if a batch fails, you won't pull those unentered IDs until a future batch
+                    # this is worth not having to unnest on every batch, which takes way too long
 
-                                                SELECT 
-                                                    simz.s_id
-                                                FROM simz 
-                                                LEFT JOIN alexandria 
-                                                    ON simz.s_id = alexandria.book_id
-                                                WHERE book_id IS NULL
-                                                AND NOT EXISTS (SELECT
-                                                                    1
-                                                                FROM error_id
-                                                                WHERE
-                                                                    simz.s_id = item_id 
-                                                                AND 
-                                                                    item_type = 'book') -- so we don't pull book IDs we know aren't valid
-                                                LIMIT %s;
-                                            '''
-                    cur.execute(pull_unentered_ids_query, BATCH_SIZE)
                     starting_point_query_e = time.time()
                     logger.info('batch %s STARTING QUERY: %s sec.', batch_id, round(starting_point_query_e - starting_point_query_s, 3))
                     
@@ -134,6 +162,9 @@ async def main():
                                                                       current_sub_batch_delay=sub_batch_delay, 
                                                                       timeouts_per_batch_ratio=philokalia.metadat['timeouts_per_batch_ratio'],
                                                                       cfg=UPDATE_CFG)
+                
+                drop_alxadinfinitum = '''DROP TABLE IF EXISTS alx_ad_infinitum'''
+                cur.execute(drop_alxadinfinitum)
 
 
 if __name__ == '__main__':
