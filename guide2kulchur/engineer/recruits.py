@@ -1,8 +1,22 @@
 import os
 import sys
 import logging
+import re
+import asyncio
 from logging.handlers import RotatingFileHandler
-from typing import Tuple, Dict, Optional
+from typing import (Tuple, 
+                    Dict,
+                    List, 
+                    Any,
+                    Optional)
+
+import aiohttp
+from psycopg.types.json import Jsonb
+
+from guide2kulchur.privateer.alexandria import Alexandria
+from guide2kulchur.privateer.pound import Pound
+from guide2kulchur.privateer.falsedmitry import FalseDmitry
+
 
 def gen_logger(name: str,
                name_abbr: str,
@@ -87,3 +101,258 @@ def update_sem_and_delay(current_sem_count: int,
                                          cfg['MAX_DELAY']])[1])(scalar)
     
     return new_sem_count, new_delay_count
+
+
+class HouseOfWisdom(Alexandria):
+    '''Goodreads book data collector, with some minor changes'''
+    def __init__(self):
+        super().__init__()
+
+
+    async def load_it_async(self,
+                            session: aiohttp.ClientSession,
+                            item_id: str,
+                            see_progress: bool):
+        '''load the item.'''
+        await self.load_book_async(session=session,
+                                   book_identifier=item_id,
+                                   see_progress=see_progress)
+        return self
+
+    
+    def get_similar_books_id(self) -> Optional[str]:
+        '''Returns the "Similar Books" URL ID for a given book.'''
+        self._confirm_loaded()
+        if bklst := self._soup.find('div', 
+                                    class_='BookDiscussions__list'):
+            if quote_tag := bklst.find_all('a',class_='DiscussionCard'):    # use this to get proper serial id
+                if quote_url := quote_tag[0].get('href'):   # the serial id changes from main page to similar page
+                    if similar_books_id := re.search(r'\d+', quote_url):
+                        return similar_books_id.group(0)    # the above conditional should always eval True, but just in case
+        return None
+    
+
+    def get_all_data(self) -> Dict[str,Any]:
+        '''returns collection of data from loaded Goodreads book in dict format; meant for collection step.'''
+        self._confirm_loaded()
+        attr_fn_map = {
+            'url': lambda: self.book_url,
+            'id': self.get_id,
+            'title': self.get_title,
+            'author': self.get_author_name,
+            'author_id': self.get_author_id,
+            'isbn': self.get_isbn,
+            'language': self.get_language,
+            'image_url': self.get_image_url,
+            'description': self.get_description,
+            'rating': self.get_rating,
+            'rating_distribution': self.get_rating_dist,
+            'rating_count': self.get_rating_count,
+            'review_count': self.get_review_count,
+            'top_genres': self.get_top_genres,
+            'currently_reading': self.get_currently_reading,
+            'want_to_read': self.get_want_to_read,
+            'page_length': self.get_page_length,
+            'first_published': self.get_first_published,
+            'similar_books_id': self.get_similar_books_id
+        }
+        
+        bk_dict = {}
+        for attr,fn in attr_fn_map.items():
+            bk_dict[attr] = fn()
+        return bk_dict 
+    
+
+class Dante(Pound):
+    '''Goodreads author data collector, with some minor changes'''
+    def __init__(self):
+        super().__init__()
+
+
+    async def load_it_async(self,
+                            session: aiohttp.ClientSession,
+                            item_id: str,
+                            see_progress: bool) -> 'Dante':
+        '''load the item.'''
+        await self.load_author_async(session=session,
+                                     author_identifier=item_id,
+                                     see_progress=see_progress)
+        return self
+    
+
+    def get_influences(self) -> Optional[List[str]]:
+        '''get influences, convert to list'''
+        influences_og = super().get_influences()
+        if not influences_og:
+            return None
+        return [author['id'] 
+                for author 
+                in influences_og 
+                if author['id'] and isinstance(author['id'], str)]
+
+
+    def get_books_sample(self) -> Optional[List[str]]:
+        '''get influences, convert to list'''
+        samples_og = super().get_books_sample()
+        if not samples_og:
+            return None
+        return [book['id'] 
+                for book 
+                in samples_og 
+                if book['id'] and isinstance(book['id'], str)]
+    
+
+    def get_all_data(self) -> Dict[str,Any]:
+        '''returns collection of data from loaded Goodreads author in dict format; meant for collection step.'''
+        self._confirm_loaded()
+        attr_fn_map = {
+            'author_id': self.get_id,
+            'author_name': self.get_name,
+            'description': self.get_description,
+            'image_url': self.get_image_url,
+            'birth_place': self.get_birth_place,
+            'birth': self.get_birth_date,
+            'death': self.get_death_date,
+            'top_genres': self.get_top_genres,
+            'influences': self.get_influences,
+            'book_sample': self.get_books_sample,
+            'quotes_sample': self.get_quotes_sample,
+            'rating': self.get_rating,
+            'rating_count': self.get_rating_count,
+            'review_count': self.get_review_count,
+            'follower_count': self.get_follower_count
+        }
+        
+        athr_dict = {}
+        for attr,fn in attr_fn_map.items():
+            athr_dict[attr] = fn()
+        return athr_dict 
+    
+
+class FalseBardiya(FalseDmitry):
+    '''Goodreads user data collector, with some minor changes'''
+    def __init__(self):
+        super().__init__()
+
+
+    async def load_it_async(self,
+                            session: aiohttp.ClientSession,
+                            item_id: str,
+                            see_progress: bool) -> 'FalseBardiya':
+        '''load the item.'''
+        await self.load_user_async(session=session,
+                                   user_identifier=item_id,
+                                   see_progress=see_progress)
+        return self
+    
+
+    def get_friends_sample(self) -> Optional[List[str]]:
+        '''return sample list of user's friends'''
+        friends_sample_og = super().get_friends_sample()
+        return [user['id']
+                for user
+                in friends_sample_og
+                if user['id'] and isinstance(user['id'], str)]
+    
+
+    def get_followings_sample(self,
+                              item_type: str) -> Optional[List[str]]:
+        '''return sample list of user's followings
+        
+        :param item_type: either author or user
+        '''
+        self._confirm_loaded()
+        boxes = self._info_right.find_all('div',class_='clearFloats bigBox')
+        for box in boxes:
+            title = box.find('a').text
+            if re.search(r'.*is Following',title):
+                follow_box = box.find('div',class_='bigBoxContent containerWithHeaderContent')
+                follow_dat = []
+                for follower in follow_box.find_all('div'):
+                    flwr = follower.find('a')
+                    if flwr:
+                        flwr_id = flwr['href']
+                        if re.search(r'\/user\/show', flwr_id):
+                            flwr_type = 'user'
+                        elif re.search(r'\/author\/show', flwr_id):
+                            flwr_type = 'author'
+                        flwr_id = re.sub(r'^.*show\/|-.*$|\.*$','',flwr_id)
+                        flwr_dat = {
+                            'id': flwr_id,
+                            'type': flwr_type
+                        }
+                        follow_dat.append(flwr_dat)
+                return [re.sub(r'[a-z]|[A-Z]|\.|_', '', following['id'])
+                        for following
+                        in follow_dat
+                        if following['type'] == item_type]
+        return None
+    
+
+    def get_followings_sample_users(self) -> Optional[List[str]]:
+        '''convenience function for get_followings_sample to pull only users'''
+        dat = self.get_followings_sample(item_type='user')
+        return dat if dat else None
+    
+
+    def get_followings_sample_authors(self) -> Optional[List[str]]:
+        '''convenience function for get_followings_sample to pull only authors'''
+        dat = self.get_followings_sample(item_type='author')
+        return dat if dat else None
+
+
+    def get_currently_reading_sample_books(self) -> Optional[List[str]]:
+        '''return list of books that user is currently reading'''
+        currently_reading_og = super().get_currently_reading_sample()
+        if not currently_reading_og:
+            return None
+        return [bk['id']
+                for bk
+                in currently_reading_og
+                if bk['id'] and isinstance(bk['id'], str)]
+    
+
+    def get_currently_reading_sample_authors(self) -> Optional[List[str]]:
+        '''return list of authors that user is currently reading'''
+        currently_reading_og = super().get_currently_reading_sample()
+        if not currently_reading_og:
+            return None
+        return [bk['author_id']
+                for bk
+                in currently_reading_og
+                if bk['author_id'] and isinstance(bk['author_id'], str)]
+    
+    
+    def get_all_data(self) -> Dict[str,Any]:
+        '''returns collection of data from loaded Goodreads user in dict format; meant for collection step.'''
+        self._confirm_loaded()
+        attr_fn_map = {
+            'user_id': self.get_id,
+            'user_name': self.get_name,
+            'image_url': self.get_image_url,
+            'rating': self.get_rating,
+            'rating_count': self.get_rating_count,
+            'review_count': self.get_review_count,
+            'favorite_genres': self.get_favorite_genres,
+            'currently_reading_sample_books': self.get_currently_reading_sample_books,
+            'currently_reading_sample_authors': self.get_currently_reading_sample_authors,
+            'follower_count': self.get_follower_count,
+            'friend_count': self.get_friend_count,
+            'friends_sample': self.get_friends_sample,
+            'followings_sample_users': self.get_followings_sample_users,
+            'followings_sample_authors': self.get_followings_sample_authors,
+            'quotes_sample': self.get_quotes_sample
+        }
+        
+        usr_dict = {}
+        for attr,fn in attr_fn_map.items():
+            usr_dict[attr] = fn()
+        return usr_dict 
+
+
+def _jsonb_or_null(obj: Optional[dict]) -> Optional[Jsonb]:
+    '''returns either psycopg Jsonb object, or None'''
+    if isinstance(obj, dict):
+        return Jsonb(obj)
+    else:
+        return None
