@@ -21,7 +21,7 @@ from guide2kulchur.engineer.recruits import (HouseOfWisdom,
 class BatchItemPuller(ABC):
     '''pull a batch of Goodreads item (book|author|user) data, log results, load into database'''
     def __init__(self,
-                 batch_id: str,
+                 batch_id: Union[int,str],
                  cursor: psycopg.Cursor,
                  item_type: str,
                  item_ids: Iterable[str],
@@ -192,7 +192,7 @@ class BatchItemPuller(ABC):
 class BatchBookPuller(BatchItemPuller):
     '''pull a batch of Goodreads books, log results, load into database'''
     def __init__(self, 
-                 batch_id: str,
+                 batch_id: Union[int,str],
                  cursor: psycopg.Cursor,
                  book_ids: Iterable[str],
                  semaphore_count: int,
@@ -284,7 +284,7 @@ class BatchBookPuller(BatchItemPuller):
 class BatchAuthorPuller(BatchItemPuller):
     '''pull a batch of Goodreads authors, log results, load into database'''
     def __init__(self, 
-                 batch_id: str,
+                 batch_id: Union[int,str],
                  cursor: psycopg.Cursor,
                  author_ids: Iterable[str],
                  semaphore_count: int,
@@ -370,7 +370,7 @@ class BatchAuthorPuller(BatchItemPuller):
 class BatchUserPuller(BatchItemPuller):
     '''pull a batch of Goodreads users, log results, load into database'''
     def __init__(self, 
-                 batch_id: str,
+                 batch_id: Union[int,str],
                  cursor: psycopg.Cursor,
                  user_ids: Iterable[str],
                  semaphore_count: int,
