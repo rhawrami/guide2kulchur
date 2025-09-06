@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-from guide2kulchur.engineer.houseofwisdom import BatchBookPuller
+from guide2kulchur.engineer.batchpullers import BatchBookPuller
 from guide2kulchur.engineer.recruits import gen_logger, update_sem_and_delay
 
 

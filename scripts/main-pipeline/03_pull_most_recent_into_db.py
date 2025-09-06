@@ -25,7 +25,7 @@ import psycopg
 from dotenv import load_dotenv
 load_dotenv()
 
-from guide2kulchur.engineer.houseofwisdom import BatchBookPuller
+from guide2kulchur.engineer.batchpullers import BatchBookPuller
 
 
 def gen_logger() -> logging.Logger:
