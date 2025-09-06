@@ -34,7 +34,7 @@ async def main():
 
     UPDATE_CFG = {
             'MIN_SEM': 2,
-            'MAX_SEM': 10,
+            'MAX_SEM': 18,
             'MIN_DELAY': .2,
             'MAX_DELAY': 5,
             'RATIO_THRESHOLD': .05,
@@ -72,7 +72,7 @@ async def main():
                 truncate_alx2pnd = '''TRUNCATE TABLE alx2pnd'''
                 cur.execute(truncate_alx2pnd)    # clean workspace
 
-                fill_alxadinfinitum = '''
+                fill_alx2pnd = '''
                                         INSERT INTO 
                                             alx2pnd (a_id)
                                         
@@ -93,7 +93,7 @@ async def main():
                                         ON CONFLICT DO NOTHING
                                       '''
                 start_main_query = time.time()
-                cur.execute(fill_alxadinfinitum)
+                cur.execute(fill_alx2pnd)
                 end_main_query = time.time()
                 logger.info('MAIN STARTING QUERY: %s sec.', round(end_main_query - start_main_query, 3))
 
@@ -117,7 +117,6 @@ async def main():
                                          '''
                     cur.execute(pull_unentered_ids, BATCH_SIZE)
                     # note that if a batch fails, you won't pull those unentered IDs until a future batch
-                    # this is worth not having to unnest on every batch, which takes way too long
 
                     starting_point_query_e = time.time()
                     logger.info('batch %s STARTING QUERY: %s sec.', batch_id, round(starting_point_query_e - starting_point_query_s, 3))
