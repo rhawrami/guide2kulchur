@@ -55,11 +55,11 @@ class BatchItemPuller(ABC):
           }
 
           if item_type.lower() == 'book':
-               self.item_puller = HouseOfWisdom()
+               self.item_puller = HouseOfWisdom
           elif item_type.lower() == 'author':
-               self.item_puller = Dante()
+               self.item_puller = Dante
           elif item_type.lower() == 'user':
-               self.item_puller = FalseBardiya()
+               self.item_puller = FalseBardiya
           else:
                raise ValueError("item_type must be in ['book', 'author', 'user']")
 
@@ -86,9 +86,9 @@ class BatchItemPuller(ABC):
                     t_start = time.time()
                     for attempt in range(num_attempts):
                         try:
-                            loaded_item = await self.item_puller.load_it_async(session=session,
-                                                                               item_id=identifer,
-                                                                               see_progress=see_progress)
+                            loaded_item = await self.item_puller().load_it_async(session=session,
+                                                                                 item_id=identifer,
+                                                                                 see_progress=see_progress)
                             
                             item_dat = loaded_item.get_all_data()
                             res = {'data': item_dat, 'status': 'success'}
@@ -146,7 +146,7 @@ class BatchItemPuller(ABC):
                 self.timeouts.append(result['data'])
             
             if result['status'] == 'error':
-                self.fails(result['data'])
+                self.fails.append(result['data'])
 
             completed += 1
         
@@ -327,7 +327,7 @@ class BatchAuthorPuller(BatchItemPuller):
                             athr['death'],
                             athr['top_genres'],
                             athr['influences'],
-                            athr['books_sample'],
+                            athr['book_sample'],
                             athr['quotes_sample'],
                             athr['rating'],
                             athr['rating_count'],
@@ -441,3 +441,4 @@ class BatchUserPuller(BatchItemPuller):
         t_end = time.time()
         t_e = round(t_end - t_start, 3)
         self.stat_log.info('batch %s DB INSERT %s tuples: %s sec', self.batch_id, len(dat_to_insert), t_e)
+        
