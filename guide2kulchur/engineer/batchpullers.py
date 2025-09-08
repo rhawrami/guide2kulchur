@@ -29,7 +29,7 @@ class BatchItemPuller(ABC):
                  status_logger: logging.Logger):
           '''pull Goodreads item data.
           
-          :batch_id: batch identifer; used for logging
+          :batch_id: batch identifier; used for logging
           :param cursor: a psycopg Cursor object
           :param item_type: Goodreads item data type (book|author|user) 
           :param item_ids: an iterable of Goodreads item (book|author|user) IDs
@@ -67,7 +67,7 @@ class BatchItemPuller(ABC):
     async def _load_one_item(self,
                              session: aiohttp.ClientSession,
                              semaphore: asyncio.Semaphore,
-                             identifer: str,
+                             identifier: str,
                              num_attempts: int = 1,
                              see_progress: bool = True) -> Union[Dict[str,Any],str]:
                 '''
@@ -75,11 +75,11 @@ class BatchItemPuller(ABC):
                 
                 :session: an aiohttp.ClientSession
                 :semaphore: an asyncio.Semaphore
-                :identifer: a book ID or URL
+                :identifier: a book ID or URL
                 :num_attempts: number of attempts (including initial attempt)
                 :see_progress: view progress for each item pull
                 '''
-                res = {'data': identifer, 'status': 'error'}    # assume err
+                res = {'data': identifier, 'status': 'error'}    # assume err
 
                 async with semaphore:
                     num_attempts = max(num_attempts, 1)
@@ -87,7 +87,7 @@ class BatchItemPuller(ABC):
                     for attempt in range(num_attempts):
                         try:
                             loaded_item = await self.item_puller().load_it_async(session=session,
-                                                                                 item_id=identifer,
+                                                                                 item_id=identifier,
                                                                                  see_progress=see_progress)
                             
                             item_dat = loaded_item.get_all_data()
@@ -97,21 +97,21 @@ class BatchItemPuller(ABC):
                         except asyncio.TimeoutError:
                             self.metadat['timeouts'] += 1
                             if (attempt + 1) == num_attempts:
-                                self.logger.error('batch %s OUT OF RETRIES %s', self.batch_id, identifer) 
+                                self.logger.error('batch %s OUT OF RETRIES %s', self.batch_id, identifier) 
                                 res = {'data': item_dat, 'status': 'timeout'}  # will pull again in the future
                                 break
                             SLEEP_SCALAR = 1.5
                             sleep_time = (attempt + 1) ** SLEEP_SCALAR
                             await asyncio.sleep(sleep_time)
-                            self.stat_log.info('batch %s RETRY %s %s', self.batch_id, self.item_type, identifer)  
+                            self.stat_log.info('batch %s RETRY %s %s', self.batch_id, self.item_type, identifier)  
 
                         except Exception as er:
-                            self.stat_log.error('batch %s ERR. %s %s: %s', self.batch_id, self.item_type, identifer, er)
+                            self.stat_log.error('batch %s ERR. %s %s: %s', self.batch_id, self.item_type, identifier, er)
                             break   
                 
                 t_finished = time.time()
                 t_elapsed = round(t_finished - t_start,3)
-                self.stat_log.info('batch %s T.E. %s %s: %s sec.', self.batch_id, self.item_type, identifer, t_elapsed)
+                self.stat_log.info('batch %s T.E. %s %s: %s sec.', self.batch_id, self.item_type, identifier, t_elapsed)
 
                 return res     
     
@@ -125,7 +125,7 @@ class BatchItemPuller(ABC):
         '''loads in batch of Goodreads item data.'''
         tasks = [self._load_one_item(session=session,
                                      semaphore=self.semaphore,
-                                     identifer=item_id,
+                                     identifier=item_id,
                                      num_attempts=num_attempts,
                                      see_progress=see_progress) for item_id in self.item_ids]
         
@@ -199,7 +199,7 @@ class BatchBookPuller(BatchItemPuller):
                  status_logger: logging.Logger):
         '''pull Goodreads book data.
           
-        :batch_id: batch identifer; used for logging
+        :batch_id: batch identifier; used for logging
         :param cursor: a psycopg Cursor object
         :param book_ids: an iterable of Goodreads book IDs
         :param semaphore_count: number of maximum concurrent coroutines
@@ -291,7 +291,7 @@ class BatchAuthorPuller(BatchItemPuller):
                  status_logger: logging.Logger):
         '''pull Goodreads author data.
           
-        :batch_id: batch identifer; used for logging
+        :batch_id: batch identifier; used for logging
         :param cursor: a psycopg Cursor object
         :param author_ids: an iterable of Goodreads author IDs
         :param semaphore_count: number of maximum concurrent coroutines
@@ -377,7 +377,7 @@ class BatchUserPuller(BatchItemPuller):
                  status_logger: logging.Logger):
         '''pull Goodreads user data.
           
-        :batch_id: batch identifer; used for logging
+        :batch_id: batch identifier; used for logging
         :param cursor: a psycopg Cursor object
         :param user_ids: an iterable of Goodreads user IDs
         :param semaphore_count: number of maximum concurrent coroutines
