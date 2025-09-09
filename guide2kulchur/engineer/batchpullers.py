@@ -97,7 +97,7 @@ class BatchItemPuller(ABC):
                         except asyncio.TimeoutError:
                             self.metadat['timeouts'] += 1
                             if (attempt + 1) == num_attempts:
-                                self.logger.error('batch %s OUT OF RETRIES %s', self.batch_id, identifier) 
+                                self.stat_log.error('batch %s OUT OF RETRIES %s', self.batch_id, identifier) 
                                 res = {'data': item_dat, 'status': 'timeout'}  # will pull again in the future
                                 break
                             SLEEP_SCALAR = 1.5
