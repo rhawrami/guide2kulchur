@@ -215,7 +215,7 @@ class SimItemsPuller(ABC):
 
 
 # used to pull sim_books and update sim_books col in alexandria
-class SimBooksPuler(SimItemsPuller):
+class SimBooksPuller(SimItemsPuller):
     '''pull similar-books for a given book, store in a db'''
     def __init__(self, 
                  batch_id: Union[int,str], 
@@ -249,7 +249,6 @@ class SimBooksPuler(SimItemsPuller):
         dat2insert = []
         for id_ in self.successes:
             tpl2insert = (id_['sim_id'], id_['data'])
-            print(tpl2insert, '\n')
             dat2insert.append(tpl2insert)
         
         create_table_query = '''
@@ -285,7 +284,7 @@ class SimBooksPuler(SimItemsPuller):
 
 
 # used to pull sim_authors and update sim_authors col in pound
-class SimAuthorsPuler(SimItemsPuller):
+class SimAuthorsPuller(SimItemsPuller):
     '''pull similar-authors for a given author, store in a db'''
     def __init__(self, 
                  batch_id: Union[int,str], 
@@ -318,7 +317,6 @@ class SimAuthorsPuler(SimItemsPuller):
         dat2insert = []
         for id_ in self.successes:
             tpl2insert = (id_['sim_id'], id_['data'])
-            print(tpl2insert, '\n')
             dat2insert.append(tpl2insert)
         
         create_table_query = '''
@@ -351,5 +349,6 @@ class SimAuthorsPuler(SimItemsPuller):
                                 WHERE pnd.author_id = sa.sim_id
                                '''
         self.cursor.execute(update_and_set_query)
+        self.stat_log.info('batch %s DB INSERT %s TUPLES', self.batch_id, len(dat2insert))
 
             

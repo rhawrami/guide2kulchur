@@ -1,3 +1,7 @@
+'''
+DEPRECATED; batchpullers.py replaces this module
+'''
+
 import re
 import asyncio
 import time

@@ -1,3 +1,7 @@
+'''
+DEPRECATED; simpullers.py replaces this module
+'''
+
 import asyncio
 import time
 import logging
