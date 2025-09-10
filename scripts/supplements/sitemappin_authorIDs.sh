@@ -24,8 +24,10 @@ for i in $(cat temp_sitemaps.txt | grep -Eo '\d+');
 
 # clean up any duplicates
 sort author_xmls.txt | sed -E 's/^0+//' | sort -n | uniq > ../final_authorIDs_from_sitemap.txt
+# gzip it
+gzip ../final_authorIDs_from_sitemap.txt
 
 cd ..
 echo '-------------------------------------------------------'
-echo "final author IDs are located in 'final_authorIDs_from_sitemap.txt.'
+echo "final author IDs are located in 'final_authorIDs_from_sitemap.txt.gz' .
 run 'rm -r data/sitemap-dat/temp_unzipped_sitemaps' to get rid of unneeded files."
