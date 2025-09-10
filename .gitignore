@@ -7,3 +7,4 @@ build/
 TODO.txt
 logs
 backups
+temp_unzipped*
