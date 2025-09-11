@@ -89,6 +89,7 @@ async def main():
                 SM_BATCH_SIZE = 10000
                 ids2insert = set()  # i don't think there are duplicates, but there may be
                 t_sm_start = time.time()
+                
                 for id_ in pull1ID_fromfile(f_path=os.path.join('data',
                                                                 'sitemap-dat',
                                                                 'final_authorIDs_from_sitemap.txt')):
@@ -109,6 +110,8 @@ async def main():
                         continue
                     else:
                         ids2insert.add(id_)
+                cur.executemany(insert_statement, [(id_,) for id_ in ids2insert])   # remainder batch
+                
                 t_sm_end = time.time()
                 logger.info('SITEMAP2TABLE START QUERY T.E.: %s sec.', round(t_sm_end-t_sm_start, 3))
 
