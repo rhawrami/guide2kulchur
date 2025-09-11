@@ -108,7 +108,7 @@ async def main():
                             cur.executemany(insert_statement, fmt_ids2insert)   # load the IDs into the table
                             ids2insert.clear()  # clear contents
 
-                        if not len(id_):    # i don't think i have any empty lines, but just in case
+                        if not len(id_) or len(id_) > 8:  # some error lines, just fix here
                             continue
                         else:
                             ids2insert.add(id_)
