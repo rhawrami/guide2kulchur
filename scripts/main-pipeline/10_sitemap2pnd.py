@@ -78,59 +78,61 @@ async def main():
         with conn.cursor() as cur:
             async with aiohttp.ClientSession(timeout=timeout,
                                              connector=connector) as sesh:
-                
-                create_temp_id_table = '''
-                                        CREATE TABLE IF NOT EXISTS sitemapped_ids (
-                                            a_id text PRIMARY KEY   -- speed up ordering (see below)
-                                        )
-                                       '''
-                cur.execute(create_temp_id_table)
+                pull_the_ids = True
+                if pull_the_ids:    # this way, we can skip this in case of a script error below this point
+                    
+                    create_temp_id_table = '''
+                                            CREATE TABLE IF NOT EXISTS sitemapped_ids (
+                                                a_id text PRIMARY KEY   -- speed up ordering (see below)
+                                            )
+                                        '''
+                    cur.execute(create_temp_id_table)
 
-                SM_BATCH_SIZE = 10000
-                ids2insert = set()  # i don't think there are duplicates, but there may be
-                t_sm_start = time.time()
-                
-                for id_ in pull1ID_fromfile(f_path=os.path.join('data',
-                                                                'sitemap-dat',
-                                                                'final_authorIDs_from_sitemap.txt')):
-                    if len(ids2insert) >= SM_BATCH_SIZE:
-                        fmt_ids2insert = [(id_,) for id_ in ids2insert]
-                        insert_statement = '''
-                                            INSERT INTO 
-                                                sitemapped_ids 
-                                                    (a_id)
-                                            VALUES
-                                                (%s)
-                                            ON CONFLICT DO NOTHING
-                                           '''
-                        cur.executemany(insert_statement, fmt_ids2insert)   # load the IDs into the table
-                        ids2insert.clear()  # clear contents
+                    SM_BATCH_SIZE = 10000
+                    ids2insert = set()  # i don't think there are duplicates, but there may be
+                    t_sm_start = time.time()
+                    
+                    for id_ in pull1ID_fromfile(f_path=os.path.join('data',
+                                                                    'sitemap-dat',
+                                                                    'final_authorIDs_from_sitemap.txt')):
+                        if len(ids2insert) >= SM_BATCH_SIZE:
+                            fmt_ids2insert = [(id_,) for id_ in ids2insert]
+                            insert_statement = '''
+                                                INSERT INTO 
+                                                    sitemapped_ids 
+                                                        (a_id)
+                                                VALUES
+                                                    (%s)
+                                                ON CONFLICT DO NOTHING
+                                            '''
+                            cur.executemany(insert_statement, fmt_ids2insert)   # load the IDs into the table
+                            ids2insert.clear()  # clear contents
 
-                    if not len(id_):    # i don't think i have any empty lines, but just in case
-                        continue
-                    else:
-                        ids2insert.add(id_)
-                cur.executemany(insert_statement, [(id_,) for id_ in ids2insert])   # remainder batch
-                
-                t_sm_end = time.time()
-                logger.info('SITEMAP2TABLE START QUERY T.E.: %s sec.', round(t_sm_end-t_sm_start, 3))
+                        if not len(id_):    # i don't think i have any empty lines, but just in case
+                            continue
+                        else:
+                            ids2insert.add(id_)
+                    cur.executemany(insert_statement, [(id_,) for id_ in ids2insert])   # remainder batch
+                    
+                    t_sm_end = time.time()
+                    logger.info('SITEMAP2TABLE START QUERY T.E.: %s sec.', round(t_sm_end-t_sm_start, 3))
 
-                filter_table_2newids = '''
-                                        DELETE FROM 
-                                            sitemapped_ids
-                                        WHERE a_id = ANY(
-                                                SELECT 
-                                                    sm.a_id
-                                                FROM
-                                                    sitemapped_ids sm
-                                                LEFT JOIN
-                                                    pound pnd
-                                                ON sm.a_id = pnd.author_id
-                                                WHERE
-                                                    pnd.author_id IS NOT NULL
-                                        )
-                                       '''
-                cur.execute(filter_table_2newids)
+                    filter_table_2newids = '''
+                                            DELETE FROM 
+                                                sitemapped_ids
+                                            WHERE a_id = ANY(
+                                                    SELECT 
+                                                        sm.a_id
+                                                    FROM
+                                                        sitemapped_ids sm
+                                                    LEFT JOIN
+                                                        pound pnd
+                                                    ON sm.a_id = pnd.author_id
+                                                    WHERE
+                                                        pnd.author_id IS NOT NULL
+                                            )
+                                        '''
+                    cur.execute(filter_table_2newids)
 
                 for batch_id in range(ITER_COUNT):
                     if batch_id > 0 and batch_id % 4 == 0:
