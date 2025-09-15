@@ -15,7 +15,7 @@ we'll drop rows/authors that don't have at least 1 review and 1 rating.
 import asyncio
 import os
 import time
-from typing import Generator
+from typing import Iterator
 
 import aiohttp
 import psycopg
@@ -27,7 +27,7 @@ from guide2kulchur.engineer.batchpullers import BatchAuthorPuller
 from guide2kulchur.engineer.recruits import gen_logger, update_sem_and_delay
 
 
-def pull1ID_fromfile(f_path: str) -> Generator[str]:
+def pull1ID_fromfile(f_path: str) -> Iterator[str]:
     '''yield one ID at a time from a file of author IDs'''
     with open(f_path, 'r') as id_file:
         for id_ in id_file:
