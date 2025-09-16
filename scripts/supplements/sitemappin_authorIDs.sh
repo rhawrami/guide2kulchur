@@ -15,8 +15,7 @@ curl --silent https://www.goodreads.com/siteindex.author.xml | grep -Eio 'https.
 > final_authorIDs_from_sitemap.txt
 
 # download each sitemap, decompress it
-for i in $(cat temp_sitemaps.txt | grep -Eo '\d+'); 
-	do
+for i in $(cat temp_sitemaps.txt | grep -Eo '\d+'); do
 	  curl --silent -o sm_$i.xml.gz https://www.goodreads.com/sitemap.{$i}.xml.gz && echo "download sm_$i @ $(date)"
 	  gunzip sm_$i.xml
 	  grep -Eio 'author/show/.*$' sm_$i.xml | grep -Eo '\d+' >> author_xmls.txt;
