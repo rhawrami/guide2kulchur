@@ -6,6 +6,7 @@ build/
 .env
 TODO.txt
 logs
+logs_remote
 backups
 temp_unzipped*
 final_authorIDs_from_sitemap.txt
