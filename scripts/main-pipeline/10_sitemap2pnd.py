@@ -60,7 +60,7 @@ async def main():
     # logger init
     LOG_DIR = 'sitemap2pound'
     LOG_F = 's2p'
-    MAX_B = 1_000_000
+    MAX_B = 5_000_000
     MAX_BACKUPS = 10
     logger = gen_logger(name=LOG_DIR,
                         name_abbr=LOG_F,
@@ -191,8 +191,11 @@ async def main():
                                                                       timeouts_per_batch_ratio=burckhardt.metadat['timeouts_per_batch_ratio'],
                                                                       cfg=UPDATE_CFG)
                 
-                drop_sitemapped_ids_table = '''DROP TABLE IF EXISTS sitemapped_ids'''
-                cur.execute(drop_sitemapped_ids_table)
+                # it'll tale multiple runs to get through this all
+                # uncomment the lines below if you want to get rid of the sitemap IDs table
+                
+                # drop_sitemapped_ids_table = '''DROP TABLE IF EXISTS sitemapped_ids'''
+                # cur.execute(drop_sitemapped_ids_table)
 
 
 if __name__ == '__main__':

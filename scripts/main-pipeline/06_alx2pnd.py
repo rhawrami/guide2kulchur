@@ -44,7 +44,7 @@ async def main():
     # logger init
     LOG_DIR = 'alx2pnd'
     LOG_F = 'a2p'
-    MAX_B = 1_000_000
+    MAX_B = 5_000_000
     MAX_BACKUPS = 10
     logger = gen_logger(name=LOG_DIR,
                         name_abbr=LOG_F,

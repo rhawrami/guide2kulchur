@@ -19,8 +19,8 @@ async def main():
     # update sim_authors in alexandria
     NAME = 'sim_authors'
     NAME_ABBR = 'sa'
-    max_b = 1_000_000
-    max_backups = 5
+    max_b = 5_000_000
+    max_backups = 10
 
     logger = gen_logger(name=NAME, 
                         name_abbr=NAME_ABBR,

@@ -42,7 +42,7 @@ async def main():
     # logger init
     LOG_DIR = 'alx_ad_infinitum'
     LOG_F = 'alx'
-    MAX_B = 1_000_000
+    MAX_B = 5_000_000
     MAX_BACKUPS = 10
     logger = gen_logger(name=LOG_DIR,
                         name_abbr=LOG_F,
