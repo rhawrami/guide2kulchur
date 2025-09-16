@@ -77,11 +77,9 @@ for topic in $(ls $LOGP); do
 			grep -i 'success rate' "$full_p/$prog_f" >> $s_r_f	# update success-rate stat file
 			grep -i 'pulls per sec' "$full_p/$prog_f" >> $pps_f	# update pulls-per-sec stat file
 			grep -i 'db insert' "$full_p/$prog_f" >> $db_f		# update db-insert stat file
-
-			printf "\nupdated %s statistics:\n1) summary\n2) time-elapsed\n3) success-rate\n4) pulls-per-sec\n5) db-insert\n" $prog_f
 		fi
-		 
 	done
+	printf "\nupdated %s statistics:\n1) summary\n2) time-elapsed\n3) success-rate\n4) pulls-per-sec\n5) db-insert\n" "$topic"
 
 	# if you run this multiple times within the same timeframe
 		# you'll have duplicates
