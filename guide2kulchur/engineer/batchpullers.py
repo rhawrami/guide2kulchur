@@ -40,6 +40,7 @@ class BatchItemPuller(ABC):
           self.cursor = cursor
           self.item_type = item_type
           self.item_ids = item_ids
+          self.semaphore_count = semaphore_count
           self.semaphore = asyncio.Semaphore(semaphore_count)
           self.stat_log = status_logger
 
@@ -153,9 +154,20 @@ class BatchItemPuller(ABC):
         batch_end = time.time()
         batch_elapsed = round(batch_end - batch_start,3)
         success_rate = round(len(self.successes) / completed, 3)
+        pulls_per_sec = round(completed / batch_elapsed, 3)
+        
+        self.stat_log.info('SUMMARY batch %s :: SM: %s :: BDL: %s :: TE: %s :: SR: %s :: PPS: %s :: ATP: %s',
+                           self.batch_id, 
+                           self.semaphore_count,
+                           round(batch_delay, 3),
+                           batch_elapsed,
+                           success_rate,
+                           pulls_per_sec,
+                           completed)   # summary line, will be parsed in the future
         
         self.stat_log.info('T.E. batch %s: %s sec.', self.batch_id, batch_elapsed) 
         self.stat_log.info('SUCCESS RATE batch %s: %s', self.batch_id, success_rate)
+        self.stat_log.info('PULLS PER SEC batch %s: %s', self.batch_id, pulls_per_sec)
         self.stat_log.info('batch %s FAILED %ss: %s', self.batch_id, self.item_type, self.fails)
         self.stat_log.info('batch %s TIMED-OUT %ss: %s', self.batch_id, self.item_type, self.timeouts)
 
