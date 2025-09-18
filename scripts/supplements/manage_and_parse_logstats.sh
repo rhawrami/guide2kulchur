@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # parse logs and filter for aggregate status statements
-# this is very rudimentary right now, but as I learn some more
-	# bash, I'll simplify a lot of the repetitive stuff with loops
+# this is very rudimentary right now, but it works for the time being
 
 # check if logs dir exists
 # define your logs dir below, or supply it with the first arg
@@ -38,55 +37,44 @@ for topic in $(ls $LOGP); do
 		mkdir "${LOGSTATP}/${topic}"
 	fi
 
-	# make stat files
-	# summary, most important
-	s_f="$LOGSTATP/${topic}/SUMMARY.txt"
-	if [[ ! -f "$s_f" ]]; then
-		touch $s_f
-	fi
-
-	# time elapsed
-	t_e_f="$LOGSTATP/${topic}/TIME_ELAPSED.txt"
-	if [[ ! -f "$t_e_f" ]]; then
-		touch $t_e_f
-	fi
-	
-	# success rate
-	s_r_f="$LOGSTATP/${topic}/SUCCESS_RATE.txt"
-	if [[ ! -f "$s_r_f" ]]; then
-		touch $s_r_f
-	fi
-
-	# pulls per sec
-	pps_f="$LOGSTATP/${topic}/PULLS_PER_SEC.txt"
-	if [[ ! -f "$pps_f" ]]; then
-		touch $pps_f
-	fi
-	
-	# db insert
-	db_f="$LOGSTATP/${topic}/DB_INSERT.txt"
-	if [[ ! -f "$db_f" ]]; then
-		touch $db_f
-	fi
-	
-	# filter logs, update stat files
-	for prog_f in $(ls "$full_p"); do
-		if [[ "$prog_f" =~ ^.*prog.*$ ]]; then
-			grep -i 'summary batch' "$full_p/$prog_f" >> $s_f	# update summary stat file
-			grep -i 't\.e\. batch' "$full_p/$prog_f" >> $t_e_f	# update time-elapsed stat file
-			grep -i 'success rate' "$full_p/$prog_f" >> $s_r_f	# update success-rate stat file
-			grep -i 'pulls per sec' "$full_p/$prog_f" >> $pps_f	# update pulls-per-sec stat file
-			grep -i 'db insert' "$full_p/$prog_f" >> $db_f		# update db-insert stat file
+	printf "==============================================================================\n"
+	# for each statistic (e.g., TIME_ELAPSED)
+		# 1. make a txt file to store the related logs
+		# 2. check all the *_prog.log.* logs and filter for the related stat statements
+		# 3. pass the related lines to the txt file
+		# 4. remove duplicates from the txt file
+	for subj in "SUMMARY" "TIME_ELAPSED" "SUCCESS_RATE" "PULLS_PER_SEC" "DB_INSERT"; do
+		subj_f="$LOGSTATP/${topic}/${subj}.txt"
+		if [[ ! -f "$subj_f" ]]; then
+			touch $subj_f
 		fi
-	done
-	printf "\nupdated %s statistics:\n1) summary\n2) time-elapsed\n3) success-rate\n4) pulls-per-sec\n5) db-insert\n" "$topic"
+		
+		for prog_f in $(ls "$full_p"); do
+			if [[ "$prog_f" =~ ^.*prog.*$ ]]; then
+				case "$subj" in
+					"SUMMARY")
+						key_term="summary batch"
+						;;
+					"TIME_ELAPSED")
+						key_term="t\.e\. batch"
+						;;
+					"SUCCESS_RATE")
+						key_term="success rate"
+						;;
+					"PULLS_PER_SEC")
+						key_term="pulls per sec"
+						;;
+					"DB_INSERT")
+						key_term="db insert"
+						;;
+				esac
+				grep -i "$key_term" "${full_p}/${prog_f}" >> $subj_f	# filter lines for each subject statistic
+			fi
+		done
 
-	# if you run this multiple times within the same timeframe
-		# you'll have duplicates
-		# let's get rid of those
-	sort -u "$s_f" > "${s_f}.temp" && mv "${s_f}.temp" "$s_f"
-	sort -u "$t_e_f" > "${t_e_f}.temp" && mv "${t_e_f}.temp" "$t_e_f"
-	sort -u "$s_r_f" > "${s_r_f}.temp" && mv "${s_r_f}.temp" "$s_r_f"
-	sort -u "$pps_f" > "${pps_f}.temp" && mv "${pps_f}.temp" "$pps_f"
-	sort -u "$db_f" > "${db_f}.temp" && mv "${db_f}.temp" "$db_f"
+		sort -u "$subj_f" > "${subj_f}.temp" && mv "${subj_f}.temp" "$subj_f"	# filter out duplicates
+		printf "processed <%s> :: %s @ %s\n" "$topic" "$subj" "$(date)"
+
+	done
+	printf "==============================================================================\n"
 done
