@@ -4,3 +4,5 @@ lxml
 aiohttp
 psycopg
 dotenv
+pandas
+plotly
