@@ -1,5 +1,4 @@
 import os
-import time
 
 import pandas as pd
 import plotly.io as pio
@@ -38,10 +37,11 @@ def viz_and_out(log_summary_path: str,
                         cols=2,
                         shared_xaxes=False,
                         horizontal_spacing=.05, 
-                        vertical_spacing=.15,
-                        subplot_titles=['<b>Time Elapsed</b>', '<b>Success Rate</b>', '<b>Pulls Per Second</b>', '<b>Successful Pulls</b>'])
-    
-    fig2 = go.Figure()
+                        vertical_spacing=.1,
+                        subplot_titles=['<b>Time Elapsed</b>', 
+                                        '<b>Success Rate</b>', 
+                                        '<b>Pulls Per Second</b>', 
+                                        '<b>Successful Pulls</b>'])
     
     col_num = 1
     row_num = 1
@@ -49,7 +49,6 @@ def viz_and_out(log_summary_path: str,
                 'success_rate', 
                 'pulls_per_sec', 
                 'successful_pulls']:
-        print(row_num, col_num)
         if col_num > 2:
             col_num = 1
             row_num += 1
@@ -72,7 +71,7 @@ def viz_and_out(log_summary_path: str,
                          marker={
                              'size': 3,
                              'color': 'white',
-                             'symbol': 'diamond',
+                             'symbol': 'circle',
                              'opacity': .75
                          },
                          line={
@@ -82,27 +81,61 @@ def viz_and_out(log_summary_path: str,
                       row=row_num, 
                       col=col_num)
         
-        fig2.add_trace(trc)
-        
         col_num += 1
     
-    fig2.update_xaxes(showspikes=True, spikethickness=.25, spikedash='solid')
-    fig2.update_yaxes(showspikes=True, spikethickness=.25, spikedash='solid')
-    fig2.update_layout(#showlegend=False,
-                       title={'text': plot_title})
+    fig.update_xaxes(showspikes=True, spikethickness=.25, spikedash='solid')
+    fig.update_yaxes(showspikes=True, spikethickness=.25, spikedash='solid')
+    fig.update_layout(showlegend=False,
+                      title={'text': plot_title,
+                             'subtitle': {'text': notes}})
     
-    fig2.show()
+    fig.write_html(out_path)
     
 
 def main():
     pio.templates.default = 'plotly_dark'
-    return None
+
+    SUMMARY_CFG = {
+        'alx_ad_infinitum': {
+            'title': '<b>Log Metrics for alx_ad_infinitum</b> (semi-recursive book ID search)',
+            'notes': 'placeholder'
+        },
+        'pnd2alx': {
+            'title': '<b>Log Metrics for pnd2alx</b> (using "pound.book_sample" column to fill "alexandria")',
+            'notes': 'placeholder'
+        },
+        'sim_authors': {
+            'title': '<b>Log Metrics for sim_authors</b> (filling "pound.sim_authors")',
+            'notes': 'placeholder'
+        },
+        'sim_books': {
+            'title': '<b>Log Metrics for sim_books</b> (filling "alexandria.sim_books")',
+            'notes': 'placeholder'
+        },
+        'sitemap2pound': {
+            'title': '<b>Log Metrics for sitemap2pound</b> (using the public sitemap to fill "pound")',
+            'notes': 'placeholder'
+        }
+    }
+
+    SUMMARY_PATH = os.path.join('logs', 'out_summary')
+    OUT_PATH = os.path.join('docs', 'log_metrics')
+
+    for subjfile in os.listdir(SUMMARY_PATH):
+
+        subj_name = subjfile.replace('_SUMMARY.csv', '')
+        subj_title = SUMMARY_CFG[subj_name]['title']
+        subj_notes = SUMMARY_CFG[subj_name]['notes']
+        
+        full_path = os.path.join(SUMMARY_PATH, subjfile)
+        subj_out_path = os.path.join(OUT_PATH, f'{subj_name}_metrics.html')
+
+        viz_and_out(log_summary_path=full_path,
+                    plot_title=subj_title,
+                    notes=subj_notes,
+                    out_path=subj_out_path)
 
 
 if __name__ == '__main__':
-    pio.templates.default = 'plotly_dark'
-    viz_and_out(log_summary_path=os.path.join('logs','out_summary', 'sim_authors_SUMMARY.csv'),
-                plot_title='<b>Log Metrics for pnd2alx</b>',
-                notes='nteh',
-                out_path='')
+    main()
 
