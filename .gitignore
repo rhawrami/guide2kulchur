@@ -9,4 +9,4 @@ logs
 logs_remote
 backups
 temp_unzipped*
-final_authorIDs_from_sitemap.txt
+final_*IDs_from_sitemap.txt
