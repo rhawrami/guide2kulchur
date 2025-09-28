@@ -246,13 +246,42 @@ class FalseBardiya(FalseDmitry):
         return self
     
 
+    def get_shelves(self) -> Optional[List[str]]:
+        '''return list of user's shelve names'''
+        shelf_names = []
+        if shelves_container := self._info_left.find('div', {'id': 'shelves'}):
+            for shelf_col in shelves_container.find_all('div', class_='shelfContainer'):
+                for shelf in shelf_col.find_all('a', class_='userShowPageShelfListItem'):
+                    # mind the mess below future me, you were having trouble with filtering
+                    # by the anchor text, so you decided to use the much easier href link
+                    # you also replace hyphens in shelf names with spaces
+                    if (name_link := shelf.get('href')) and (re.search(r'shelf=.*$', name_link)):
+                        name = re.search(r'shelf=.*$', name_link).group(0)
+                        name = re.sub(r'^shelf=|-', '', name)
+                        if name:
+                            shelf_names.append(name)    # in case of weird regex subbing
+        
+        return shelf_names if shelf_names else None
+
+
+    def get_featured_shelf_sample(self):
+        '''return sample list of books on a user's featured shelf'''
+        featured_shelf_og = super().get_featured_shelf()
+        return [re.sub(r'\D', '', bk['id'])
+                for bk
+                # This is a bit of a mess, but featured_shelf_og returns a 
+                # one-pair dictionary, with the value being a dict of book data
+                in list(featured_shelf_og.values())[0]  
+                if bk['id'] and isinstance(bk['id'], str)] if featured_shelf_og else None
+
+
     def get_friends_sample(self) -> Optional[List[str]]:
         '''return sample list of user's friends'''
         friends_sample_og = super().get_friends_sample()
         return [user['id']
                 for user
                 in friends_sample_og
-                if user['id'] and isinstance(user['id'], str)]
+                if user['id'] and isinstance(user['id'], str)] if friends_sample_og else None
     
 
     def get_followings_sample(self,
@@ -309,7 +338,7 @@ class FalseBardiya(FalseDmitry):
         return [bk['id']
                 for bk
                 in currently_reading_og
-                if bk['id'] and isinstance(bk['id'], str)]
+                if bk['id'] and isinstance(bk['id'], str)] if currently_reading_og else None
     
 
     def get_currently_reading_sample_authors(self) -> Optional[List[str]]:
@@ -320,7 +349,7 @@ class FalseBardiya(FalseDmitry):
         return [bk['author_id']
                 for bk
                 in currently_reading_og
-                if bk['author_id'] and isinstance(bk['author_id'], str)]
+                if bk['author_id'] and isinstance(bk['author_id'], str)] if currently_reading_og else None
     
     
     def get_all_data(self) -> Dict[str,Any]:
@@ -356,3 +385,15 @@ def _jsonb_or_null(obj: Optional[dict]) -> Optional[Jsonb]:
         return Jsonb(obj)
     else:
         return None
+
+
+if __name__ == '__main__':
+    async def main():
+        async with aiohttp.ClientSession() as sesh:
+            fb = FalseBardiya()
+            await fb.load_it_async(session=sesh,
+                                   item_id='64889106',
+                                   see_progress=False)
+        print(fb.get_featured_shelf_sample())
+    
+    asyncio.run(main())
