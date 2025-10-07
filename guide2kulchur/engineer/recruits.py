@@ -3,6 +3,7 @@ import sys
 import logging
 import re
 import asyncio
+import urllib.parse
 from logging.handlers import RotatingFileHandler
 from typing import (Tuple, 
                     Dict,
@@ -257,6 +258,7 @@ class FalseBardiya(FalseDmitry):
                     # you also replace hyphens in shelf names with spaces
                     if (name_link := shelf.get('href')) and (re.search(r'shelf=.*$', name_link)):
                         name = re.search(r'shelf=.*$', name_link).group(0)
+                        name = urllib.parse.unquote(name)   # since we're pulling from href, some strings will get percent-encoded
                         name = re.sub(r'^shelf=|-', '', name)
                         if name:
                             shelf_names.append(name)    # in case of weird regex subbing
@@ -270,7 +272,7 @@ class FalseBardiya(FalseDmitry):
         return [re.sub(r'\D', '', bk['id'])
                 for bk
                 # This is a bit of a mess, but featured_shelf_og returns a 
-                # one-pair dictionary, with the value being a dict of book data
+                # singe key-value dictionary, with the value being a dict of book data
                 in list(featured_shelf_og.values())[0]  
                 if bk['id'] and isinstance(bk['id'], str)] if featured_shelf_og else None
 
@@ -278,7 +280,7 @@ class FalseBardiya(FalseDmitry):
     def get_friends_sample(self) -> Optional[List[str]]:
         '''return sample list of user's friends'''
         friends_sample_og = super().get_friends_sample()
-        return [user['id']
+        return [re.sub(r'\D', '', user['id'])
                 for user
                 in friends_sample_og
                 if user['id'] and isinstance(user['id'], str)] if friends_sample_og else None
@@ -305,7 +307,7 @@ class FalseBardiya(FalseDmitry):
                             flwr_type = 'user'
                         elif re.search(r'\/author\/show', flwr_id):
                             flwr_type = 'author'
-                        flwr_id = re.sub(r'^.*show\/|-.*$|\.*$','',flwr_id)
+                        flwr_id = re.sub(r'^.*show\/|-.*$|\.*$|\D','',flwr_id)
                         flwr_dat = {
                             'id': flwr_id,
                             'type': flwr_type
@@ -335,7 +337,7 @@ class FalseBardiya(FalseDmitry):
         currently_reading_og = super().get_currently_reading_sample()
         if not currently_reading_og:
             return None
-        return [bk['id']
+        return [re.sub(r'\D', '', bk['id'])
                 for bk
                 in currently_reading_og
                 if bk['id'] and isinstance(bk['id'], str)] if currently_reading_og else None
@@ -346,10 +348,32 @@ class FalseBardiya(FalseDmitry):
         currently_reading_og = super().get_currently_reading_sample()
         if not currently_reading_og:
             return None
-        return [bk['author_id']
+        return [re.sub(r'\D', '', bk['author_id'])
                 for bk
                 in currently_reading_og
-                if bk['author_id'] and isinstance(bk['author_id'], str)] if currently_reading_og else None
+                if bk['author_id'] and isinstance(bk['author_id'], str)] 
+    
+
+    def get_quotes_sample_strings(self) -> Optional[List[str]]:
+        '''return list of quote strings'''
+        quotes_sample_og = super().get_quotes_sample()
+        if not quotes_sample_og:
+            return None
+        return [qt['quote']
+                for qt
+                in quotes_sample_og
+                if qt['quote'] and isinstance(qt['quote'], str)]
+    
+
+    def get_quotes_sample_author_ids(self) -> Optional[List[str]]:
+        '''return list of author IDs quoted'''
+        quotes_sample_og = super().get_quotes_sample()
+        if not quotes_sample_og:
+            return None
+        return [re.sub(r'\D', '', qt['author_id'])  # in case of names included with ID
+                for qt
+                in quotes_sample_og
+                if qt['author_id'] and isinstance(qt['author_id'], str)]
     
     
     def get_all_data(self) -> Dict[str,Any]:
@@ -365,12 +389,15 @@ class FalseBardiya(FalseDmitry):
             'favorite_genres': self.get_favorite_genres,
             'currently_reading_sample_books': self.get_currently_reading_sample_books,
             'currently_reading_sample_authors': self.get_currently_reading_sample_authors,
+            'shelves': self.get_shelves,
+            'featured_shelf_sample': self.get_featured_shelf_sample,
             'follower_count': self.get_follower_count,
             'friend_count': self.get_friend_count,
             'friends_sample': self.get_friends_sample,
             'followings_sample_users': self.get_followings_sample_users,
             'followings_sample_authors': self.get_followings_sample_authors,
-            'quotes_sample': self.get_quotes_sample
+            'quotes_sample_strings': self.get_quotes_sample_strings,
+            'quotes_sample_author_ids': self.get_quotes_sample_author_ids
         }
         
         usr_dict = {}
@@ -388,12 +415,14 @@ def _jsonb_or_null(obj: Optional[dict]) -> Optional[Jsonb]:
 
 
 if __name__ == '__main__':
+    import random
     async def main():
         async with aiohttp.ClientSession() as sesh:
             fb = FalseBardiya()
             await fb.load_it_async(session=sesh,
-                                   item_id='64889106',
+                                   item_id=str(random.randint(1000,10000000)),
                                    see_progress=False)
-        print(fb.get_featured_shelf_sample())
+        for a,b in fb.get_all_data().items():
+            print(f'{a} :: {b}\n')
     
     asyncio.run(main())

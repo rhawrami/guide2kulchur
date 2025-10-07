@@ -11,7 +11,6 @@ from typing import (Optional,
 import aiohttp
 import psycopg
 
-from guide2kulchur.engineer.houseofwisdom import HouseOfWisdom
 from guide2kulchur.engineer.recruits import (HouseOfWisdom, 
                                              Dante, 
                                              FalseBardiya,
@@ -423,16 +422,19 @@ class BatchUserPuller(BatchItemPuller):
                             athr['rating_count'],
                             athr['review_count'],
                             athr['favorite_genres'],
-                            athr['currently_reading_sample_books'],
-                            athr['currently_reading_sample_authors'],
                             athr['follower_count'],
                             athr['friend_count'],
-                            athr['friends_sample'],
+                            athr['currently_reading_sample_books'],
+                            athr['currently_reading_sample_authors'],
+                            athr['featured_shelf_sample_books'],
+                            athr['shelves'],
                             athr['followings_sample_users'],
                             athr['followings_sample_authors'],
-                            _jsonb_or_null(athr['quotes_sample']))
+                            athr['quotes_sample_strings'],
+                            athr['quotes_sample_author_ids'],
+                            athr['friends_sample'])
             dat_to_insert.append(dat_as_tuple)
-        # NOT DONE YET
+        
         insert_query =  '''
                             INSERT INTO false_dmitry
                                (user_id, 
@@ -441,11 +443,23 @@ class BatchUserPuller(BatchItemPuller):
                                 rating,
                                 rating_count,
                                 review_count,
-                                favorite_genres)
+                                favorite_genres,
+                                follower_count,
+                                friend_count,
+                                currently_reading_sample_books,
+                                currently_reading_sample_authors,
+                                featured_shelf_sample_books,
+                                shelf_names,
+                                followings_sample_users,
+                                followings_sample_authors,
+                                quotes_sample_strings,
+                                quotes_sample_author_ids,
+                                friends_sample
+                                )
                             VALUES 
-                                (%s, %s, %s, %s, %s, 
-                                 %s, %s, %s, %s, %s,
-                                 %s, %s, %s, %s, %s)
+                                (%s, %s, %s, %s, %s, %s,
+                                 %s, %s, %s, %s, %s, %s,
+                                 %s, %s, %s, %s, %s %s)
                             ON CONFLICT DO NOTHING
                         '''
         t_start = time.time()
