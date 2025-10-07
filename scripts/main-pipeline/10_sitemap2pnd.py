@@ -82,7 +82,7 @@ async def main():
                 if pull_the_ids:    # this way, we can skip this in case of a script error below this point
                     
                     create_temp_id_table = '''
-                                            CREATE TABLE IF NOT EXISTS sitemapped_ids (
+                                            CREATE TABLE IF NOT EXISTS sitemapped_ids_a (
                                                 a_id text PRIMARY KEY   -- speed up ordering (see below)
                                             )
                                         '''
@@ -99,7 +99,7 @@ async def main():
                             fmt_ids2insert = [(id_,) for id_ in ids2insert]
                             insert_statement = '''
                                                 INSERT INTO 
-                                                    sitemapped_ids 
+                                                    sitemapped_ids_a 
                                                         (a_id)
                                                 VALUES
                                                     (%s)
@@ -119,12 +119,12 @@ async def main():
 
                     filter_table_2newids = '''
                                             DELETE FROM 
-                                                sitemapped_ids
+                                                sitemapped_ids_a
                                             WHERE a_id = ANY(
                                                     SELECT 
                                                         sm.a_id
                                                     FROM
-                                                        sitemapped_ids sm
+                                                        sitemapped_ids_a sm
                                                     LEFT JOIN
                                                         pound pnd
                                                     ON sm.a_id = pnd.author_id
@@ -147,9 +147,9 @@ async def main():
                     
                     pull_sitemapped_ids = '''
                                           DELETE FROM 
-                                            sitemapped_ids
+                                            sitemapped_ids_a
                                           WHERE 
-                                            a_id = ANY(array(SELECT a_id FROM sitemapped_ids ORDER BY a_id::int LIMIT %s)) 
+                                            a_id = ANY(array(SELECT a_id FROM sitemapped_ids_a ORDER BY a_id::int LIMIT %s)) 
                                           RETURNING a_id
                                          '''
                     cur.execute(pull_sitemapped_ids, BATCH_SIZE)
@@ -194,7 +194,7 @@ async def main():
                 # it'll tale multiple runs to get through this all
                 # uncomment the lines below if you want to get rid of the sitemap IDs table
                 
-                # drop_sitemapped_ids_table = '''DROP TABLE IF EXISTS sitemapped_ids'''
+                # drop_sitemapped_ids_table = '''DROP TABLE IF EXISTS sitemapped_ids_a'''
                 # cur.execute(drop_sitemapped_ids_table)
 
 
