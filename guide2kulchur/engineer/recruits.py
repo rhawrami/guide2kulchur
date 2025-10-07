@@ -390,7 +390,7 @@ class FalseBardiya(FalseDmitry):
             'currently_reading_sample_books': self.get_currently_reading_sample_books,
             'currently_reading_sample_authors': self.get_currently_reading_sample_authors,
             'shelves': self.get_shelves,
-            'featured_shelf_sample': self.get_featured_shelf_sample,
+            'featured_shelf_sample_books': self.get_featured_shelf_sample,
             'follower_count': self.get_follower_count,
             'friend_count': self.get_friend_count,
             'friends_sample': self.get_friends_sample,

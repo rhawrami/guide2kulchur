@@ -459,7 +459,7 @@ class BatchUserPuller(BatchItemPuller):
                             VALUES 
                                 (%s, %s, %s, %s, %s, %s,
                                  %s, %s, %s, %s, %s, %s,
-                                 %s, %s, %s, %s, %s %s)
+                                 %s, %s, %s, %s, %s, %s)
                             ON CONFLICT DO NOTHING
                         '''
         t_start = time.time()
