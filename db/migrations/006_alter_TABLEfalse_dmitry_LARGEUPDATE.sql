@@ -24,5 +24,6 @@ ALTER TABLE false_dmitry
     ADD COLUMN followings_sample_authors text[],
     ADD COLUMN quotes_sample_strings text[],
     ADD COLUMN quotes_sample_author_ids text[],
+    ADD COLUMN cr_recent_update date,
     -- update prior dropped cols
     ADD COLUMN friends_sample text[];
