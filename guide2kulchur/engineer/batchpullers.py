@@ -432,7 +432,8 @@ class BatchUserPuller(BatchItemPuller):
                             athr['followings_sample_authors'],
                             athr['quotes_sample_strings'],
                             athr['quotes_sample_author_ids'],
-                            athr['friends_sample'])
+                            athr['friends_sample'],
+                            athr['currently_reading_update_time'])
             dat_to_insert.append(dat_as_tuple)
         
         insert_query =  '''
@@ -454,12 +455,13 @@ class BatchUserPuller(BatchItemPuller):
                                 followings_sample_authors,
                                 quotes_sample_strings,
                                 quotes_sample_author_ids,
-                                friends_sample
+                                friends_sample,
+                                cr_recent_update
                                 )
                             VALUES 
                                 (%s, %s, %s, %s, %s, %s,
                                  %s, %s, %s, %s, %s, %s,
-                                 %s, %s, %s, %s, %s, %s)
+                                 %s, %s, %s, %s, %s, %s, %s)
                             ON CONFLICT DO NOTHING
                         '''
         t_start = time.time()

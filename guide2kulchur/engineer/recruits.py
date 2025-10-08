@@ -4,6 +4,7 @@ import logging
 import re
 import asyncio
 import urllib.parse
+from datetime import datetime
 from logging.handlers import RotatingFileHandler
 from typing import (Tuple, 
                     Dict,
@@ -259,7 +260,7 @@ class FalseBardiya(FalseDmitry):
                     if (name_link := shelf.get('href')) and (re.search(r'shelf=.*$', name_link)):
                         name = re.search(r'shelf=.*$', name_link).group(0)
                         name = urllib.parse.unquote(name)   # since we're pulling from href, some strings will get percent-encoded
-                        name = re.sub(r'^shelf=|-', '', name)
+                        name = re.sub(r'^shelf=', '', name)
                         if name:
                             shelf_names.append(name)    # in case of weird regex subbing
         
@@ -376,6 +377,34 @@ class FalseBardiya(FalseDmitry):
                 if qt['author_id'] and isinstance(qt['author_id'], str)]
     
     
+    def currently_reading_update_time(self) -> Optional[str]:
+        '''return date string of recent update from currently_reading list; only returns most recent day'''
+        self._confirm_loaded()
+        content_boxes = self._info_left.find_all('div',class_ = ['clearFloats','bigBox'])
+        cur_read_box = None
+        for box in content_boxes:
+            box_title = box.find('h2')
+            if box_title:
+                if re.search(r'currently.*reading', box_title.text.lower()):
+                    cur_read_box = box
+        if not cur_read_box:
+            return None
+        currently_reading = cur_read_box.find('div', {'id': 'currentlyReadingReviews'})
+        
+        for bk in currently_reading.find_all('div', class_ = 'Updates'):
+            if update_tag := bk.find_all('a', class_='updatedTimestamp'):
+                if update_text := update_tag[-1].text.strip():
+                    update_text = re.sub(r'\s+\d\d:\d\d(AM|PM).*$', '', update_text)
+                    if re.search(r'[Hh]ours|[Mm]inutes|[Ss]econds', update_text):
+                        return datetime.now().strftime('%m/%d/%Y')  # in case the most recent update was within the day
+                    try:
+                        update_time = datetime.strptime(update_text, '%b %d, %Y').strftime('%m/%d/%Y')
+                        return update_time
+                    except ValueError:
+                        continue
+        return None
+
+
     def get_all_data(self) -> Dict[str,Any]:
         '''returns collection of data from loaded Goodreads user in dict format; meant for collection step.'''
         self._confirm_loaded()
@@ -397,7 +426,8 @@ class FalseBardiya(FalseDmitry):
             'followings_sample_users': self.get_followings_sample_users,
             'followings_sample_authors': self.get_followings_sample_authors,
             'quotes_sample_strings': self.get_quotes_sample_strings,
-            'quotes_sample_author_ids': self.get_quotes_sample_author_ids
+            'quotes_sample_author_ids': self.get_quotes_sample_author_ids,
+            'currently_reading_update_time': self.currently_reading_update_time
         }
         
         usr_dict = {}
@@ -412,17 +442,3 @@ def _jsonb_or_null(obj: Optional[dict]) -> Optional[Jsonb]:
         return Jsonb(obj)
     else:
         return None
-
-
-if __name__ == '__main__':
-    import random
-    async def main():
-        async with aiohttp.ClientSession() as sesh:
-            fb = FalseBardiya()
-            await fb.load_it_async(session=sesh,
-                                   item_id=str(random.randint(1000,10000000)),
-                                   see_progress=False)
-        for a,b in fb.get_all_data().items():
-            print(f'{a} :: {b}\n')
-    
-    asyncio.run(main())

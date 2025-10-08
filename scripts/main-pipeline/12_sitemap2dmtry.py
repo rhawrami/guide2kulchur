@@ -48,7 +48,7 @@ async def main():
 
     # ITER_COUNT * BATCH_SIZE := max number of users pulled from this script
     ITER_COUNT = 500
-    BATCH_SIZE = (50,)
+    BATCH_SIZE = (100,)
 
     sem_count = 3   # number of coroutines
     sub_batch_delay = 2   # number of seconds between intra-batch sub-batches
@@ -91,7 +91,7 @@ async def main():
                     
                     create_temp_id_table = '''
                                             CREATE TABLE IF NOT EXISTS sitemapped_ids_u (
-                                                u_id text PRIMARY KEY   -- speed up ordering (see below)
+                                                u_id text
                                             )
                                         '''
                     cur.execute(create_temp_id_table)
@@ -157,7 +157,7 @@ async def main():
                                           DELETE FROM 
                                             sitemapped_ids_u
                                           WHERE 
-                                            u_id = ANY(array(SELECT u_id FROM sitemapped_ids_u ORDER BY u_id::int LIMIT %s)) 
+                                            u_id = ANY(array(SELECT u_id FROM sitemapped_ids_u ORDER BY random() LIMIT %s)) -- randomly pull
                                           RETURNING u_id
                                          '''
                     cur.execute(pull_sitemapped_ids, BATCH_SIZE)
