@@ -66,7 +66,7 @@ async def main():
         }
 
     # logger init
-    LOG_DIR = 'sitemap2dmtry'
+    LOG_DIR = 'sitemap2dmitry'
     LOG_F = 's2d'
     MAX_B = 5_000_000
     MAX_BACKUPS = 10

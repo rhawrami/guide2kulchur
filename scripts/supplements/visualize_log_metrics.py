@@ -116,7 +116,7 @@ def main():
             'title': '<b>Log Metrics for sitemap2pound</b> (using the public sitemap to fill "pound")',
             'notes': 'placeholder'
         },
-        'sitemap2dmtry': {
+        'sitemap2dmitry': {
             'title': '<b>Log Metrics for sitemap2dmitry</b> (using the public sitemap to fill "false_dmitry")',
             'notes': 'placeholder'
         }
