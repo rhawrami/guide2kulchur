@@ -7,6 +7,7 @@ from typing import (
     Optional, 
     Dict, 
     Union,
+    Any
 )
 
 import aiohttp
@@ -158,7 +159,7 @@ async def bulk_load_aio(category: str,
                         batch_size: Optional[int] = 5,
                         to_dict: bool = False,
                         see_progress: bool = True,
-                        write_json: Optional[str] = None):
+                        write_json: Optional[str] = None) -> List[Union[Dict[str, Any], SimpleNamespace]]:
     '''
     Collect multiple PUBLICLY AVAILABLE Goodreads units asynchronously.
     
@@ -256,7 +257,7 @@ async def bulk_books_aio(book_ids: List[str],
                          batch_size: Optional[int] = None,
                          to_dict: bool = False,
                          see_progress: bool = True,
-                         write_json: Optional[str] = None):
+                         write_json: Optional[str] = None) -> List[Union[Dict[str, Any], SimpleNamespace]]:
     '''
     Collect data on multiple PUBLICLY AVAILABLE Goodreads books asynchronously.
     
@@ -295,16 +296,16 @@ async def bulk_books_aio(book_ids: List[str],
     To override and exclude any of the attributes, include the attribute name in the 'exclude_attrs' param.
     - e.g., to exclude top_genres and author_id, set exclude_attrs = ['top_genres', 'author_id']
     '''
-    await bulk_load_aio(category='book',
-                        identifiers=book_ids,
-                        exclude_attrs=exclude_attrs,
-                        semaphore_count=semaphore_count,
-                        num_attempts=num_attempts,
-                        batch_delay=batch_delay,
-                        batch_size=batch_size,
-                        to_dict=to_dict,
-                        see_progress=see_progress,
-                        write_json=write_json)
+    return await bulk_load_aio(category='book',
+                               identifiers=book_ids,
+                               exclude_attrs=exclude_attrs,
+                               semaphore_count=semaphore_count,
+                               num_attempts=num_attempts,
+                               batch_delay=batch_delay,
+                               batch_size=batch_size,
+                               to_dict=to_dict,
+                               see_progress=see_progress,
+                               write_json=write_json)
 
 
 async def bulk_users_aio(user_ids: List[str],
@@ -315,7 +316,7 @@ async def bulk_users_aio(user_ids: List[str],
                          batch_size: Optional[int] = None,
                          to_dict: bool = False,
                          see_progress: bool = True,
-                         write_json: Optional[str] = None):
+                         write_json: Optional[str] = None) -> List[Union[Dict[str, Any], SimpleNamespace]]:
     '''
     Collect data on multiple PUBLICLY AVAILABLE Goodreads users asynchronously.
     
@@ -350,16 +351,16 @@ async def bulk_users_aio(user_ids: List[str],
     To override and exclude any of the attributes, include the attribute name in the 'exclude_attrs' param.
     - e.g., to exclude favorite_genres and friend_count, set exclude_attrs = ['favorite_genres', 'friend_count']
     '''
-    await bulk_load_aio(category='user',
-                        identifiers=user_ids,
-                        exclude_attrs=exclude_attrs,
-                        semaphore_count=semaphore_count,
-                        num_attempts=num_attempts,
-                        batch_delay=batch_delay,
-                        batch_size=batch_size,
-                        to_dict=to_dict,
-                        see_progress=see_progress,
-                        write_json=write_json)
+    return await bulk_load_aio(category='user',
+                               identifiers=user_ids,
+                               exclude_attrs=exclude_attrs,
+                               semaphore_count=semaphore_count,
+                               num_attempts=num_attempts,
+                               batch_delay=batch_delay,
+                               batch_size=batch_size,
+                               to_dict=to_dict,
+                               see_progress=see_progress,
+                               write_json=write_json)
 
 
 async def bulk_authors_aio(author_ids: List[str],
@@ -406,14 +407,14 @@ async def bulk_authors_aio(author_ids: List[str],
     To override and exclude any of the attributes, include the attribute name in the 'exclude_attrs' param.
     - e.g., to exclude birth_place and influences, set exclude_attrs = ['birth_place', 'influences']
     '''
-    await bulk_load_aio(category='author',
-                        identifiers=author_ids,
-                        exclude_attrs=exclude_attrs,
-                        semaphore_count=semaphore_count,
-                        num_attempts=num_attempts,
-                        batch_delay=batch_delay,
-                        batch_size=batch_size,
-                        to_dict=to_dict,
-                        see_progress=see_progress,
-                        write_json=write_json)
+    return await bulk_load_aio(category='author',
+                               identifiers=author_ids,
+                               exclude_attrs=exclude_attrs,
+                               semaphore_count=semaphore_count,
+                               num_attempts=num_attempts,
+                               batch_delay=batch_delay,
+                               batch_size=batch_size,
+                               to_dict=to_dict,
+                               see_progress=see_progress,
+                               write_json=write_json)
     
