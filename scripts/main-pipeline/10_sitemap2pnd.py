@@ -136,7 +136,7 @@ async def main():
 
                 for batch_id in range(ITER_COUNT):
                     if batch_id > 0 and batch_id % 4 == 0:
-                            if batch_id % 10:
+                            if batch_id % 10 == 0:
                                 time.sleep(INTER_4BATCH_SLEEP * 2)  
                             else:
                                 time.sleep(INTER_4BATCH_SLEEP)  
