@@ -21,8 +21,8 @@ async def main():
     pg_string = os.getenv('PG_STRING')
 
     # ITER_COUNT * BATCH_SIZE := max number of books pulled from this script
-    ITER_COUNT = 500
-    BATCH_SIZE = (300,)
+    ITER_COUNT = 100
+    BATCH_SIZE = (100,)
 
     sem_count = 3   # number of coroutines
     sub_batch_delay = 2   # number of seconds between intra-batch sub-batches
@@ -41,6 +41,10 @@ async def main():
     # in the above unnesting operation
     CR_THRESHOLD = ('2024-01-01',)
 
+    # MAX PULLS
+    # This way, when we unnest and insert, we don't insert a larger-than-necessary set of IDs
+    # This shouldn't matter too much, but it slightly reduces disk usage during this script running
+    MAX_PULLS = ITER_COUNT * BATCH_SIZE[0]
 
     UPDATE_CFG = {
             'MIN_SEM': 2,
@@ -109,6 +113,7 @@ async def main():
                                                         AND 
                                                             item_type = 'user' -- so we don't pull user IDs we know aren't valid
                                         )
+                                        LIMIT {MAX_PULLS}
 
                                         ON CONFLICT DO NOTHING  
                                       '''
