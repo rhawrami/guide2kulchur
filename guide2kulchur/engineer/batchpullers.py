@@ -98,7 +98,7 @@ class BatchItemPuller(ABC):
                             self.metadat['timeouts'] += 1
                             if (attempt + 1) == num_attempts:
                                 self.stat_log.error('batch %s OUT OF RETRIES %s', self.batch_id, identifier) 
-                                res = {'data': item_dat, 'status': 'timeout'}  # will pull again in the future
+                                res = {'data': identifier, 'status': 'timeout'}  # will pull again in the future
                                 break
                             SLEEP_SCALAR = 1.5
                             sleep_time = (attempt + 1) ** SLEEP_SCALAR
