@@ -405,6 +405,21 @@ class FalseBardiya(FalseDmitry):
         return None
 
 
+    # testing this; not used at the moment; unlikely to be used
+    def get_location(self) -> Optional[str]:
+        '''returns a user's location'''
+        self._confirm_loaded()
+        
+        if header := self._soup.find('head'):
+            if title := header.find('title'):
+                title_txt = title.text.strip()
+                title_txt = re.sub(r'^.*-\s?|\(.*\)', '', title_txt)
+
+                print(title_txt)
+
+        return None
+
+
     def get_all_data(self) -> Dict[str,Any]:
         '''returns collection of data from loaded Goodreads user in dict format; meant for collection step.'''
         self._confirm_loaded()
