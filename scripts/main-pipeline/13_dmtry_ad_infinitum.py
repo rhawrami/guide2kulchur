@@ -17,7 +17,7 @@ from guide2kulchur.engineer.recruits import gen_logger, update_sem_and_delay
 
 
 async def main():
-    # pull new books, insert into db
+    # pull new users, insert into db
     pg_string = os.getenv('PG_STRING')
 
     # ITER_COUNT * BATCH_SIZE := max number of books pulled from this script
