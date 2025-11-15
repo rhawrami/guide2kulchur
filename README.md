@@ -1,3 +1,3 @@
 # guide2kulchur
 
-![logo-for-now](/draft_img.png)
+<img src="/draft_img.png" alt="logo test" width="200"/>
