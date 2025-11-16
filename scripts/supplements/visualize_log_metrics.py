@@ -1,4 +1,5 @@
 import os
+import json
 
 import pandas as pd
 import plotly.io as pio
@@ -116,10 +117,22 @@ def main():
             'title': '<b>Log Metrics for sitemap2pound</b> (using the public sitemap to fill "pound")',
             'notes': 'placeholder'
         },
-        'sitemap2dmitry': {
-            'title': '<b>Log Metrics for sitemap2dmitry</b> (using the public sitemap to fill "false_dmitry")',
+        'sitemap2dmtry': {
+            'title': '<b>Log Metrics for sitemap2dmtry</b> (using the public sitemap to fill "false_dmitry")',
             'notes': 'placeholder'
-        }
+        },
+        'dmtry_ad_infinitum': {
+            'title': '<b>Log Metrics for dmtry_ad_infinitum</b> (semi-recursive user ID search)',
+            'notes': 'placeholder'
+        },
+        'dmitry2alx': {
+            'title': '<b>Log Metrics for dmitry2alx</b> (get diff in alx bk_id and dmtry bk_id)',
+            'notes': 'placeholder'
+        },
+        'dmitry2pnd': {
+            'title': '<b>Log Metrics for dmitry2pnd</b> (get diff in pnd athr_id and dmtry athr_id)',
+            'notes': 'placeholder'
+        },
     }
 
     SUMMARY_PATH = os.path.join('logs', 'out_summary')
