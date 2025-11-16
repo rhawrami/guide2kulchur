@@ -5,8 +5,9 @@ build/
 *egg-info
 .env
 TODO.txt
-logs
-logs_remote
+log*
+*log_metrics*
+*.log*
 backups
 temp_unzipped*
 final_*IDs_from_sitemap.txt
