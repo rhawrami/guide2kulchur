@@ -1,3 +1,3 @@
 # guide2kulchur
 
-<img src="/assets/draft_img.png" alt="logo test" width="300"/>
+<img src="/assets/both_imgs.png" alt="logo test" width="300"/>
