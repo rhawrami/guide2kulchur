@@ -7,3 +7,5 @@ dotenv
 pandas
 plotly
 geopy
+networkx
+ipysigma
