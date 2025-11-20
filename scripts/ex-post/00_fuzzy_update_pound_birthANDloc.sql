@@ -1,3 +1,13 @@
+-- In this script, we make a number of small updates to birth dates and birth locations
+-- largely based on the "descr" text field. These updates won't be entirely accurante, but 
+-- they're the best we have for a number of authors.
+
+
+--------------------
+-- UPDATING BIRTHS |
+--------------------
+
+
 -- UPDATE: set births after 2020 to null
 -- i could choose 2015 or 2017 or ..., but 2020 makes sense.
 UPDATE
@@ -231,3 +241,182 @@ FROM
     born_match_replacement bmr
 WHERE
     pound.author_id = bmr.a_id;
+
+
+-- secondary birth
+WITH secondary_birth_match(a_id, a_name, matches) AS (
+    SELECT
+        author_id,
+        author_name,
+        regexp_matches(SUBSTRING(descr FOR 500),
+        'born in ([A-Z][a-z]+(\s[A-Z][a-z]+)?(, [A-Z][a-z]+(\s[A-Z][a-z]+)?)?) in (\d{4})(\s[BAC]\.?[CED]\.?)?'
+        )
+    FROM
+        pound
+    WHERE
+        birth IS NULL
+),
+secondary_birth_match_replacement(a_id, a_name, new_birth) AS (
+    SELECT 
+        a_id,
+        a_name,
+        ('01/01/' || lpad(matches[5], 4, '0'))::date
+    FROM
+        secondary_birth_match
+)
+UPDATE
+    pound
+SET 
+    birth = sbmr.new_birth
+FROM
+    secondary_birth_match_replacement sbmr
+WHERE
+    pound.author_id = sbmr.a_id;
+
+
+--------------------------
+-- UPDATING BIRTH PLACES |
+--------------------------
+
+-- simple <STATE/CITY>, <STATE/COUNTRY> match with comma delimiter
+WITH bpl_comma_match(a_id, a_name, matches) AS (
+    SELECT
+        author_id,
+        author_name,
+        regexp_matches(SUBSTRING(descr FOR 500),
+        'born (and raised )?in ([A-Z][a-z]+(\s[A-Z][a-z]+)?), ([A-Z][a-z]+(\s[A-Z][a-z]+)?)'
+        )
+    FROM
+        pound
+    WHERE
+        birth_place IS NULL
+),
+bpl_comma_match_replacement(a_id, a_name, new_bpl) AS (
+    SELECT 
+        a_id,
+        a_name,
+        matches[2] || ', ' || matches[4]
+    FROM
+        bpl_comma_match
+)
+UPDATE
+    pound
+SET
+    birth_place = bplcmr.new_bpl
+FROM 
+    bpl_comma_match_replacement bplcmr
+WHERE
+    pound.author_id = bplcmr.a_id;
+
+
+-- simple <STATE/CITY/COUNTRY>
+WITH bpl_solo_match(a_id, a_name, matches) AS (
+    SELECT
+        author_id,
+        author_name,
+        regexp_matches(SUBSTRING(descr FOR 500),
+        'born (and raised )?in ([A-Z][a-z]+(\s[A-Z][a-z]+)?)'
+        )
+    FROM
+        pound
+    WHERE
+        birth_place IS NULL
+),
+bpl_solo_match_replacement(a_id, a_name, new_bpl) AS (
+    SELECT 
+        a_id,
+        a_name,
+        matches[2] 
+    FROM
+        bpl_solo_match
+)
+UPDATE
+    pound
+SET
+    birth_place = bplsmr.new_bpl
+FROM 
+    bpl_solo_match_replacement bplsmr
+WHERE
+    pound.author_id = bplsmr.a_id;
+
+
+-- UPDATE: fuzzy country matcher
+WITH country_match(a_id, a_name, matches) AS (
+    SELECT
+        author_id,
+        author_name,
+        regexp_matches(SUBSTRING(lower(descr) FOR 200),
+        -- obviously not exhaustive, but captures a decent amount
+        '(was|is) an? (american|british|german|french|japanese|chinese|russian|greek|canadian|persian|israeli|irish|swiss|swedish|australian) '
+        )
+    FROM
+        pound
+    WHERE
+        birth_place IS NULL
+),
+country_match_replacement(a_id, a_name, new_bpl) AS (
+    SELECT 
+        a_id,
+        a_name,
+        CASE 
+            WHEN matches[2] = 'american' THEN 'United States of America'
+            WHEN matches[2] = 'british' THEN 'Great Britain'
+            WHEN matches[2] = 'german' THEN 'Germany'
+            WHEN matches[2] = 'french' THEN 'France'
+            WHEN matches[2] = 'japanese' THEN 'Japan'
+            WHEN matches[2] = 'chinese' THEN 'China'
+            WHEN matches[2] = 'russian' THEN 'Russia'
+            WHEN matches[2] = 'greek' THEN 'Greece'
+            WHEN matches[2] = 'canadian' THEN 'Canada'
+            WHEN matches[2] = 'persian' THEN 'Iran'
+            WHEN matches[2] = 'israeli' THEN 'Israel'
+            WHEN matches[2] = 'irish' THEN 'Ireland'
+            WHEN matches[2] = 'swiss' THEN 'Switzerland'
+            WHEN matches[2] = 'swedish' THEN 'Sweden'
+            WHEN matches[2] = 'australian' THEN 'Australia'
+            ELSE NULL
+        END
+    FROM
+        country_match
+)
+UPDATE
+    pound
+SET
+    birth_place = cmr.new_bpl
+FROM 
+    country_match_replacement cmr
+WHERE
+    pound.author_id = cmr.a_id;
+
+
+-- UPDATE BOTH birth_place and/or birth_date
+WITH union_match(a_id, a_name, matches) AS (
+    SELECT
+        author_id,
+        author_name,
+        regexp_matches(descr,
+        'born (and raised )?(in|on|around) (\d{3,4}),? in ([A-Z][a-z]+\s?([A-Z][a-z]+)?\s?,?(\s[A-Z][a-z]+\s?([A-Z][a-z]+)?)?)'
+        )
+    FROM
+        pound
+    WHERE
+        birth IS NULL OR birth_place IS NULL
+),
+union_match_replacements(a_id, a_name, new_birth, new_bpl) AS (
+    SELECT
+        a_id,
+        a_name,
+        ('01/01/' || matches[3])::date,
+        matches[4]
+    FROM
+        union_match
+)
+UPDATE 
+    pound
+SET
+    birth = CASE WHEN birth IS NULL THEN umr.new_birth ELSE birth END,
+    birth_place = CASE WHEN birth_place IS NULL THEN umr.new_bpl ELSE birth_place END
+FROM 
+    union_match_replacements umr
+WHERE
+    pound.author_id = umr.a_id;
