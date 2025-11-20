@@ -11,3 +11,4 @@ log*
 backups
 temp_unzipped*
 final_*IDs_from_sitemap.txt
+visualizations/
