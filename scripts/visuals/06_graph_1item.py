@@ -3,6 +3,15 @@ This script generates network graphs for authors using...
 - networkx to build the graph object: https://networkx.org/
 - ipysigma (python jupyter widget for sigma.js): https://github.com/medialab/ipysigma
 
+Only authors/books with at least 1000 ratings are shown. In order to get an author's/book's
+network, we do the following (using "item_id" as the Goodreads ID of a book/author):
+1. find all items (unnest first) with "item_id" in their similar_items array column, as well as "item_id"'s array column contents
+2. filter the items above to those with at least 1000 ratings
+3. find all connections between the items included
+
+This way, for example, we can see that both Thucydides and Homer have connections to Plato, and that Thucydides and Homer have a 
+connection to each other. Essentially, we are taking a pool of authors/books that have a similarity to a specific item, then seeing
+if any of those similar items have similarities to each other.
 '''
 
 import os
@@ -95,6 +104,9 @@ STYLING = '''
 
 
 def main():
+    # pass the book/author ID as the only argument, with an 'a' or 'b' as the prefix
+    # for example (find all authors similar to Plato):
+        # $ python3 scripts/visuals/06_graph_1item.py a879
     if len(sys.argv) > 2 or len(sys.argv) < 2:
         print('error: only provide one argument of the form [ba]\\d+')
         exit(1)
@@ -239,7 +251,7 @@ def main():
                     break
                 gr.add_node(r_nodes[0], label=r_nodes[1])
 
-            out_file = os.path.join('visualizations', 'graphs', f'{t_name_short}_1item_{item_id}.html')
+            out_file = os.path.join('visualizations', 'graphs', f'{t_name_short}_1item_{item_name.replace(' ', '-').lower()}.html')
             Sigma.write_html(
                 graph=gr, 
                 path=out_file, 
