@@ -1,18 +1,15 @@
 '''
-This script generates network graphs for authors using...
+This script generates network graphs for books using...
 - networkx to build the graph object: https://networkx.org/
 - ipysigma (python jupyter widget for sigma.js): https://github.com/medialab/ipysigma
 
 Graphs will be made for the following genres:
-- Young Adult
 - Fiction
 - Nonfiction
+- Novel
 - Philosophy
 - Politics
-- Religion
-- Sci-Fi
-- Manga
-- Poetry
+- SciFi / Fantasy
 '''
 
 import os
@@ -103,87 +100,99 @@ STYLING = '''
 '''
 
 GENRE_CFG = {
-    'young-adult': {
-        'out_suffix': 'YoungAdult',
-        'query_params': (10000, '[Yy]oung Adult')
-    },
     'fiction': {
         'out_suffix': 'Fiction',
-        'query_params': (30000, 'Fiction')
+        'query_params': (40000, '[^n]fiction', 25000)
     },
     'nonfiction': {
         'out_suffix': 'Nonfiction',
-        'query_params': (15000, 'Nonfiction')
+        'query_params': (20000, 'nonfiction', 20000)
     },
     'novel': {
         'out_suffix': 'Novel',
-        'query_params': (10000, 'Novel')
+        'query_params': (5000, 'novel', 5000)
     },
     'philosophy': {
         'out_suffix': 'Philosophy',
-        'query_params': (1000, 'Philosophy')
+        'query_params': (2500, 'philosophy', 2500)
     },
     'politics': {
         'out_suffix': 'Politics',
-        'query_params': (1000, 'Politic')
-    },
-    'religion': {
-        'out_suffix': 'Religion',
-        'query_params': (5000, 'Religio(n|us)')
+        'query_params': (1000, 'politic', 1000)
     },
     'sci-fi-fantasy': {
         'out_suffix': 'SciFiFantasy',
-        'query_params': (5000, 'Sci-?[Ff]i|Science Fiction|Fantasy')
-    },
-    'manga': {
-        'out_suffix': 'Manga',
-        'query_params': (1000, 'Manga')
-    },
-    'poetry': {
-        'out_suffix': 'Poetry',
-        'query_params': (5000, 'Poet')
+        'query_params': (50000, 'sci-?fi|science fiction|fantasy', 50000)
     }
 }
 
 
 GET_EDGES_QUERY = '''
+                    WITH edges_q(b_id, b_rc, s_id) AS (
+                        SELECT
+                            book_id,
+                            rating_count,
+                            unnest(sim_books)
+                        FROM
+                            alexandria
+                        WHERE
+                            rating_count >= %s
+                        AND
+                            lower(top_genres[1]) ~ %s
+                        AND
+                            lang = 'English'
+                    )
                     SELECT
-                        author_id,
-                        unnest(sim_authors)
-                    FROM
-                        pound
+                        b_id,
+                        s_id
+                    FROM 
+                        edges_q
+                    INNER JOIN
+                        alexandria ON edges_q.s_id = alexandria.book_id
                     WHERE
-                        rating_count >= %s
-                    AND
-                        top_genres[1] ~ %s
+                        alexandria.rating_count >= %s -- both the source and target must have rating count >= CUTOFF
                   '''
 
 
 GET_NODES_QUERY = '''
-                    WITH edges_q(a_id, s_id) AS (
+                    WITH edges_q(b_id, b_rc, s_id) AS (
                         SELECT
-                            author_id,
-                            unnest(sim_authors)
+                            book_id,
+                            rating_count,
+                            unnest(sim_books)
                         FROM
-                            pound
+                            alexandria
                         WHERE
                             rating_count >= %s
                         AND
-                            top_genres[1] ~ %s
+                            lower(top_genres[1]) ~ %s
+                        AND
+                            lang = 'English'
                     ),
-                    all_nodes(a_id) AS (
-                        (SELECT DISTINCT a_id FROM edges_q)
+                    edges_q_filtered(b_id, s_id) AS (
+                        SELECT
+                            b_id,
+                            s_id
+                        FROM 
+                            edges_q
+                        INNER JOIN
+                            alexandria ON edges_q.s_id = alexandria.book_id
+                        WHERE
+                            alexandria.rating_count >= %s 
+                    ),
+                    all_nodes(b_id) AS (
+                        (SELECT DISTINCT b_id FROM edges_q_filtered)
                         UNION
-                        (SELECT  DISTINCT s_id FROM edges_q)
+                        (SELECT  DISTINCT s_id FROM edges_q_filtered)
                     )
                     
                     SELECT
-                        author_id,
-                        author_name
+                        book_id,
+                        title
                     FROM
-                        pound
+                        alexandria
                     INNER JOIN
-                        all_nodes ON pound.author_id = all_nodes.a_id
+                        all_nodes ON alexandria.book_id = all_nodes.b_id
                   '''
 
 
@@ -211,7 +220,7 @@ def main():
                         break
                     gr.add_node(r_nodes[0], label=r_nodes[1])
 
-                out_file = os.path.join('visualizations', 'graphs', f'pnd_genre_{g['out_suffix']}.html')
+                out_file = os.path.join('visualizations', 'graphs', f'alx_genre_{g['out_suffix']}.html')
                 Sigma.write_html(
                     graph=gr, 
                     path=out_file, 
@@ -239,7 +248,7 @@ def main():
                 with open(out_file, 'r') as o_f:
                     for line in o_f:
                         if '<title>IPyWidget export</title>' in line:
-                            line = f'<title>Authors by Genre ({g['out_suffix']})</title>\n{STYLING}\n'
+                            line = f'<title>Books by Genre ({g['out_suffix']})</title>\n{STYLING}\n'
                         rw_html += line
                 with open(out_file, 'w') as o_f:
                     o_f.write(rw_html)
