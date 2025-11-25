@@ -105,43 +105,43 @@ STYLING = '''
 GENRE_CFG = {
     'young-adult': {
         'out_suffix': 'YoungAdult',
-        'query_params': (10000, '[Yy]oung Adult')
+        'query_params': (40000, '[Yy]oung Adult')
     },
     'fiction': {
         'out_suffix': 'Fiction',
-        'query_params': (30000, 'Fiction')
+        'query_params': (200000, 'Fiction')
     },
     'nonfiction': {
         'out_suffix': 'Nonfiction',
-        'query_params': (15000, 'Nonfiction')
+        'query_params': (50000, 'Nonfiction')
     },
     'novel': {
         'out_suffix': 'Novel',
-        'query_params': (10000, 'Novel')
+        'query_params': (200000, 'Novel')
     },
     'philosophy': {
         'out_suffix': 'Philosophy',
-        'query_params': (1000, 'Philosophy')
+        'query_params': (5000, 'Philosophy')
     },
     'politics': {
         'out_suffix': 'Politics',
-        'query_params': (1000, 'Politic')
+        'query_params': (10000, 'Politic')
     },
     'religion': {
         'out_suffix': 'Religion',
-        'query_params': (5000, 'Religio(n|us)')
+        'query_params': (10000, 'Religio(n|us)')
     },
     'sci-fi-fantasy': {
         'out_suffix': 'SciFiFantasy',
-        'query_params': (5000, 'Sci-?[Ff]i|Science Fiction|Fantasy')
+        'query_params': (50000, 'Sci-?[Ff]i|Science Fiction|Fantasy')
     },
     'manga': {
         'out_suffix': 'Manga',
-        'query_params': (1000, 'Manga')
+        'query_params': (2000, 'Manga')
     },
     'poetry': {
         'out_suffix': 'Poetry',
-        'query_params': (5000, 'Poet')
+        'query_params': (10000, 'Poet')
     }
 }
 
