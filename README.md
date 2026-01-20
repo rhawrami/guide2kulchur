@@ -39,4 +39,4 @@ $ pip install kulchur
 ```
 
 ## contact
-You can contact me at rhawrami[at]proton[dot]me for any inquiries. Thanks!
+You can contact me at ravanhawrami[at]gmail[dot]com for any inquiries. Thanks!
