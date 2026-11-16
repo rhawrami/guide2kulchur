@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "guide2kulchur"
-description = "0000"
+description = "Goodreads collection and research pipelines"
 requires-python = ">=3.13.3"
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -26,6 +26,9 @@ dependencies = [
     "python-dotenv",
     "requests",
 ]
+
+[project.scripts]
+g2k = "guide2kulchur.pipeline.cli:main"
 
 [tool.setuptools]
 packages = { find = { include = ["guide2kulchur*"] } }
