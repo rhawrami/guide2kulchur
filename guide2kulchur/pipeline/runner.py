@@ -34,41 +34,79 @@ def load_checkpoint(path, kind, similar, write):
 
 
 def pending(state):
-    return [item for item in state['ids'] if state['results'].get(item, {}).get('status') not in TERMINAL]
+    return list(dict.fromkeys(item for item in state['ids']
+                              if state['results'].get(item, {}).get('status') not in TERMINAL))
+
+
+ROW_ERRORS = (psycopg.DataError, psycopg.IntegrityError, ValueError, KeyError, TypeError)
+
+
+def _write_records(conn, kind, records, status, *, similar):
+    """Prepare and submit a whole operation group through one executemany call."""
+    with conn.cursor() as cursor:
+        if status == 'missing':
+            cursor.executemany(
+                'INSERT INTO public.error_id (item_id, item_type) VALUES (%s, %s) ON CONFLICT DO NOTHING',
+                [(record['id'], kind) for record in records])
+        elif similar:
+            query = ('UPDATE public.alexandria SET sim_books = %s WHERE sim_books_url_id = %s'
+                     if kind == 'book' else
+                     'UPDATE public.pound SET sim_authors = %s WHERE author_id = %s')
+            cursor.executemany(query, [(record['data'], record['id']) for record in records])
+        else:
+            cls, argument = INSERT_CLASSES[kind]
+            batch = cls(batch_id='cli', cursor=cursor, semaphore_count=1,
+                        status_logger=logging.getLogger('pipeline.insert'),
+                        **{argument: [record['id'] for record in records]})
+            batch.successes = [record['data'] for record in records]
+            batch.insert_batch_into_db()
 
 
 def persist(conn, kind, records, *, similar=False):
-    """Commit a batch, with per-record savepoints. Never blacklist parsing/transient errors."""
-    logger = logging.getLogger('pipeline.insert')
+    """Commit once per batch; isolate rows only if a bulk operation fails."""
+    by_id = {}
+    for record in records:
+        if record['status'] not in ('success', 'missing'):
+            continue
+        # A missing recommendations page does not imply a missing entity.
+        if record['status'] == 'missing' and similar:
+            record['status'] = 'failed'
+            continue
+        by_id.setdefault(record['id'], []).append(record)
+    if not by_id:
+        return
+
+    groups = {'success': [], 'missing': []}
+    for duplicates in by_id.values():
+        # If duplicate outcomes disagree, a successful fetch overrides a 404.
+        record = next((r for r in duplicates if r['status'] == 'success'), duplicates[0])
+        groups[record['status']].append((record, duplicates))
+
     with conn.transaction():
-        for record in records:
-            if record['status'] not in ('success', 'missing'):
+        for status, group in groups.items():
+            if not group:
                 continue
-            # A missing *recommendations page* does not imply a missing entity.
-            if record['status'] == 'missing' and similar:
-                record['status'] = 'failed'
-                continue
+            selected = [record for record, _ in group]
             try:
+                # Roll back the entire bulk attempt before retrying individual rows.
                 with conn.transaction():
-                    if record['status'] == 'missing':
-                        conn.execute('INSERT INTO public.error_id (item_id, item_type) VALUES (%s, %s) ON CONFLICT DO NOTHING',
-                                     (record['id'], kind))
-                    elif similar:
-                        if kind == 'book':
-                            query = 'UPDATE public.alexandria SET sim_books = %s WHERE sim_books_url_id = %s'
-                        else:
-                            query = 'UPDATE public.pound SET sim_authors = %s WHERE author_id = %s'
-                        conn.execute(query, (record['data'], record['id']))
-                    else:
-                        cls, argument = INSERT_CLASSES[kind]
-                        with conn.cursor() as cursor:
-                            batch = cls(batch_id='cli', cursor=cursor, semaphore_count=1,
-                                        status_logger=logger, **{argument: [record['id']]})
-                            batch.successes = [record['data']]
-                            batch.insert_batch_into_db()
-            except (psycopg.Error, ValueError, KeyError, TypeError) as exc:
-                record['status'] = 'db_error'
-                record['error'] = type(exc).__name__
+                    _write_records(conn, kind, selected, status, similar=similar)
+            except ROW_ERRORS as exc:
+                logging.getLogger('pipeline.insert').warning(
+                    'Bulk %s failed (%s); isolating %s records', status, type(exc).__name__, len(selected))
+                for record in selected:
+                    try:
+                        with conn.transaction():
+                            _write_records(conn, kind, [record], status, similar=similar)
+                    except ROW_ERRORS as row_error:
+                        record['status'] = 'db_error'
+                        record['error'] = type(row_error).__name__
+            # Connection/schema failures propagate: don't acknowledge an uncommitted batch.
+            for record, duplicates in group:
+                for duplicate in duplicates:
+                    duplicate['status'] = record['status']
+                    if record['status'] == 'db_error':
+                        duplicate['error'] = record['error']
 
 
 async def run(conn, args, state, *, client_factory=Client):

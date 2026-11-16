@@ -95,8 +95,9 @@ class SourcesTests(unittest.TestCase):
         records = [{'id': '123', 'status': 'blocked'}, {'id': '456', 'status': 'failed'},
                    {'id': '789', 'status': 'missing'}]
         persist(conn, 'book', records)
-        conn.execute.assert_called_once()
-        self.assertEqual(conn.execute.call_args.args[1], ('789', 'book'))
+        insert = conn.cursor.return_value.__enter__.return_value.executemany
+        insert.assert_called_once()
+        self.assertEqual(insert.call_args.args[1], [('789', 'book')])
 
     def test_recommendation_404_does_not_blacklist_entity(self):
         conn = MagicMock()
