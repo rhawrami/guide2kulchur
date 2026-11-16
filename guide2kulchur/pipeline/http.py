@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 import time
+from urllib.parse import urlparse
 
 import aiohttp
 from bs4 import BeautifulSoup
@@ -21,7 +22,7 @@ class ResponseError(Exception):
     retry_after: str | None = None
 
     def __str__(self):
-        return f'HTTP {self.status}' + (' challenge/rate limit; stop and review before resuming' if self.blocked else '')
+        return f'HTTP {self.status}' + (' challenge/access restriction/rate limit; stop and review before resuming' if self.blocked else '')
 
     @property
     def missing(self):
@@ -38,8 +39,9 @@ class ResponseError(Exception):
                 return 60
 
 
-def check_response(status, headers, text):
-    blocked = (status in (202, 403, 429)
+def check_response(status, headers, text, url=None):
+    gated = url is not None and urlparse(str(url)).path.rstrip('/') in ('/user/new', '/user/sign_in')
+    blocked = (gated or status in (202, 403, 429)
                or headers.get('x-amzn-waf-action', '').lower() == 'challenge'
                or 'AwsWafIntegration' in text or 'token.awswaf.com' in text)
     if status != 200 or blocked:
@@ -66,7 +68,7 @@ class CheckedSession:
         async with self.client.session.get(url, **kwargs) as response:
             text = await response.text(errors='replace')
             try:
-                check_response(response.status, response.headers, text)
+                check_response(response.status, response.headers, text, getattr(response, 'url', None))
             except ResponseError as exc:
                 self.error = exc
                 if exc.blocked:

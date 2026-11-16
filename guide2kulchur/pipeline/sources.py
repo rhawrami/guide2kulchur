@@ -85,23 +85,46 @@ def missing_ids(conn, kind, values, limit):
     return selected[:limit]
 
 
-def discover(conn, kind, source, limit, active_since=None):
+def discover(conn, kind, source, limit, active_since=None, *, page_size=200, pages=5,
+             after='', min_ratings=0, progress=None):
+    '''Page source primary keys; retain a complete final page's candidates for resume.
+
+    limit controls when discovery stops, not truncation of the last page. The runner
+    still fetches at most batches * batch_size; overflow IDs stay in its checkpoint.
+    '''
     target, table, column, array = SOURCES[source]
     if target != kind:
         raise ValueError(f'{source} discovers {target} records, not {kind}')
     if active_since and table != 'false_dmitry':
         raise ValueError('--active-since applies only to user-* sources')
-    expression = sql.SQL('unnest({})' if array else '{}').format(sql.Identifier(column))
-    condition = sql.SQL('WHERE cr_recent_update >= %s') if active_since else sql.SQL('')
-    target_table, target_column = TABLES[kind]
-    query = sql.SQL('''WITH candidates AS (SELECT DISTINCT {} AS id FROM public.{} {})
-        SELECT id FROM candidates c WHERE id ~ '^[0-9]+$'
-        AND NOT EXISTS (SELECT 1 FROM public.{} t WHERE t.{} = c.id)
-        AND NOT EXISTS (SELECT 1 FROM public.error_id e WHERE e.item_id = c.id AND e.item_type = %s)
-        ORDER BY id LIMIT %s''').format(expression, sql.Identifier(table), condition,
-                                      sql.Identifier(target_table), sql.Identifier(target_column))
-    params = ([active_since] if active_since else []) + [kind, limit]
-    return [row[0] for row in conn.execute(query, params).fetchall()]
+    source_id = next(identifier for name, identifier in TABLES.values() if name == table)
+    query = sql.SQL('SELECT {}, {} FROM public.{} WHERE {} > %s AND rating_count >= %s').format(
+        sql.Identifier(source_id), sql.Identifier(column), sql.Identifier(table), sql.Identifier(source_id))
+    if active_since:
+        query += sql.SQL(' AND cr_recent_update >= %s')
+    query += sql.SQL(' ORDER BY {} LIMIT %s').format(sql.Identifier(source_id))
+    selected = []
+    exhausted = False
+    for _ in range(pages):
+        params = [after, min_ratings] + ([active_since] if active_since else []) + [page_size]
+        parents = conn.execute(query, params).fetchall()
+        if not parents:
+            exhausted = True
+            break
+        values = list(dict.fromkeys(
+            value for _, data in parents for value in ((data or []) if array else [data])
+            if isinstance(value, str) and value.isascii() and value.isdigit()))
+        if values:
+            missing = missing_ids(conn, kind, values, len(values))
+            selected.extend(value for value in missing if value not in selected)
+        after = parents[-1][0]
+        if len(parents) < page_size:
+            exhausted = True
+        if len(selected) >= limit or exhausted:
+            break
+    if progress is not None:
+        progress.update(after=after, exhausted=exhausted)
+    return selected
 
 
 def similar_ids(conn, kind, limit):

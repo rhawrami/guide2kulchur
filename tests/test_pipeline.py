@@ -46,13 +46,21 @@ class SourcesTests(unittest.TestCase):
 
     def test_discovery_allowlist_and_sql_parameters(self):
         conn = MagicMock()
-        conn.execute.return_value.fetchall.return_value = [('123',)]
+        conn.execute.return_value.fetchall.side_effect = [[('99', ['123'])], [('123',)]]
         self.assertEqual(discover(conn, 'book', 'user-reading-books', 10, '2025-11-01'), ['123'])
-        query, params = conn.execute.call_args.args
-        self.assertIn('unnest("currently_reading_sample_books")', query.as_string())
-        self.assertEqual(params, ['2025-11-01', 'book', 10])
+        query, params = conn.execute.call_args_list[0].args
+        self.assertIn('"currently_reading_sample_books"', query.as_string())
+        self.assertEqual(params, ['', 0, '2025-11-01', 200])
         with self.assertRaises(ValueError):
             discover(conn, 'user', 'book-authors', 10)
+
+    def test_discovery_retains_final_page_overflow_for_checkpoint(self):
+        conn = MagicMock()
+        conn.execute.return_value.fetchall.side_effect = [[('99', ['123', '456', '789'])], [('123',), ('456',), ('789',)]]
+        progress = {}
+        ids = discover(conn, 'book', 'author-books', 1, progress=progress)
+        self.assertEqual(ids, ['123', '456', '789'])
+        self.assertEqual(progress, {'after': '99', 'exhausted': True})
 
     def test_invalid_cli_never_connects(self):
         with patch('guide2kulchur.pipeline.cli.database') as db:
@@ -112,6 +120,12 @@ class HttpTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(caught.exception.missing)
         check_response(200, {}, '<html>ok</html>')
         self.assertEqual(ResponseError(429, True, '120').cooldown, 120)
+
+    def test_signup_redirect_is_not_a_successful_200(self):
+        with self.assertRaises(ResponseError) as caught:
+            check_response(200, {}, '<h1>Sign up for Goodreads</h1>', 'https://www.goodreads.com/user/new')
+        self.assertTrue(caught.exception.blocked)
+        self.assertFalse(caught.exception.missing)
 
     async def test_actual_loaders_with_fixtures_and_stable_headers(self):
         for kind, identifier in [('book', '123'), ('author', '42'), ('user', '7')]:

@@ -26,7 +26,8 @@ def load_checkpoint(path, kind, similar, write):
     ids = state.get('ids')
     if not isinstance(ids, list) or any(not isinstance(item, str) or not item.isascii() or not item.isdigit() for item in ids):
         raise ValueError('Invalid checkpoint IDs')
-    if not isinstance(state.get('results'), dict):
+    if not isinstance(state.get('results'), dict) or any(
+            not isinstance(value, dict) for value in state['results'].values()):
         raise ValueError('Invalid checkpoint results')
     return state
 
@@ -126,4 +127,5 @@ async def run(conn, args, state, *, client_factory=Client):
                 return 2
             if offset + args.batch_size < len(remaining):
                 await asyncio.sleep(args.batch_delay)
+    print(json.dumps({'pending': len(pending(state)), 'discovery': state.get('discovery', {}), 'checkpoint': str(path)}))
     return 1 if any(r.get('status') not in TERMINAL for r in state['results'].values()) else 0
