@@ -30,7 +30,7 @@ no manual activation is required.
 Run scripts from the repository root, for example:
 
 ```bash
-uv run python scripts/visuals/07_genre_analysis.py
+uv run python -m unittest discover -s tests -v
 ```
 
 Database scripts require `PG_STRING` in the environment or a local `.env` file, plus an existing
@@ -46,12 +46,7 @@ There are a number of directories in this repository; below are the most importa
 - [guide2kulchur](./guide2kulchur/): the actual library created for pulling goodreads data, parsing it, and loading it into a Postgres database; includes two subdirectories:
     - [privateer](./guide2kulchur/privateer/): pulling publicly available book/author/user data from Goodreads, and parsing a number of fields
     - [engineer](./guide2kulchur/engineer/): pulling data in a structured manner, and loading it into a database
-- [scripts](./scripts/): the actual scripts ran throughout this process; includeds the following subdirectories:
-    - [goodreads-choice-awards](./scripts/goodreads-choice-awards/): used to pull annual Goodreads Choice Awards data; you can see the final results in the [data/goodreads-choice-awards](./data/goodreads-choice-awards/) directory
-    - [main-pipeline](./scripts/main-pipeline/): the most important set of scripts; used to actually pull the bulk of the data used in this project
-    - [supplements](./scripts/supplements/): supplemental scripts made in the process, for things like log parsing or interacting with other data sources, like Wikidata
-    - [ex-post](./scripts/ex-post/): scripts ran after [main-pipeline](./scripts/main-pipeline/), for things like post-processing data
-    - [visuals](./scripts/visuals/): used for creating the visualizations included on [guide2kulchur.xyz](https://guide2kulchur.xyz)
+- [scripts/archive](./scripts/archive/): original collection, enrichment, and visualization scripts, preserved with their original directory names and numbered ordering. These are historical reference, not maintained entry points. See the [archive guide](./scripts/archive/README.md).
 - [db](./db): database schema and migration files; you can see the [inital schema](./db/init_schema.sql), and the [number of changes](./db/migrations/) made throughout the way. You can see the schema visualization below (made with DBeaver). You will see that there aren't any references/connections between tables; given the nature of the data extraction, reference conditions couldn't be enforced (e.g., can't confirm that author of book "The Master and Margarita", Mikhail Bulgakov, will be present in the author data table). Nonetheless, implicit references via certain attributes can still be seen clearly, by attributes like `book_id` and `author_id` for example:
 
 ![](./img/g2k_dbschema.png)
