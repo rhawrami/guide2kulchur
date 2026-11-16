@@ -16,6 +16,30 @@ You can see the fruits of this project at [guide2kulchur.xyz](https://guide2kulc
 
 You can look at the [Methods](https://guide2kulchur.xyz/info/methods.html) and [About](https://guide2kulchur.xyz/info/about.html) pages for more information.
 
+## development
+Dependencies are managed with [uv](https://docs.astral.sh/uv/). From the repository root:
+
+```bash
+uv sync --locked
+```
+
+uv downloads the Python version pinned in `.python-version` if needed and creates a local `.venv/`;
+no manual activation is required.
+`pyproject.toml` defines the dependencies, and `uv.lock` records the resolved versions.
+
+Run scripts from the repository root, for example:
+
+```bash
+uv run python scripts/visuals/07_genre_analysis.py
+```
+
+Database scripts require `PG_STRING` in the environment or a local `.env` file, plus an existing
+PostgreSQL database with the appropriate schema and data. Collection scripts make network requests
+and write to that database; review their configuration before running them.
+
+Use `uv add <package>` or `uv remove <package>` to change dependencies, and commit both
+`pyproject.toml` and `uv.lock`. To update locked dependencies, run `uv lock --upgrade`, then `uv sync`.
+
 ## repository
 There are a number of directories in this repository; below are the most important:
 

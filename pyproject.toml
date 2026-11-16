@@ -13,7 +13,19 @@ classifiers = [
 version = "1.0.0"
 authors = [{"name" = "rhawrami", "email" = "ravanhawrami@gmail.com"}]
 readme = {"file" = "README.md", content-type = "text/markdown"}
-dependencies = ["aiohttp", "requests", "lxml", "bs4", "psycopg", "dotenv"]
+dependencies = [
+    "aiohttp",
+    "beautifulsoup4",
+    "geopy",
+    "ipysigma",
+    "lxml",
+    "networkx",
+    "pandas",
+    "plotly",
+    "psycopg[binary]",
+    "python-dotenv",
+    "requests",
+]
 
 [tool.setuptools]
-packages = { find = { include = ["guide2kulchur"], exclude = ["scripts","tests","data","db"] } }
+packages = { find = { include = ["guide2kulchur*"] } }
