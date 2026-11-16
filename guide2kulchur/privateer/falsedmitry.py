@@ -352,7 +352,7 @@ class FalseDmitry:
             for lnk in margin_links:
                 lnk_text = lnk.text
                 if 'are following' in lnk_text:
-                    follow_count = re.sub(r'\speople are.*$','',lnk_text)
+                    follow_count = re.sub(r'\speople are.*$', '', lnk_text).replace(',', '')
                     follows = int(follow_count)
                     return follows
         return None

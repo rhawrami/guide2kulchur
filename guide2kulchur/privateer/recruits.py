@@ -246,7 +246,7 @@ def _get_user_stat(txt: str,
     else:
         return None
     
-    cleaned_txt = re.sub(sub_pattern,'',txt)
+    cleaned_txt = re.sub(sub_pattern, '', txt).replace(',', '')
     try:
         int_text = int(cleaned_txt) if '.' not in cleaned_txt else float(cleaned_txt)
     except ValueError:
