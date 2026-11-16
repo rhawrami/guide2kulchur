@@ -8,6 +8,7 @@ import sys
 
 import psycopg
 
+from .activity import activity_policy
 from .common import add_database, add_mode, database, nonnegative, positive
 from .runner import load_checkpoint, pending, run
 from .sources import SOURCES, discover, file_ids, missing_ids, similar_ids
@@ -30,8 +31,10 @@ def parser():
         cmd.add_argument('--source-pages', type=positive, default=5, help='maximum parent pages to scan for this candidate snapshot')
         cmd.add_argument('--source-after', default='', help='source primary-key cursor, only after finishing the preceding checkpoint')
         cmd.add_argument('--min-source-ratings', type=int, default=0, help='activity floor for database discovery parents')
-        cmd.add_argument('--min-ratings', type=int, default=0, help='exclude fetched records below this rating count (unknown counts treated as zero)')
-        cmd.add_argument('--min-reviews', type=int, default=0, help='exclude fetched records below this review count')
+        cmd.add_argument('--min-ratings', type=int, help='minimum rating count (collect default: 1; zero disables this threshold)')
+        cmd.add_argument('--min-reviews', type=int, help='minimum review count (collect default: 1 for books/authors, 0 for users)')
+        cmd.add_argument('--activity-policy', choices=('any', 'all'),
+                         help='require any/all enabled thresholds (collect default: any for books/authors, all for users)')
         cmd.add_argument('--batches', type=positive, default=1)
         cmd.add_argument('--batch-size', type=positive, default=10)
         cmd.add_argument('--concurrency', type=positive, default=1)
@@ -50,14 +53,19 @@ def parser():
 def main(argv=None):
     cli = parser()
     args = cli.parse_args(argv)
+    if args.command == 'similar':
+        if any(value is not None for value in (args.min_ratings, args.min_reviews, args.activity_policy)):
+            cli.error('activity thresholds apply to collect, not similar')
+        args.min_ratings, args.min_reviews, args.activity_policy = 0, 0, 'all'
+    else:
+        policy = activity_policy(args.kind, args.min_ratings, args.min_reviews, args.activity_policy)
+        args.min_ratings, args.min_reviews, args.activity_policy = policy.min_ratings, policy.min_reviews, policy.mode
     if args.min_ratings < 0 or args.min_reviews < 0 or args.min_source_ratings < 0:
         cli.error('rating/review thresholds must be nonnegative')
     if (args.source_after or args.min_source_ratings) and not getattr(args, 'source', None):
         cli.error('--source-after and --min-source-ratings require --source')
     if args.source_after and (not args.source_after.isascii() or not args.source_after.isdigit()):
         cli.error('--source-after must be a source ID')
-    if args.command == 'similar' and (args.min_ratings or args.min_reviews):
-        cli.error('activity thresholds apply to collect, not similar')
     if args.active_since and not (getattr(args, 'source', '') or '').startswith('user-'):
         cli.error('--active-since requires a user-* discovery source')
     if args.resume and args.checkpoint:
@@ -67,8 +75,9 @@ def main(argv=None):
     try:
         if args.resume:
             state = load_checkpoint(args.resume, args.kind, args.command == 'similar', args.write)
-            if (state.get('min_ratings', 0), state.get('min_reviews', 0)) != (args.min_ratings, args.min_reviews):
-                raise ValueError('Checkpoint activity thresholds differ; supply the original thresholds')
+            if (state.get('min_ratings', 0), state.get('min_reviews', 0), state.get('activity_policy', 'all')) != (
+                    args.min_ratings, args.min_reviews, args.activity_policy):
+                raise ValueError('Checkpoint activity policy differs; supply the original --min-ratings, --min-reviews and --activity-policy')
         with database(args.env_file, write=args.write) as conn:
             if not args.resume:
                 limit = args.batches * args.batch_size
@@ -84,7 +93,7 @@ def main(argv=None):
                     ids = missing_ids(conn, args.kind, values, limit)
                 state = {'version': 1, 'kind': args.kind, 'similar': args.command == 'similar',
                          'write': args.write, 'min_ratings': args.min_ratings, 'min_reviews': args.min_reviews,
-                         'ids': ids, 'results': {}, 'discovery': progress,
+                         'activity_policy': args.activity_policy, 'ids': ids, 'results': {}, 'discovery': progress,
                          'created_at': datetime.now(timezone.utc).isoformat(),
                          'selection': {'source': getattr(args, 'source', None),
                                        'active_since': str(args.active_since) if args.active_since else None,
@@ -92,7 +101,9 @@ def main(argv=None):
             if not (args.fetch_only or args.write):
                 print(json.dumps({'mode': 'preview', 'kind': args.kind, 'operation': args.command,
                                   'ids': pending(state)[:args.batches * args.batch_size],
-                                  'queued_candidates': len(pending(state)), 'discovery': state.get('discovery', {})}, indent=2))
+                                  'queued_candidates': len(pending(state)), 'discovery': state.get('discovery', {}),
+                                  'activity': {'min_ratings': args.min_ratings, 'min_reviews': args.min_reviews,
+                                               'policy': args.activity_policy}}, indent=2))
                 return 0
             if not pending(state):
                 print(json.dumps({'pending': 0, 'discovery': state.get('discovery', {})}))

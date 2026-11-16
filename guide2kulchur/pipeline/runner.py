@@ -10,6 +10,7 @@ import aiohttp
 import psycopg
 
 from guide2kulchur.engineer.batchpullers import BatchBookPuller, BatchAuthorPuller, BatchUserPuller
+from .activity import activity_policy
 from .common import atomic_json
 from .http import Client, ResponseError
 
@@ -78,6 +79,7 @@ async def run(conn, args, state, *, client_factory=Client):
     atomic_json(path, state)
     remaining = pending(state)[:args.batches * args.batch_size]
     semaphore = asyncio.Semaphore(args.concurrency)
+    policy = activity_policy(args.kind, args.min_ratings, args.min_reviews, args.activity_policy)
     async with client_factory(concurrency=args.concurrency, delay=args.request_delay,
                               timeout=args.timeout, user_agent=args.user_agent) as client:
         async def one(identifier):
@@ -87,8 +89,7 @@ async def run(conn, args, state, *, client_factory=Client):
                 for attempt in range(args.attempts):
                     try:
                         data = await client.fetch(args.kind, identifier, similar=args.command == 'similar')
-                        if args.command != 'similar' and ((data.get('rating_count') or 0) < args.min_ratings
-                                                          or (data.get('review_count') or 0) < args.min_reviews):
+                        if args.command != 'similar' and not policy.accepts(data):
                             return {'id': identifier, 'status': 'filtered', 'reason': 'below activity thresholds'}
                         return {'id': identifier, 'status': 'success', 'data': data}
                     except ResponseError as exc:
