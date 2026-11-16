@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 import re
 import asyncio
 import time
@@ -357,34 +358,47 @@ class Alexandria:
         return top_genres
     
 
+    def _get_social_count(self, test_id: str, signal_name: str) -> Optional[int]:
+        '''Read a social count from HTML, falling back to embedded Next.js data.'''
+        self._confirm_loaded()
+        tag = self._soup.find(attrs={'data-testid': test_id})
+        if tag:
+            match = re.match(r'(\d[\d,]*)\s+(?:people|person)\b', tag.get_text(' ', strip=True))
+            if match:
+                return int(match.group(1).replace(',', ''))
+
+        # SocialSignalsSection may render only loading placeholders in the HTML.
+        script = self._soup.find('script', id='__NEXT_DATA__')
+        if not script:
+            return None
+        try:
+            state = json.loads(script.get_text())['props']['pageProps']['apolloState']
+            queries = state['ROOT_QUERY']
+            if not isinstance(queries, dict):
+                return None
+            for key, signals in queries.items():
+                if not key.startswith('getSocialSignals(') or not isinstance(signals, list):
+                    continue
+                for signal in signals:
+                    if isinstance(signal, dict) and isinstance(signal.get('__ref'), str):
+                        signal = state.get(signal['__ref'])
+                    if isinstance(signal, dict) and signal.get('name') == signal_name:
+                        count = signal.get('count')
+                        if type(count) is int and count >= 0:
+                            return count
+        except (json.JSONDecodeError, KeyError, TypeError):
+            return None
+        return None
+
+
     def get_currently_reading(self) -> Optional[int]:
         '''returns number of users currently reading loaded Goodreads book.'''
-        self._confirm_loaded()
-        if not self._info_main_metadat:
-            return None
-        c_r = self._info_main_metadat.find('div', {'data-testid': 'currentlyReadingSignal'})
-        if c_r:
-            cur_read = c_r.text.strip()
-        else:
-            cur_read = None
-            return cur_read
-        cur_read = re.sub(r'people.*$|person.*$','',cur_read)
-        return int(cur_read) if len(cur_read) else cur_read
+        return self._get_social_count('currentlyReadingSignal', 'CURRENTLY_READING')
 
 
     def get_want_to_read(self) -> Optional[int]:
         '''returns number of users wanting to read loaded Goodreads book.'''
-        self._confirm_loaded()
-        if not self._info_main_metadat:
-            return None
-        w_r = self._info_main_metadat.find('div', {'data-testid': 'toReadSignal'})
-        if w_r:
-            want_read = w_r.text.strip()
-        else:
-            want_read = None
-            return want_read
-        want_read = re.sub(r'people.*$|person.*$','',want_read)
-        return int(want_read) if len(want_read) else want_read
+        return self._get_social_count('toReadSignal', 'TO_READ')
 
 
     def get_page_length(self) -> Optional[int]:
