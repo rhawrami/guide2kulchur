@@ -78,8 +78,9 @@ class CheckedSession:
 
 
 class Client:
-    def __init__(self, *, concurrency=1, delay=2, timeout=30, user_agent=None):
+    def __init__(self, *, concurrency=1, delay=5, timeout=30, user_agent=None, trace_configs=None):
         self.concurrency, self.delay, self.timeout = concurrency, delay, timeout
+        self.trace_configs = list(trace_configs or [])
         self.headers = _rand_headers()
         if user_agent:
             self.headers['User-Agent'] = user_agent
@@ -91,6 +92,7 @@ class Client:
         self.session = aiohttp.ClientSession(
             headers=self.headers, timeout=aiohttp.ClientTimeout(total=self.timeout),
             connector=aiohttp.TCPConnector(limit=self.concurrency, limit_per_host=self.concurrency),
+            trace_configs=self.trace_configs,
         )
         return self
 

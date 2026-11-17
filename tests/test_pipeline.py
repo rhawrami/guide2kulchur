@@ -170,6 +170,7 @@ class HttpTests(unittest.IsolatedAsyncioTestCase):
             calls = []
             def __init__(self, **kwargs):
                 self.blocked = None
+                self.headers = {'User-Agent': 'Synthetic agent', 'Cookie': 'do-not-log', 'Authorization': 'do-not-log'}
             async def __aenter__(self):
                 return self
             async def __aexit__(self, *exc):
@@ -188,7 +189,9 @@ class HttpTests(unittest.IsolatedAsyncioTestCase):
             code = await run(conn, args, state, client_factory=BlockedClient)
             self.assertEqual(code, 2)
             self.assertEqual(BlockedClient.calls, ['123'])
-            self.assertEqual(pending(json.loads(path.read_text())), ['123', '456', '789'])
+            saved = json.loads(path.read_text())
+            self.assertEqual(pending(saved), ['123', '456', '789'])
+            self.assertEqual(saved['http_profiles'][0]['headers'], {'User-Agent': 'Synthetic agent'})
             conn.execute.assert_not_called()
 
 

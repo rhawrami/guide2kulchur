@@ -1,6 +1,7 @@
 """Bounded batches, explicit writes, and durable local checkpoints."""
 import asyncio
 from collections import Counter
+from datetime import datetime, timezone
 import json
 import logging
 from pathlib import Path
@@ -120,6 +121,12 @@ async def run(conn, args, state, *, client_factory=Client):
     policy = activity_policy(args.kind, args.min_ratings, args.min_reviews, args.activity_policy)
     async with client_factory(concurrency=args.concurrency, delay=args.request_delay,
                               timeout=args.timeout, user_agent=args.user_agent) as client:
+        headers = getattr(client, 'headers', {})
+        state.setdefault('http_profiles', []).append({
+            'started_at': datetime.now(timezone.utc).isoformat(),
+            'headers': {key: headers[key] for key in ('User-Agent', 'Accept-Language', 'DNT') if key in headers},
+        })
+        atomic_json(path, state)
         async def one(identifier):
             async with semaphore:
                 if client.blocked:
