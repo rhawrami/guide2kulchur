@@ -347,14 +347,11 @@ class FalseDmitry:
     def get_follower_count(self) -> Optional[int]:
         '''returns number of users following loaded Goodreads user.'''
         self._confirm_loaded()
-        margin_links = self._info_right.find_all('a',class_='actionLinkLite')
-        if len(margin_links) > 0:
-            for lnk in margin_links:
-                lnk_text = lnk.text
-                if 'are following' in lnk_text:
-                    follow_count = re.sub(r'\speople are.*$', '', lnk_text).replace(',', '')
-                    follows = int(follow_count)
-                    return follows
+        for link in self._info_right.find_all('a', class_=['actionLinkLite', 'actionLink']):
+            match = re.match(r'(\d[\d,]*)\s+(?:people are|person is)\s+following\b',
+                             link.get_text(' ', strip=True))
+            if match:
+                return int(match.group(1).replace(',', ''))
         return None
 
 

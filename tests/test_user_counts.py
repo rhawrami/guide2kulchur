@@ -14,6 +14,17 @@ class UserCountTests(unittest.TestCase):
         self.assertEqual(_get_user_stat('(4.20 avg)', 'avg_ratings'), 4.2)
         self.assertIsNone(_get_user_stat('unknown ratings', 'num_ratings'))
 
+    def test_singular_followers_and_both_link_classes(self):
+        for css in ('actionLink', 'actionLinkLite'):
+            with self.subTest(css=css):
+                user = FalseBardiya()
+                user._soup = BeautifulSoup(f'<div class="rightContainer"><a class="{css}"><span>1</span> person is following Example</a></div>', 'lxml')
+                user._info_right = user._soup.find('div', class_='rightContainer')
+                self.assertEqual(user.get_follower_count(), 1)
+        user._soup = BeautifulSoup('<div class="rightContainer"></div>', 'lxml')
+        user._info_right = user._soup.find('div', class_='rightContainer')
+        self.assertIsNone(user.get_follower_count())
+
     def test_pipeline_does_not_drop_active_users_with_grouped_counts(self):
         html = (Path(__file__).parent / 'fixtures/user.html').read_text()
         html = html.replace('123 ratings', '1,234 ratings').replace('12 reviews', '2,345 reviews')
